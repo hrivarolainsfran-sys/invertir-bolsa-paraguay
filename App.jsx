@@ -1,3 +1,4 @@
+/* ===== PARTE 1 DE 6: Base: utilidades, datos y componentes compartidos ===== */
 
 const { useState, useMemo, useEffect } = React;
 const RC = window.Recharts;
@@ -20,19 +21,37 @@ const fmtShort = (v, cur) => {
   if (Math.abs(v) >= 1e3) return p + (v / 1e3).toLocaleString("es-PY", { maximumFractionDigits: 0 }) + " mil";
   return p + Math.round(v);
 };
-const scrollTo = (id) => { const el = document.getElementById(id); if (el) el.scrollIntoView({ behavior: "smooth", block: "start" }); };
+const scrollTo = (id) => {
+  const go = () => { const el = document.getElementById(id); if (el) el.scrollIntoView({ behavior: "smooth", block: "start" }); };
+  const v = SECTION_VIEW[id];
+  if (v && v !== currentView) { window.location.hash = v; setTimeout(go, 150); } else go();
+};
 
 /* ---------- datos ---------- */
-const NAV = [
-  ["beneficios", "Beneficios"], ["donde", "Dónde invertir"], ["ecosistema", "Cómo funciona"], ["mapa", "Mapa del mercado"],
-  ["casos", "Casos de ejemplo"], ["guia", "Paso a paso"], ["checklist", "Checklist"], ["casas", "Casas de Bolsa"],
-  ["instrumentos", "Instrumentos"], ["prospecto", "Leer un prospecto"], ["linea", "Línea de tiempo"], ["simulador", "Calculadoras"],
-  ["perfil", "Mi perfil"], ["aprender", "Aprender"], ["quiz", "Quiz"], ["glosario", "Glosario y FAQ"], ["oficial", "Fuentes oficiales"],
+const VIEWS = [
+  { id: "inicio", label: "Inicio", icon: "Home", title: "Inicio", desc: "", sections: [["beneficios", "Beneficios"], ["explorar", "Mapa de la guía"]] },
+  { id: "invertir", label: "Dónde invertir", icon: "Target", title: "Dónde invertir",
+    desc: "Qué instrumento conviene según tu objetivo, cómo invierten otras personas, qué podés comprar en la bolsa y dónde hacerlo.",
+    sections: [["donde", "Según tu objetivo"], ["casos", "Casos de ejemplo"], ["instrumentos", "Instrumentos"], ["casas", "Casas de Bolsa"]] },
+  { id: "mercado", label: "El mercado", icon: "Landmark", title: "Cómo funciona el mercado",
+    desc: "Quiénes participan en la bolsa paraguaya, qué sectores emiten títulos y cómo se lee una emisión de principio a fin.",
+    sections: [["ecosistema", "Cómo funciona"], ["mapa", "Mapa del mercado"], ["prospecto", "Leer un prospecto"], ["linea", "Línea de tiempo"]] },
+  { id: "empezar", label: "Empezar", icon: "Rocket", title: "Empezá a invertir",
+    desc: "Los pasos para abrir tu cuenta y hacer tu primera inversión, el checklist previo y el test para conocer tu perfil.",
+    sections: [["guia", "Paso a paso"], ["checklist", "Checklist"], ["perfil", "Tu perfil"]] },
+  { id: "herramientas", label: "Calculadoras", icon: "Calculator", title: "Calculadoras",
+    desc: "Simulá tu inversión, calculá cuánto ahorrar para una meta, armá el calendario de cupones de un bono y compará monedas y costos.",
+    sections: [["simulador", "Calculadoras"]] },
+  { id: "aprender", label: "Aprender", icon: "GraduationCap", title: "Aprender",
+    desc: "Tu ruta de aprendizaje, mini-cursos, un quiz para ponerte a prueba, el glosario y las fuentes oficiales.",
+    sections: [["aprender", "Ruta y mini-cursos"], ["quiz", "Quiz"], ["glosario", "Glosario y FAQ"], ["oficial", "Fuentes oficiales"]] },
 ];
-const NAV_PRIMARY = [
-  ["beneficios", "Beneficios"], ["donde", "Dónde invertir"], ["ecosistema", "Cómo funciona"], ["instrumentos", "Instrumentos"],
-  ["simulador", "Calculadoras"], ["aprender", "Aprender"], ["glosario", "Glosario"],
-];
+const VIEW_IDS = VIEWS.map((v) => v.id);
+const SECTION_VIEW = {};
+VIEWS.forEach((v) => v.sections.forEach(([id]) => { SECTION_VIEW[id] = v.id; }));
+let currentView = "inicio";
+const readHash = () => { const h = (window.location.hash || "").slice(1); return VIEW_IDS.includes(h) ? h : "inicio"; };
+
 
 const REF_RATES = [
   { k: "Fondos mutuos", pyg: "5 – 7 %", usd: "3 – 4,5 %" },
@@ -170,98 +189,544 @@ const Segmented = ({ options, value, onChange, label, idBase }) => (
   </div>
 );
 
-/* ---------- navegación ---------- */
-function Nav() {
-  const [open, setOpen] = useState(false);
-  const go = (id) => { setOpen(false); scrollTo(id); };
+/* =====================================================================
+   SECCIONES NUEVAS (v2): beneficios, dónde invertir, casos, checklist,
+   mapa del mercado, prospecto, línea de tiempo, calculadoras, aprender,
+   quiz, datos oficiales y compartir.
+   ===================================================================== */
+const SITE_URL = "https://hrivarolainsfran-sys.github.io/invertir-bolsa-paraguay/";
+const store = {
+  get(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* sin almacenamiento */ } },
+};
+function usePersisted(key, init) {
+  const [v, setV] = useState(() => store.get(key, init));
+  useEffect(() => { store.set(key, v); }, [key, v]);
+  return [v, setV];
+}
+const toNum = (v) => { const n = Number(v); return isFinite(n) ? n : 0; };
+const pct = (v, d = 1) => toNum(v).toLocaleString("es-PY", { maximumFractionDigits: d }) + " %";
+const fv = (initial, monthly, ratePct, months) => {
+  const rm = Math.pow(1 + toNum(ratePct) / 100, 1 / 12) - 1;
+  let b = toNum(initial);
+  for (let k = 0; k < months; k++) b = b * (1 + rm) + toNum(monthly);
+  return b;
+};
+const addMonths = (d, m) => { const x = new Date(d.getTime()); const day = x.getDate(); x.setMonth(x.getMonth() + m); if (x.getDate() < day) x.setDate(0); return x; };
+const fmtDate = (d) => d.toLocaleDateString("es-PY", { day: "2-digit", month: "2-digit", year: "numeric" });
+const FIELD = "w-full rounded-lg border border-line bg-card px-3 py-2.5 text-ink num focus:border-em outline-none";
+const instById = (id) => INSTRUMENTS.find((i) => i.id === id);
+const rateOf = (inst, cur) => (cur === "PYG" ? inst.ratePYG : inst.rateUSD);
+const TOOLTIP_STYLE = { background: "rgb(var(--card))", border: "1px solid rgb(var(--line))", borderRadius: 12, color: "rgb(var(--ink))" };
+
+function NumField({ id, label, value, onChange, cur, suffix, step, min = 0, max, hint }) {
   return (
-    <header className="sticky z-50 bg-card/90 backdrop-blur border-b border-line" style={{ top: "env(safe-area-inset-top, 0px)" }}>
-      <div className="wrap flex items-center justify-between h-16 gap-4">
-        <button onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })} className="flex items-center gap-2 font-display font-extrabold text-ink">
-          <span className="grid place-items-center w-8 h-8 rounded-lg bg-navy text-navyfg"><Icon name="TrendingUp" className="w-4 h-4" /></span>
-          <span>Bolsa<span className="text-em">PY</span> Aprende</span>
-        </button>
-        <nav className="hidden lg:flex items-center gap-1" aria-label="Secciones">
-          {NAV_PRIMARY.map(([id, l]) => (
-            <button key={id} onClick={() => go(id)} className="px-3 py-2 text-sm font-medium text-muted hover:text-ink rounded-md hover:bg-soft transition">{l}</button>
-          ))}
-        </nav>
-        <button className="lg:hidden p-2 rounded-md text-ink hover:bg-soft" aria-label={open ? "Cerrar menú" : "Abrir menú"} aria-expanded={open} onClick={() => setOpen(!open)}>
-          <Icon name={open ? "X" : "Menu"} />
+    <div className="min-w-0">
+      <label htmlFor={id} className="text-sm font-semibold text-ink block mb-1.5">{label}</label>
+      <div className="relative">
+        <input id={id} type="number" inputMode="decimal" min={min} max={max} step={step || "any"} value={value}
+          onChange={(e) => onChange(e.target.value)} className={FIELD + (suffix ? " pr-16" : "")} />
+        {suffix && <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted pointer-events-none">{suffix}</span>}
+      </div>
+      {cur && <p className="mt-1 text-xs text-muted num">{fmtMoney(toNum(value), cur)}</p>}
+      {hint && <p className="mt-1 text-xs text-muted">{hint}</p>}
+    </div>
+  );
+}
+
+const Stat = ({ label, value, tone = "plain", sub }) => (
+  <div className={"rounded-2xl p-4 sm:p-5 min-w-0 " + (tone === "navy" ? "bg-navy text-navyfg" : tone === "em" ? "bg-emsoft border border-em/30" : tone === "danger" ? "bg-dangersoft border border-danger/30" : "bg-bg border border-line")}>
+    <p className={"text-xs uppercase tracking-wider " + (tone === "navy" ? "opacity-70" : tone === "em" ? "text-em" : tone === "danger" ? "text-danger" : "text-muted")}>{label}</p>
+    <p className={"mt-1 num font-display text-xl font-bold break-words " + (tone === "navy" ? "" : tone === "em" ? "text-em" : tone === "danger" ? "text-danger" : "text-ink")}>{value}</p>
+    {sub && <p className={"mt-1 text-xs " + (tone === "navy" ? "opacity-70" : "text-muted")}>{sub}</p>}
+  </div>
+);
+
+const CurToggle = ({ id, cur, setCur, disabled }) => (
+  <div className={disabled ? "opacity-60 pointer-events-none" : ""}>
+    <Segmented idBase={id} label="Moneda" value={cur} onChange={setCur} options={[["PYG", "Guaraníes"], ["USD", "Dólares"]]} />
+  </div>
+);
+
+/* ---------- 15. compartir ---------- */
+function ShareButtons({ text }) {
+  const [state, setState] = useState("idle");
+  const full = text + "\n\nAprendé a invertir en la Bolsa de Paraguay: " + SITE_URL;
+  const copy = async () => {
+    try { await navigator.clipboard.writeText(full); setState("ok"); setTimeout(() => setState("idle"), 2000); }
+    catch (e) { setState("manual"); }
+  };
+  return (
+    <div className="min-w-0">
+      <div className="flex flex-wrap gap-2">
+        <a href={"https://wa.me/?text=" + encodeURIComponent(full)} target="_blank" rel="noopener"
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg font-semibold bg-em text-white hover:brightness-110 transition">
+          <Icon name="MessageCircle" className="w-4 h-4" /> Compartir por WhatsApp
+        </a>
+        <button type="button" onClick={copy} className="inline-flex items-center gap-2 px-4 py-2 rounded-lg font-semibold border border-line text-ink hover:bg-soft transition">
+          <Icon name={state === "ok" ? "Check" : "Copy"} className="w-4 h-4" /> {state === "ok" ? "Copiado" : "Copiar texto"}
         </button>
       </div>
-      {open && (
-        <nav className="lg:hidden border-t border-line bg-card fade-in" aria-label="Secciones móvil">
-          <div className="wrap py-2 grid grid-cols-2 gap-x-4 max-h-[70vh] overflow-y-auto">
-            {NAV.map(([id, l]) => (
-              <button key={id} onClick={() => go(id)} className="text-left px-2 py-3 text-ink font-medium border-b border-line last:border-0">{l}</button>
+      {state === "manual" && (
+        <textarea readOnly value={full} onFocus={(e) => e.target.select()} autoFocus rows={3}
+          className="mt-2 w-full rounded-lg border border-line bg-card p-2 text-xs text-ink" aria-label="Texto para copiar" />
+      )}
+    </div>
+  );
+}
+
+/* ===== PARTE 2 DE 6: Navegación, portada, beneficios, dónde invertir y pie de página ===== */
+/* ---------- navegación ---------- */
+function Ticker() {
+  const items = [
+    ...INSTRUMENTS.filter((x) => x.ratePYG > 0).map((x) => [x.name.toUpperCase(), x.currencies.includes("PYG") ? "PYG " + pct(x.ratePYG) : null, x.currencies.includes("USD") && x.rateUSD ? "USD " + pct(x.rateUSD) : null]),
+    ["META DE INFLACIÓN BCP", "4 %", null],
+    ["CASAS DE BOLSA HABILITADAS", "24", null],
+  ];
+  const row = (prefix) => items.map(([k, a, b], i) => (
+    <span key={prefix + i} className="inline-flex items-center gap-2 px-5">
+      <span className="opacity-60">{k}</span>
+      {a && <span className="text-up font-semibold">▲ {a}</span>}
+      {b && <span className="text-up font-semibold">{b}</span>}
+    </span>
+  ));
+  return (
+    <div className="bg-navy text-navyfg text-[11px] font-mono tracking-wide border-b border-navyfg/10" aria-label="Tasas anuales referenciales">
+      <div className="flex items-stretch">
+        <span className="shrink-0 bg-em text-white px-3 py-1.5 font-semibold tracking-widest">TASAS REF.</span>
+        <div className="overflow-hidden flex-1 min-w-0"><div className="ticker-track whitespace-nowrap py-1.5">{row("a")}{row("b")}</div></div>
+      </div>
+    </div>
+  );
+}
+
+function Nav({ view }) {
+  const tab = (v, compact) => (
+    <a key={v.id} href={"#" + v.id} aria-current={view === v.id ? "page" : undefined}
+      className={"inline-flex items-center gap-1.5 rounded-lg font-semibold transition whitespace-nowrap " + (compact ? "px-3 py-1.5 text-sm " : "px-3 py-2 text-sm ") +
+        (view === v.id ? "bg-navy text-navyfg" : "text-muted hover:text-ink hover:bg-soft")}>
+      <Icon name={v.icon} className="w-4 h-4" />{v.label}
+    </a>
+  );
+  return (
+    <header className="sticky z-50" style={{ top: "env(safe-area-inset-top, 0px)" }}>
+      <Ticker />
+      <div className="bg-card/95 backdrop-blur border-b border-line">
+        <div className="wrap flex items-center justify-between h-14 gap-4">
+          <a href="#inicio" className="flex items-center gap-2 font-display font-extrabold text-ink shrink-0">
+            <span className="grid place-items-center w-8 h-8 rounded-lg bg-navy text-up"><Icon name="CandlestickChart" className="w-4 h-4" /></span>
+            <span>Bolsa<span className="text-em">PY</span> Aprende</span>
+          </a>
+          <nav className="hidden lg:flex items-center gap-1" aria-label="Secciones">{VIEWS.map((v) => tab(v, false))}</nav>
+        </div>
+        <nav className="lg:hidden border-t border-line overflow-x-auto" aria-label="Secciones">
+          <div className="wrap flex gap-1 py-1.5 min-w-max">{VIEWS.map((v) => tab(v, true))}</div>
+        </nav>
+      </div>
+    </header>
+  );
+}
+
+function ViewHeader({ v }) {
+  const i = VIEWS.findIndex((x) => x.id === v.id);
+  return (
+    <header className="board-bg bg-navy text-navyfg">
+      <div className="wrap py-10 sm:py-14">
+        <p className="font-mono text-xs tracking-widest uppercase text-up flex items-center gap-2">
+          <a href="#inicio" className="hover:underline">Inicio</a><span className="opacity-50">/</span><span>Sección {i} de {VIEWS.length - 1}</span>
+        </p>
+        <h1 className="mt-3 text-3xl sm:text-5xl font-extrabold">{v.title}</h1>
+        <p className="mt-3 max-w-2xl text-lg opacity-80">{v.desc}</p>
+        {v.sections.length > 1 && (
+          <div className="mt-7 flex flex-wrap gap-2">
+            {v.sections.map(([id, l], k) => (
+              <button key={id} onClick={() => scrollTo(id)}
+                className="inline-flex items-center gap-2 rounded-full border border-navyfg/20 bg-navyfg/5 px-3.5 py-1.5 text-sm font-medium hover:bg-navyfg/15 transition">
+                <span className="font-mono text-xs text-up">{String(k + 1).padStart(2, "0")}</span>{l}
+              </button>
             ))}
           </div>
-        </nav>
-      )}
+        )}
+      </div>
     </header>
+  );
+}
+
+function ViewPager({ view }) {
+  const i = VIEWS.findIndex((v) => v.id === view);
+  const prev = VIEWS[i - 1], next = VIEWS[i + 1];
+  const card = "group rounded-2xl border border-line bg-card p-5 hover:border-em transition flex flex-col";
+  return (
+    <nav className="wrap py-10 grid sm:grid-cols-2 gap-3" aria-label="Recorrer la guía">
+      {prev ? (
+        <a href={"#" + prev.id} className={card}>
+          <span className="text-xs font-mono uppercase tracking-wider text-muted flex items-center gap-1"><Icon name="ArrowLeft" className="w-3.5 h-3.5" /> Anterior</span>
+          <span className="mt-1 font-display text-lg font-bold text-ink">{prev.label}</span>
+        </a>
+      ) : <span className="hidden sm:block" />}
+      {next && (
+        <a href={"#" + next.id} className={card + " sm:items-end sm:text-right"}>
+          <span className="text-xs font-mono uppercase tracking-wider text-muted flex items-center gap-1">Siguiente <Icon name="ArrowRight" className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition" /></span>
+          <span className="mt-1 font-display text-lg font-bold text-ink">{next.label}</span>
+        </a>
+      )}
+    </nav>
+  );
+}
+
+function Explorar() {
+  return (
+    <Section id="explorar" eyebrow="Mapa de la guía" title="Todo lo que vas a encontrar"
+      intro="La guía está ordenada en cinco secciones. Recorrelas en orden o andá directo a lo que necesitás.">
+      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {VIEWS.slice(1).map((v, i) => (
+          <a key={v.id} href={"#" + v.id} className="group rounded-2xl border border-line bg-card p-6 hover:border-em hover:-translate-y-0.5 transition flex flex-col">
+            <div className="flex items-center justify-between">
+              <span className="grid place-items-center w-11 h-11 rounded-xl bg-navy text-up"><Icon name={v.icon} /></span>
+              <span className="font-mono text-xs text-muted">{String(i + 1).padStart(2, "0")}</span>
+            </div>
+            <h3 className="mt-4 text-xl font-bold text-ink">{v.label}</h3>
+            <p className="mt-1 text-sm text-muted">{v.desc}</p>
+            <ul className="mt-4 space-y-1 flex-1">
+              {v.sections.map(([id, l]) => <li key={id} className="text-sm text-ink flex gap-2"><Icon name="ChevronRight" className="w-4 h-4 text-em shrink-0 mt-0.5" />{l}</li>)}
+            </ul>
+            <span className="mt-5 inline-flex items-center gap-1 text-sm font-semibold text-em">Entrar <Icon name="ArrowRight" className="w-4 h-4 group-hover:translate-x-0.5 transition" /></span>
+          </a>
+        ))}
+        <div className="board-bg rounded-2xl bg-navy text-navyfg p-6 flex flex-col">
+          <span className="grid place-items-center w-11 h-11 rounded-xl bg-em text-white"><Icon name="Compass" /></span>
+          <h3 className="mt-4 text-xl font-bold">¿No sabés por dónde empezar?</h3>
+          <p className="mt-1 text-sm opacity-80 flex-1">Hacé el test de perfil en menos de un minuto y recibí una cartera de ejemplo con instrumentos paraguayos.</p>
+          <button onClick={() => scrollTo("perfil")} className="mt-5 self-start inline-flex items-center gap-2 rounded-xl bg-em px-4 py-2.5 font-semibold text-white hover:brightness-110 transition">
+            Hacer el test <Icon name="ArrowRight" className="w-4 h-4" />
+          </button>
+        </div>
+      </div>
+    </Section>
   );
 }
 
 /* ---------- 1. hero ---------- */
 function Hero() {
-  const [cur, setCur] = useState("PYG");
+  const { ResponsiveContainer, AreaChart, Area } = RC || {};
+  const spark = Array.from({ length: 61 }, (_, m) => ({ m, v: 10000000 * Math.pow(1.08, m / 12) }));
+  const board = ["fm", "cda", "bc", "bt", "fi", "ap", "rep"].map(instById);
+  const dot = { Bajo: "bg-up", Medio: "bg-gold", Alto: "bg-danger" };
   return (
-    <section className="pt-12 pb-16 sm:pt-20 sm:pb-24">
-      <div className="wrap grid lg:grid-cols-[1.15fr_1fr] gap-12 items-center">
+    <section className="board-bg bg-navy text-navyfg">
+      <div className="wrap pt-12 pb-14 sm:pt-16 sm:pb-20 grid lg:grid-cols-[1.05fr_1fr] gap-10 items-center">
         <div className="min-w-0">
-          <Pill className="bg-emsoft text-em mb-5"><Icon name="BookOpen" className="w-3.5 h-3.5" /> Guía educativa gratuita</Pill>
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-ink">
-            Aprendé a invertir en la Bolsa de Paraguay <span className="text-em">desde cero</span>
-          </h1>
-          <p className="mt-6 text-lg sm:text-xl text-muted prose-w">
-            No hace falta ser millonario. Con un fondo mutuo podés empezar con montos accesibles, en guaraníes o en dólares, y poner tus ahorros a trabajar en un mercado regulado por el Banco Central del Paraguay.
+          <p className="font-mono text-xs tracking-widest uppercase text-up flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-up animate-pulse" aria-hidden="true" />Guía educativa · Mercado de valores del Paraguay
+          </p>
+          <h1 className="mt-4 text-4xl sm:text-5xl lg:text-6xl font-extrabold">Aprendé a invertir en la Bolsa de Paraguay <span className="text-up">desde cero</span></h1>
+          <p className="mt-5 text-lg sm:text-xl opacity-80 prose-w">
+            No hace falta ser millonario. Con un fondo mutuo podés empezar con montos accesibles, en guaraníes o en dólares, en un mercado regulado por el Banco Central del Paraguay.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
-            <button onClick={() => scrollTo("guia")} className="inline-flex items-center gap-2 rounded-xl bg-em px-5 py-3 font-semibold text-white shadow-sm hover:brightness-110 active:scale-[.98] transition">
+            <button onClick={() => scrollTo("guia")} className="inline-flex items-center gap-2 rounded-xl bg-em px-5 py-3 font-semibold text-white shadow-lg shadow-em/20 hover:brightness-110 active:scale-[.98] transition">
               Empezar la guía paso a paso <Icon name="ArrowRight" className="w-4 h-4" />
             </button>
-            <button onClick={() => scrollTo("simulador")} className="inline-flex items-center gap-2 rounded-xl border border-line bg-card px-5 py-3 font-semibold text-ink hover:border-em hover:text-em transition">
+            <button onClick={() => scrollTo("simulador")} className="inline-flex items-center gap-2 rounded-xl border border-navyfg/25 px-5 py-3 font-semibold hover:bg-navyfg/10 transition">
               <Icon name="Calculator" className="w-4 h-4" /> Simular mi inversión
             </button>
           </div>
-          <dl className="mt-10 grid grid-cols-3 gap-4 max-w-md">
+          <dl className="mt-10 grid grid-cols-3 gap-4 max-w-md border-t border-navyfg/15 pt-6">
             {[["9", "instrumentos explicados"], ["6", "calculadoras"], ["24", "Casas de Bolsa habilitadas"]].map(([n, l]) => (
-              <div key={l}><dt className="sr-only">{l}</dt><dd className="font-display text-2xl font-extrabold text-ink num">{n}</dd><p className="text-xs text-muted leading-snug">{l}</p></div>
+              <div key={l}><dd className="font-mono text-3xl font-semibold text-up">{n}</dd><dt className="text-xs opacity-70 leading-snug mt-1">{l}</dt></div>
             ))}
           </dl>
         </div>
 
-        <div className="min-w-0 rounded-2xl bg-card border border-line shadow-xl shadow-navy/5 p-5 sm:p-6">
-          <div className="flex items-center justify-between gap-3 flex-wrap">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-wider text-muted">Tasas anuales de referencia</p>
-              <p className="font-display font-bold text-ink text-lg">Mercado paraguayo</p>
-            </div>
-            <Segmented idBase="hero-cur" label="Moneda" value={cur} onChange={setCur} options={[["PYG", "Gs."], ["USD", "US$"]]} />
+        <div className="min-w-0 rounded-2xl border border-navyfg/15 bg-navyfg/5 backdrop-blur shadow-2xl overflow-hidden">
+          <div className="flex items-center justify-between gap-3 px-5 py-3 border-b border-navyfg/15 bg-navyfg/5">
+            <p className="font-mono text-xs tracking-widest uppercase">Pizarra de tasas referenciales</p>
+            <span className="font-mono text-[10px] uppercase tracking-wider rounded border border-gold/50 text-gold px-1.5 py-0.5">Orientativo</span>
           </div>
-          <ul className="mt-5 divide-y divide-line">
-            {REF_RATES.map((r) => (
-              <li key={r.k} className="flex items-center justify-between py-3 gap-3">
-                <span className="text-sm text-ink">{r.k}</span>
-                <span className="num font-semibold text-em text-lg">{cur === "PYG" ? r.pyg : r.usd}</span>
-              </li>
-            ))}
-          </ul>
-          <div className="mt-4 rounded-xl bg-navy text-navyfg p-4">
-            <p className="text-xs uppercase tracking-wider opacity-70">Ejemplo con Gs. 10.000.000 a 3 años</p>
-            <div className="mt-1 flex items-end justify-between gap-2 flex-wrap">
-              <p className="num font-display text-2xl font-bold">≈ Gs. 12.250.000</p>
-              <p className="text-sm opacity-80">CDA al 7 % con reinversión</p>
+          <div className="overflow-x-auto">
+            <table className="w-full font-mono text-sm min-w-[380px] text-navyfg">
+              <thead><tr className="text-[11px] uppercase tracking-wider opacity-60 text-left">
+                <th className="px-5 py-2 font-medium">Instrumento</th><th className="px-3 py-2 font-medium text-right">PYG</th><th className="px-3 py-2 font-medium text-right">USD</th><th className="px-5 py-2 font-medium text-right">Riesgo</th>
+              </tr></thead>
+              <tbody>
+                {board.map((x) => (
+                  <tr key={x.id} className="border-t border-navyfg/10 hover:bg-navyfg/5">
+                    <td className="px-5 py-2.5 font-sans font-medium">{x.name}</td>
+                    <td className="px-3 py-2.5 text-right text-up">{x.currencies.includes("PYG") ? pct(x.ratePYG) : "—"}</td>
+                    <td className="px-3 py-2.5 text-right text-up">{x.currencies.includes("USD") && x.rateUSD ? pct(x.rateUSD) : "—"}</td>
+                    <td className="px-5 py-2.5 text-right"><span className="inline-flex items-center gap-1.5 text-xs"><span className={"w-2 h-2 rounded-full " + dot[x.risk]} />{x.risk}</span></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <div className="border-t border-navyfg/15 px-5 pt-4 pb-3">
+            <div className="flex items-end justify-between gap-3 flex-wrap">
+              <div><p className="font-mono text-[11px] uppercase tracking-wider opacity-60">Gs. 10.000.000 al 8 % · 5 años</p><p className="font-mono text-2xl font-semibold text-up">{fmtMoney(spark[60].v, "PYG")}</p></div>
+              <p className="font-mono text-xs text-up">▲ {pct((spark[60].v / spark[0].v - 1) * 100)}</p>
+            </div>
+            <div className="h-16 mt-2" aria-hidden="true">
+              {ResponsiveContainer && (
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={spark} margin={{ top: 4, right: 0, left: 0, bottom: 0 }}>
+                    <defs><linearGradient id="gHero" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="rgb(var(--up))" stopOpacity={0.45} /><stop offset="100%" stopColor="rgb(var(--up))" stopOpacity={0} /></linearGradient></defs>
+                    <Area type="monotone" dataKey="v" stroke="rgb(var(--up))" strokeWidth={2} fill="url(#gHero)" isAnimationActive={false} />
+                  </AreaChart>
+                </ResponsiveContainer>
+              )}
             </div>
           </div>
-          <p className="mt-4 text-xs text-muted flex gap-1.5"><Icon name="Info" className="w-3.5 h-3.5 shrink-0 mt-0.5" />Rangos orientativos con fines educativos. Las tasas cambian cada semana: consultá las vigentes en tu Casa de Bolsa.</p>
+          <p className="px-5 py-3 text-xs opacity-70 border-t border-navyfg/15">Rangos con fines educativos, no son cotizaciones en tiempo real. Consultá las tasas vigentes en tu Casa de Bolsa.</p>
         </div>
       </div>
     </section>
   );
 }
 
+/* ---------- Beneficios + 1. caja de ahorro vs invertir ---------- */
+const BENEFITS = [
+  ["TrendingUp", "Rinde más que la caja de ahorro", "Un CDA o un bono suele pagar varias veces la tasa de una caja de ahorro y te ayuda a ganarle a la inflación."],
+  ["CalendarClock", "Ingreso pasivo con cupones", "Los bonos pagan intereses periódicos: podés cobrar cada mes, trimestre o semestre sin vender nada."],
+  ["Coins", "Empezás con poco", "Con un fondo mutuo podés arrancar con montos accesibles y sumar aportes cuando puedas."],
+  ["DollarSign", "Guaraníes o dólares", "Elegís la moneda según tus metas: PYG para gastos locales y USD para protegerte de la suba del dólar."],
+  ["ShieldCheck", "Mercado regulado", "La Superintendencia de Valores del BCP supervisa a las Casas de Bolsa y registra cada emisión."],
+  ["PieChart", "Diversificación", "Repartís tu dinero entre varios emisores, plazos e instrumentos para bajar el riesgo."],
+  ["ArrowLeftRight", "Podés salir antes", "En el mercado secundario podés vender un bono o un CDA antes del vencimiento, si hay un comprador."],
+  ["Factory", "Impulsás la economía local", "Tu dinero financia a empresas paraguayas y al Estado, que generan empleo, producción y obras."],
+];
+
+function Beneficios() {
+  const [cur, setCur] = useState("PYG");
+  const [amount, setAmount] = useState(10000000);
+  const [caja, setCaja] = useState(1);
+  const [inst, setInst] = useState("cda");
+  const [inv, setInv] = useState(7.5);
+  const [infl, setInfl] = useState(4);
+  const [years, setYears] = useState(5);
+  const changeCur = (c) => { setCur(c); setAmount(c === "PYG" ? 10000000 : 2000); setCaja(c === "PYG" ? 1 : 0.5); setInv(rateOf(instById(inst), c)); };
+  const changeInst = (id) => { setInst(id); setInv(rateOf(instById(id), cur)); };
+
+  const Y = Math.max(1, Math.min(30, Math.round(toNum(years))));
+  const m = toNum(amount), c = toNum(caja) / 100, i = toNum(inv) / 100, f = toNum(infl) / 100;
+  const data = Array.from({ length: Y + 1 }, (_, y) => ({
+    label: y === 0 ? "Hoy" : "Año " + y,
+    "Caja de ahorro": m * Math.pow(1 + c, y),
+    "Invirtiendo": m * Math.pow(1 + i, y),
+    "Para no perder (inflación)": m * Math.pow(1 + f, y),
+  }));
+  const cajaF = m * Math.pow(1 + c, Y), invF = m * Math.pow(1 + i, Y);
+  const realLoss = 1 - Math.pow(1 + c, Y) / Math.pow(1 + f, Y);
+  const realInv = Math.pow(1 + i, Y) / Math.pow(1 + f, Y) - 1;
+  const { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid } = RC || {};
+
+  return (
+    <Section id="beneficios" eyebrow="Por qué invertir" title="Beneficios de invertir en la bolsa"
+      intro="Dejar el dinero quieto también tiene un costo: la inflación le quita poder de compra todos los años. Estos son los motivos por los que miles de paraguayos ya invierten en la bolsa.">
+      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {BENEFITS.map(([ic, t, d]) => (
+          <article key={t} className="group rounded-2xl border border-line bg-card p-5 hover:border-em/50 hover:-translate-y-0.5 transition">
+            <span className="grid place-items-center w-11 h-11 rounded-xl bg-emsoft text-em group-hover:bg-em group-hover:text-white transition"><Icon name={ic} /></span>
+            <h3 className="mt-4 font-bold text-ink">{t}</h3>
+            <p className="mt-1 text-sm text-muted">{d}</p>
+          </article>
+        ))}
+      </div>
+
+      <div id="ahorro-vs-invertir" className="mt-10 rounded-2xl border border-line bg-card p-5 sm:p-7">
+        <div className="flex items-start justify-between gap-4 flex-wrap">
+          <div className="prose-w">
+            <p className="eyebrow">Calculadora</p>
+            <h3 className="mt-1 text-2xl font-bold text-ink">Caja de ahorro vs. invertir</h3>
+            <p className="mt-2 text-sm text-muted">Compará lo que pasa con tu dinero si lo dejás en la caja de ahorro o si lo invertís, frente a la inflación. La meta de inflación del BCP es 4 % anual.</p>
+          </div>
+          <CurToggle id="ben-cur" cur={cur} setCur={changeCur} />
+        </div>
+        <div className="mt-6 grid lg:grid-cols-[320px_1fr] gap-6">
+          <div className="grid gap-4 content-start">
+            <NumField id="ben-amount" label={"Dinero que tenés hoy (" + (cur === "PYG" ? "Gs." : "US$") + ")"} value={amount} onChange={setAmount} cur={cur} step={cur === "PYG" ? 100000 : 50} />
+            <div>
+              <label htmlFor="ben-inst" className="text-sm font-semibold text-ink block mb-1.5">Invertirlo en</label>
+              <select id="ben-inst" value={inst} onChange={(e) => changeInst(e.target.value)} className={FIELD}>
+                {["fm", "cda", "bc", "bt", "fi"].filter((id) => instById(id).currencies.includes(cur)).map((id) => <option key={id} value={id}>{instById(id).name}</option>)}
+              </select>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <NumField id="ben-inv" label="Tasa inversión" value={inv} onChange={setInv} suffix="% año" step={0.1} />
+              <NumField id="ben-caja" label="Tasa caja ahorro" value={caja} onChange={setCaja} suffix="% año" step={0.1} />
+              <NumField id="ben-infl" label="Inflación" value={infl} onChange={setInfl} suffix="% año" step={0.1} />
+              <NumField id="ben-years" label="Años" value={years} onChange={setYears} min={1} max={30} step={1} />
+            </div>
+          </div>
+          <div className="min-w-0 space-y-4">
+            <div className="grid sm:grid-cols-3 gap-3">
+              <Stat tone="em" label="Invirtiendo tendrías" value={fmtMoney(invF, cur)} sub={"Rendimiento real: " + (realInv >= 0 ? "+" : "") + pct(realInv * 100)} />
+              <Stat label="En la caja de ahorro" value={fmtMoney(cajaF, cur)} sub={realLoss > 0 ? "Perdés " + pct(realLoss * 100) + " de poder de compra" : "Mantenés tu poder de compra"} />
+              <Stat tone="navy" label="Dejás de ganar por año" value={fmtMoney((invF - cajaF) / Y, cur)} sub={"Promedio en " + Y + (Y === 1 ? " año" : " años")} />
+            </div>
+            <div className="h-64 rounded-xl border border-line bg-bg p-3">
+              {ResponsiveContainer && (
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={data} margin={{ top: 8, right: 12, left: 0, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                    <XAxis dataKey="label" tickLine={false} axisLine={false} minTickGap={20} />
+                    <YAxis tickLine={false} axisLine={false} width={84} tickFormatter={(v) => fmtShort(v, cur)} domain={["auto", "auto"]} />
+                    <Tooltip formatter={(v, n) => [fmtMoney(v, cur), n]} contentStyle={TOOLTIP_STYLE} />
+                    <Line type="monotone" dataKey="Invirtiendo" stroke="rgb(var(--em))" strokeWidth={3} dot={false} />
+                    <Line type="monotone" dataKey="Caja de ahorro" stroke="rgb(var(--muted))" strokeWidth={2} dot={false} />
+                    <Line type="monotone" dataKey="Para no perder (inflación)" stroke="rgb(var(--amber))" strokeWidth={2} strokeDasharray="6 4" dot={false} />
+                  </LineChart>
+                </ResponsiveContainer>
+              )}
+            </div>
+            <div className="flex flex-wrap gap-4 text-xs text-muted">
+              <span className="flex items-center gap-1.5"><span className="w-4 h-1 rounded bg-em" />Invirtiendo</span>
+              <span className="flex items-center gap-1.5"><span className="w-4 h-1 rounded bg-muted" />Caja de ahorro</span>
+              <span className="flex items-center gap-1.5"><span className="w-4 h-1 rounded bg-amber" />Lo que necesitás para no perder frente a la inflación</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </Section>
+  );
+}
+
+/* ---------- Dónde invertir según tu objetivo ---------- */
+const GOALS = [
+  { id: "emergencia", icon: "Umbrella", label: "Fondo de emergencia", months: 12, main: "fm", alt: "rep",
+    where: "En una Administradora de Fondos (AFPISA) o a través de tu Casa de Bolsa. Algunos bancos también los ofrecen desde su app.",
+    why: "Necesitás poder retirar el dinero en 24 a 72 horas sin perder valor. Un fondo mutuo rescatable te da esa liquidez con un rendimiento mayor que la caja de ahorro.",
+    tips: ["Separá entre 3 y 6 meses de tus gastos.", "Evitá instrumentos con plazo fijo para este dinero.", "Elegí un fondo de renta fija de corto plazo."] },
+  { id: "meta", icon: "Car", label: "Meta en 1 a 3 años", months: 24, main: "cda", alt: "bc",
+    where: "En tu banco (CDA nuevo) o en una Casa de Bolsa (CDA o bonos cortos en el mercado secundario, a veces con mejor tasa).",
+    why: "Como sabés cuándo vas a usar el dinero, podés elegir un plazo que venza justo antes de tu meta y asegurar la tasa desde hoy.",
+    tips: ["Hacé coincidir el vencimiento con la fecha de tu meta.", "Preferí emisores con calificación AApy o superior.", "Compará la tasa del banco con la del mercado secundario."] },
+  { id: "ingreso", icon: "CalendarClock", label: "Cobrar un ingreso mensual", months: 36, main: "bc", alt: "bt", income: true,
+    where: "En una Casa de Bolsa: bonos con cupón mensual o trimestral, en colocaciones nuevas o en el mercado secundario.",
+    why: "Los bonos pagan intereses periódicos sin que tengas que vender. Si combinás emisiones con distintas fechas de pago, podés cobrar todos los meses.",
+    tips: ["Combiná bonos con cupones en meses distintos.", "Diversificá entre varios emisores.", "Revisá cuándo vence cada bono para reinvertir el capital."] },
+  { id: "largo", icon: "Sprout", label: "Jubilación o largo plazo", months: 120, main: "bt", alt: "ap",
+    where: "En una Casa de Bolsa: bonos del Tesoro y corporativos de largo plazo, acciones y cuotas de fondos de inversión.",
+    why: "Con 10 años o más por delante podés tolerar variaciones de precio y aprovechar al máximo el interés compuesto reinvirtiendo los cupones.",
+    tips: ["Reinvertí los intereses para potenciar el interés compuesto.", "Sumá una parte en acciones solo si toleras caídas temporales.", "Revisá tu cartera una vez al año."] },
+  { id: "dolar", icon: "DollarSign", label: "Protegerme del dólar", months: 36, main: "cda", alt: "bc", forceCur: "USD",
+    where: "En un banco o una Casa de Bolsa: CDA, bonos y fondos mutuos en dólares.",
+    why: "Si tus metas están en dólares (viajes, estudios, importaciones), invertir en USD evita que una suba del tipo de cambio reduzca tu poder de compra.",
+    tips: ["Las empresas con pagos en USD pueden usar futuros de divisas para cubrirse.", "Compará la tasa en USD con la de PYG usando la calculadora PYG vs. USD.", "Tené en cuenta el tipo de cambio de compra y de venta."] },
+];
+
+function DondeInvertir() {
+  const [goalId, setGoalId] = useState("meta");
+  const [curSel, setCurSel] = useState("PYG");
+  const [amount, setAmount] = useState(10000000);
+  const goal = GOALS.find((g) => g.id === goalId);
+  const cur = goal.forceCur || curSel;
+  const pick = (id) => { const x = instById(id); return x.currencies.includes(cur) ? x : instById("bc"); };
+  const main = pick(goal.main), alt = pick(goal.alt);
+  const rate = rateOf(main, cur), altRate = rateOf(alt, cur);
+  const amt = toNum(amount);
+  const final = fv(amt, 0, rate, goal.months);
+  const changeCur = (c) => { setCurSel(c); setAmount(c === "PYG" ? 10000000 : 2000); };
+  const selectGoal = (id) => { setGoalId(id); const g = GOALS.find((x) => x.id === id); if (g.forceCur && curSel !== "USD") { setCurSel("USD"); setAmount(5000); } };
+
+  return (
+    <Section id="donde" eyebrow="Dónde invertir" title="¿Dónde invierto según mi objetivo?"
+      intro="Elegí qué querés lograr y cuánto tenés. Te mostramos qué instrumento suele encajar, dónde se compra y cuánto podría rendir. Es una guía educativa, no una recomendación personal.">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3" role="radiogroup" aria-label="Objetivo">
+        {GOALS.map((g) => (
+          <button key={g.id} id={"goal-" + g.id} role="radio" aria-checked={goalId === g.id} onClick={() => selectGoal(g.id)}
+            className={"text-left rounded-2xl border p-4 transition " + (goalId === g.id ? "border-em bg-emsoft ring-2 ring-em/20" : "border-line bg-card hover:border-em/50")}>
+            <Icon name={g.icon} className={"w-6 h-6 " + (goalId === g.id ? "text-em" : "text-muted")} />
+            <p className="mt-2 font-semibold text-ink leading-snug text-sm sm:text-base">{g.label}</p>
+          </button>
+        ))}
+      </div>
+
+      <div className="mt-5 flex flex-wrap items-end gap-4 rounded-2xl border border-line bg-card p-4">
+        <div>
+          <p className="text-sm font-semibold text-ink mb-1.5">Moneda</p>
+          <CurToggle id="donde-cur" cur={cur} setCur={changeCur} disabled={!!goal.forceCur} />
+        </div>
+        <div className="w-full sm:w-64">
+          <NumField id="donde-amount" label={"Monto a invertir (" + (cur === "PYG" ? "Gs." : "US$") + ")"} value={amount} onChange={setAmount} cur={cur} step={cur === "PYG" ? 100000 : 50} />
+        </div>
+        {goal.forceCur && <p className="text-xs text-amber">Para este objetivo el cálculo se hace en dólares.</p>}
+      </div>
+
+      <div key={goalId + cur} className="fade-in mt-5 grid lg:grid-cols-[1.4fr_1fr] gap-5">
+        <article className="rounded-2xl border border-em/40 bg-card p-6 sm:p-7 min-w-0">
+          <div className="flex items-start justify-between gap-3 flex-wrap">
+            <div>
+              <p className="eyebrow">Opción principal</p>
+              <h3 className="mt-1 text-2xl font-bold text-ink">{main.name} {cur === "USD" && "en dólares"}</h3>
+            </div>
+            <Pill className={RISK_STYLE[main.risk]}>Riesgo {main.risk.toLowerCase()}</Pill>
+          </div>
+          <p className="mt-3 text-ink">{goal.why}</p>
+          <div className="mt-4 rounded-xl bg-soft p-4 flex gap-3">
+            <Icon name="MapPin" className="w-5 h-5 text-em shrink-0 mt-0.5" />
+            <div><p className="text-sm font-semibold text-ink">Dónde se compra</p><p className="text-sm text-muted">{goal.where}</p></div>
+          </div>
+          <dl className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-3 text-sm">
+            {[["Tasa de referencia", "≈ " + pct(rate)], ["Plazo típico", main.term], ["Liquidez", main.liquidity], ["Monto mínimo", main.min]].map(([k, v]) => (
+              <div key={k} className="min-w-0"><dt className="text-xs text-muted">{k}</dt><dd className="font-semibold text-ink num">{v}</dd></div>
+            ))}
+          </dl>
+          <div className="mt-5 grid sm:grid-cols-2 gap-3">
+            <Stat tone="navy" label={"En " + (goal.months >= 12 ? goal.months / 12 + (goal.months === 12 ? " año" : " años") : goal.months + " meses") + " tendrías"} value={fmtMoney(final, cur)} sub="Reinvirtiendo los intereses" />
+            {goal.income
+              ? <Stat tone="em" label="Cobro mensual estimado" value={fmtMoney(amt * rate / 100 / 12, cur)} sub="Si cobrás los cupones en vez de reinvertir" />
+              : <Stat tone="em" label="Intereses ganados" value={"+ " + fmtMoney(final - amt, cur)} />}
+          </div>
+        </article>
+
+        <div className="space-y-5 min-w-0">
+          <article className="rounded-2xl border border-line bg-card p-5">
+            <p className="text-xs font-semibold uppercase tracking-wider text-muted">Alternativa</p>
+            <div className="mt-1 flex items-center justify-between gap-3">
+              <h4 className="text-lg font-bold text-ink">{alt.name}</h4>
+              <span className="num font-semibold text-em">≈ {pct(altRate)}</span>
+            </div>
+            <p className="mt-1 text-sm text-muted line-clamp-3">{alt.summary}</p>
+          </article>
+          <article className="rounded-2xl border border-line bg-card p-5">
+            <p className="flex items-center gap-2 text-sm font-bold text-ink"><Icon name="Lightbulb" className="w-4 h-4 text-amber" /> Tené en cuenta</p>
+            <ul className="mt-3 space-y-2">{goal.tips.map((t) => <li key={t} className="flex gap-2 text-sm text-ink"><Icon name="Check" className="w-4 h-4 text-em shrink-0 mt-0.5" />{t}</li>)}</ul>
+          </article>
+          <button onClick={() => scrollTo("simulador")} className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-em px-5 py-3 font-semibold text-white hover:brightness-110 transition">
+            <Icon name="Calculator" className="w-4 h-4" /> Simular con aportes mensuales
+          </button>
+        </div>
+      </div>
+      <div className="mt-5"><Notice>Las tasas son orientativas y cambian con el mercado. Antes de invertir, pedí a tu Casa de Bolsa las opciones vigentes, el prospecto y la calificación de cada emisor.</Notice></div>
+    </Section>
+  );
+}
+
+/* ---------- 8. footer ---------- */
+function Footer() {
+  return (
+    <footer className="bg-navy text-navyfg">
+      <div className="wrap py-12 grid md:grid-cols-[1fr_1.4fr] gap-10">
+        <div>
+          <p className="font-display font-extrabold text-lg">Bolsa<span className="text-em">PY</span> Aprende</p>
+          <p className="mt-2 text-sm opacity-75 max-w-sm">Guía educativa para dar los primeros pasos en el mercado de valores paraguayo.</p>
+          <div className="mt-4 flex flex-col gap-1 text-sm">
+            <a href="https://www.bcp.gov.py" target="_blank" rel="noopener" className="inline-flex items-center gap-1.5 opacity-90 hover:opacity-100 underline-offset-2 hover:underline">Banco Central del Paraguay <Icon name="ExternalLink" className="w-3.5 h-3.5" /></a>
+            <a href="https://www.bolsadevalores.com.py" target="_blank" rel="noopener" className="inline-flex items-center gap-1.5 opacity-90 hover:opacity-100 underline-offset-2 hover:underline">Bolsa de Valores de Asunción <Icon name="ExternalLink" className="w-3.5 h-3.5" /></a>
+          </div>
+        </div>
+        <div className="rounded-2xl border border-white/15 p-5">
+          <p className="flex items-center gap-2 font-semibold"><Icon name="AlertTriangle" className="w-4 h-4 text-amber" /> Aviso legal</p>
+          <p className="mt-2 text-sm opacity-80">
+            Todo el contenido de este sitio es exclusivamente educativo e informativo. No constituye asesoría financiera, legal ni tributaria, ni una recomendación de compra o venta de ningún valor o instrumento. Las tasas, montos mínimos y entidades mencionadas son ilustrativas y pueden no estar vigentes. Toda inversión implica riesgos, incluida la posible pérdida del capital, y los rendimientos pasados no garantizan resultados futuros. Antes de invertir, consultá con una Casa de Bolsa autorizada por la Superintendencia de Valores del Banco Central del Paraguay y leé el prospecto de cada emisión.
+          </p>
+        </div>
+      </div>
+    </footer>
+  );
+}
+
+/* ===== PARTE 3 DE 6: Cómo funciona, mapa del mercado, casos, paso a paso y checklist ===== */
 /* ---------- 2. ecosistema ---------- */
 function Ecosistema() {
   const actors = [
@@ -401,6 +866,169 @@ function Stepper() {
   );
 }
 
+/* ---------- 13. mapa del mercado ---------- */
+const SECTORS = [
+  { icon: "Landmark", name: "Bancos y financieras", issues: ["CDA", "Bonos", "Bonos subordinados"], risk: "Bajo a medio", text: "Son los emisores más frecuentes. Captan fondos con CDA y bonos para prestar a sus clientes. Además están supervisados por la Superintendencia de Bancos del BCP." },
+  { icon: "Building2", name: "Estado paraguayo", issues: ["Bonos del Tesoro"], risk: "Bajo", text: "El Ministerio de Economía y Finanzas emite bonos para financiar el presupuesto y obras públicas." },
+  { icon: "Wheat", name: "Agro y agroindustria", issues: ["Bonos", "Acciones preferidas"], risk: "Medio", text: "Exportadores, acopiadores e industrias de alimentos se financian para capital de trabajo e inversión. Su desempeño depende del clima y de los precios internacionales." },
+  { icon: "Store", name: "Comercio y consumo", issues: ["Bonos", "Acciones preferidas"], risk: "Medio", text: "Cadenas de retail, distribuidoras y empresas de consumo masivo que financian su expansión." },
+  { icon: "HardHat", name: "Inmobiliario y construcción", issues: ["Bonos", "Fondos de inversión"], risk: "Medio a alto", text: "Desarrolladoras y fondos que financian edificios, loteamientos y proyectos de largo plazo." },
+  { icon: "Zap", name: "Industria, energía y servicios", issues: ["Bonos", "Acciones"], risk: "Medio", text: "Empresas industriales, de logística, salud, educación y servicios que buscan financiamiento de mediano plazo." },
+  { icon: "PieChart", name: "Administradoras de fondos", issues: ["Fondos mutuos", "Fondos de inversión"], risk: "Bajo a alto", text: "Las AFPISA reúnen el dinero de muchos inversores y lo invierten en una cartera diversificada según el reglamento de cada fondo." },
+];
+
+function Mapa() {
+  const [sel, setSel] = useState(0);
+  const s = SECTORS[sel];
+  return (
+    <Section id="mapa" eyebrow="Mapa del mercado" title="¿Quiénes emiten en la bolsa paraguaya?"
+      intro="Distintos sectores de la economía se financian en la bolsa. Elegí uno para ver qué tipo de títulos suele emitir y cuál es su perfil de riesgo.">
+      <div className="grid lg:grid-cols-[1fr_360px] gap-5 items-start">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+          {SECTORS.map((x, k) => (
+            <button key={x.name} id={"sector-" + k} onClick={() => setSel(k)} aria-pressed={sel === k}
+              className={"text-left rounded-2xl border p-4 transition min-h-[120px] " + (sel === k ? "border-navy bg-navy text-navyfg" : "border-line bg-card hover:border-em/50 text-ink")}>
+              <Icon name={x.icon} className={"w-6 h-6 " + (sel === k ? "" : "text-em")} />
+              <p className="mt-3 font-semibold text-sm leading-snug">{x.name}</p>
+            </button>
+          ))}
+        </div>
+        <article key={sel} className="fade-in rounded-2xl border border-line bg-card p-6">
+          <span className="grid place-items-center w-11 h-11 rounded-xl bg-emsoft text-em"><Icon name={s.icon} /></span>
+          <h3 className="mt-3 text-xl font-bold text-ink">{s.name}</h3>
+          <p className="mt-2 text-sm text-muted">{s.text}</p>
+          <p className="mt-4 text-xs font-semibold uppercase tracking-wider text-muted">Suele emitir</p>
+          <div className="mt-2 flex flex-wrap gap-1.5">{s.issues.map((i) => <Pill key={i} className="bg-soft text-ink">{i}</Pill>)}</div>
+          <p className="mt-4 text-sm"><span className="text-muted">Riesgo típico: </span><span className="font-semibold text-ink">{s.risk}</span></p>
+          <p className="mt-4 text-xs text-muted">Las emisiones vigentes y sus emisores se publican en el sitio de la BVA. El riesgo real depende de cada emisor: revisá siempre su calificación.</p>
+        </article>
+      </div>
+    </Section>
+  );
+}
+
+/* ---------- 6. casos de ejemplo ---------- */
+const CASES = [
+  { name: "Ana", age: 24, who: "Empleada, primer trabajo", icon: "User", goal: "Armar su fondo de emergencia y empezar a invertir.", cur: "PYG", initial: 500000, monthly: 500000, years: 3,
+    mix: [["Fondo mutuo", 70, 6], ["CDA", 30, 7.5]] },
+  { name: "Diego", age: 35, who: "Profesional independiente", icon: "Briefcase", goal: "Juntar la entrega de un departamento en 4 años.", cur: "PYG", initial: 20000000, monthly: 2000000, years: 4,
+    mix: [["CDA", 50, 7.5], ["Bonos corporativos AApy", 50, 9.5]] },
+  { name: "Don Carlos", age: 66, who: "Jubilado", icon: "Sprout", goal: "Complementar su jubilación con cupones mensuales.", cur: "PYG", initial: 300000000, monthly: 0, years: 5, income: true,
+    mix: [["Bonos del Tesoro", 50, 8.5], ["Bonos corporativos", 30, 9.5], ["Fondo mutuo", 20, 6]] },
+  { name: "Laura", age: 29, who: "Trabaja para una empresa del exterior", icon: "Plane", goal: "Ahorrar en dólares para un posgrado.", cur: "USD", initial: 3000, monthly: 300, years: 3,
+    mix: [["Fondo mutuo USD", 30, 3.8], ["CDA USD", 40, 5.2], ["Bonos USD", 30, 7]] },
+];
+
+function Casos() {
+  const [sel, setSel] = useState(0);
+  const c = CASES[sel];
+  const rate = c.mix.reduce((s, [, w, r]) => s + (w * r) / 100, 0);
+  const months = c.years * 12;
+  const final = fv(c.initial, c.monthly, rate, months);
+  const contrib = c.initial + c.monthly * months;
+  return (
+    <Section id="casos" eyebrow="Casos de ejemplo" title="Cómo invierten personas como vos"
+      intro="Cuatro ejemplos ilustrativos con objetivos distintos. Tocá cada persona para ver su cartera y su resultado estimado.">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        {CASES.map((p, k) => (
+          <button key={p.name} id={"case-" + k} onClick={() => setSel(k)} aria-pressed={sel === k}
+            className={"text-left rounded-2xl border p-4 transition " + (sel === k ? "border-em bg-emsoft" : "border-line bg-card hover:border-em/50")}>
+            <span className={"grid place-items-center w-10 h-10 rounded-full " + (sel === k ? "bg-em text-white" : "bg-soft text-ink")}><Icon name={p.icon} className="w-5 h-5" /></span>
+            <p className="mt-2 font-bold text-ink">{p.name}, <span className="num">{p.age}</span></p>
+            <p className="text-xs text-muted">{p.who}</p>
+          </button>
+        ))}
+      </div>
+      <article key={sel} className="fade-in mt-5 rounded-2xl border border-line bg-card p-6 sm:p-7 grid lg:grid-cols-[1fr_1fr] gap-6">
+        <div className="min-w-0">
+          <p className="eyebrow">Objetivo</p>
+          <h3 className="mt-1 text-xl font-bold text-ink">{c.goal}</h3>
+          <p className="mt-3 text-sm text-muted num">
+            Empieza con {fmtMoney(c.initial, c.cur)}{c.monthly > 0 ? " y suma " + fmtMoney(c.monthly, c.cur) + " por mes" : ""} durante {c.years} años.
+          </p>
+          <p className="mt-5 text-sm font-semibold text-ink">Su cartera</p>
+          <ul className="mt-2 space-y-3">
+            {c.mix.map(([n, w, r]) => (
+              <li key={n}>
+                <div className="flex justify-between text-sm"><span className="text-ink">{n}</span><span className="num text-muted">{w} % · ≈ {pct(r)}</span></div>
+                <div className="mt-1 h-2 rounded-full bg-soft overflow-hidden"><div className="h-full bg-em rounded-full" style={{ width: w + "%" }} /></div>
+              </li>
+            ))}
+          </ul>
+          <p className="mt-3 text-xs text-muted num">Tasa promedio ponderada: ≈ {pct(rate, 2)} anual</p>
+        </div>
+        <div className="grid gap-3 content-start">
+          {c.income ? (
+            <>
+              <Stat tone="navy" label="Cobro mensual estimado" value={fmtMoney((c.initial * rate) / 100 / 12, c.cur)} sub="Cobrando los cupones sin reinvertir" />
+              <Stat label="Cobro anual estimado" value={fmtMoney((c.initial * rate) / 100, c.cur)} />
+              <Stat tone="em" label="Capital que conserva" value={fmtMoney(c.initial, c.cur)} sub="Se devuelve al vencimiento de cada título" />
+            </>
+          ) : (
+            <>
+              <Stat tone="navy" label={"Tendría en " + c.years + " años"} value={fmtMoney(final, c.cur)} />
+              <Stat label="Total aportado" value={fmtMoney(contrib, c.cur)} />
+              <Stat tone="em" label="Intereses ganados" value={"+ " + fmtMoney(final - contrib, c.cur)} />
+            </>
+          )}
+        </div>
+      </article>
+      <p className="mt-3 text-xs text-muted">Personas y cifras ficticias, con tasas constantes y sin comisiones ni impuestos. Sirven para entender el mecanismo, no como recomendación.</p>
+    </Section>
+  );
+}
+
+/* ---------- 9. checklist antes de invertir ---------- */
+const PRE_CHECK = [
+  "Tengo un fondo de emergencia separado (3 a 6 meses de gastos).",
+  "Sé para qué invierto y cuándo voy a necesitar el dinero.",
+  "Verifiqué que la Casa de Bolsa esté habilitada por el BCP y la BVA.",
+  "Conozco el tarifario: comisiones, custodia y aranceles.",
+  "Leí el prospecto o la ficha del producto.",
+  "Revisé la calificación de riesgo del emisor.",
+  "Entiendo cuándo y cómo cobro los intereses y el capital.",
+  "Sé si puedo vender antes del vencimiento y en qué condiciones.",
+  "No estoy usando dinero que necesito para los gastos del mes.",
+  "Diversifiqué: no puse todo en un solo emisor.",
+];
+
+function ChecklistPre() {
+  const [done, setDone] = usePersisted("bpy-checklist", {});
+  const n = PRE_CHECK.filter((_, k) => done[k]).length;
+  const ready = n === PRE_CHECK.length;
+  return (
+    <Section id="checklist" eyebrow="Antes de invertir" title="Checklist: ¿estás listo para tu primera inversión?"
+      intro="Marcá cada punto que ya cumpliste. Tu progreso se guarda en este navegador.">
+      <div className="grid lg:grid-cols-[1fr_300px] gap-6 items-start">
+        <ul className="grid sm:grid-cols-2 gap-3">
+          {PRE_CHECK.map((t, k) => (
+            <li key={k}>
+              <label htmlFor={"pre-" + k} className={"flex gap-3 h-full cursor-pointer rounded-xl border p-4 transition " + (done[k] ? "border-em/40 bg-emsoft" : "border-line bg-card hover:border-em/50")}>
+                <input id={"pre-" + k} type="checkbox" className="mt-1 w-4 h-4 accent-[rgb(var(--em))] shrink-0" checked={!!done[k]} onChange={(e) => setDone({ ...done, [k]: e.target.checked })} />
+                <span className="text-sm text-ink"><span className="num text-muted mr-1">{k + 1}.</span>{t}</span>
+              </label>
+            </li>
+          ))}
+        </ul>
+        <aside className="rounded-2xl border border-line bg-card p-6 text-center lg:sticky lg:top-24">
+          <div className="relative mx-auto w-32 h-32">
+            <svg viewBox="0 0 120 120" className="w-full h-full -rotate-90" aria-hidden="true">
+              <circle cx="60" cy="60" r="52" fill="none" stroke="rgb(var(--soft))" strokeWidth="12" />
+              <circle cx="60" cy="60" r="52" fill="none" stroke="rgb(var(--em))" strokeWidth="12" strokeLinecap="round"
+                strokeDasharray={2 * Math.PI * 52} strokeDashoffset={2 * Math.PI * 52 * (1 - n / PRE_CHECK.length)} style={{ transition: "stroke-dashoffset .5s" }} />
+            </svg>
+            <div className="absolute inset-0 grid place-items-center"><p className="num font-display text-3xl font-extrabold text-ink">{n}/{PRE_CHECK.length}</p></div>
+          </div>
+          <p className={"mt-4 font-bold " + (ready ? "text-em" : "text-ink")}>{ready ? "¡Estás listo para invertir!" : n >= 7 ? "Te falta poco" : "Seguí preparándote"}</p>
+          <p className="mt-1 text-sm text-muted">{ready ? "Cumpliste todos los puntos básicos. El siguiente paso es hablar con tu Casa de Bolsa." : "Completá los puntos pendientes antes de transferir dinero."}</p>
+          {n > 0 && <button onClick={() => setDone({})} className="mt-4 text-sm text-muted underline hover:text-ink">Reiniciar</button>}
+        </aside>
+      </div>
+    </Section>
+  );
+}
+
+/* ===== PARTE 4 DE 6: Casas de Bolsa, instrumentos, prospecto y línea de tiempo ===== */
 /* ---------- 4. casas de bolsa ---------- */
 function Casas() {
   const services = [
@@ -633,6 +1261,120 @@ function Instrumentos() {
   );
 }
 
+/* ---------- 7. cómo leer un prospecto ---------- */
+const PROSPECTO = [
+  ["Emisor", "Ejemplo Alimentos S.A.", "La empresa que pide el dinero prestado. Investigá a qué se dedica, hace cuánto opera y cómo le va."],
+  ["Programa de emisión", "PEG G1 · hasta Gs. 50.000.000.000", "Programa de Emisión Global: el monto máximo que la empresa puede emitir, dividido en series que se colocan en distintos momentos."],
+  ["Serie", "Serie 3", "Cada colocación dentro del programa. Las series pueden tener distinta tasa, plazo y monto."],
+  ["Moneda", "Guaraníes (PYG)", "La moneda en que invertís, cobrás los intereses y recibís el capital."],
+  ["Monto de la serie", "Gs. 10.000.000.000", "Cuánto dinero busca colocar el emisor en esta serie."],
+  ["Valor nominal", "Gs. 1.000.000 por título", "El valor de cada título y la base sobre la que se calculan los intereses. Suele ser el monto mínimo de compra."],
+  ["Tasa de interés", "9,50 % anual", "El rendimiento anual que paga el bono sobre el valor nominal."],
+  ["Pago de intereses", "Trimestral", "Cada cuánto cobrás el cupón. Trimestral significa 4 pagos por año: con Gs. 10.000.000 cobrarías Gs. 237.500 cada tres meses."],
+  ["Plazo y vencimiento", "1.825 días · 15/11/2031", "Cuánto dura el bono y en qué fecha te devuelven el capital."],
+  ["Amortización", "Al vencimiento", "Cómo se devuelve el capital: todo junto al final o en cuotas durante la vida del bono."],
+  ["Garantía", "Común", "Garantía común: respaldada por todo el patrimonio del emisor, sin un bien específico. Otras emisiones tienen garantías especiales, como hipotecas o fideicomisos."],
+  ["Calificación", "AApy · Tendencia estable", "La nota de riesgo que asignó una calificadora. La tendencia (fuerte, estable o sensible) anticipa posibles cambios."],
+  ["Destino de los fondos", "Capital de trabajo y refinanciación de deudas", "Para qué usará la empresa tu dinero. Un destino claro y productivo es una buena señal."],
+  ["Agente colocador", "Casa de Bolsa Ejemplo S.A.", "La Casa de Bolsa encargada de colocar la emisión en el mercado primario."],
+  ["Representante de obligacionistas", "Ejemplo Representante S.A.", "Representa y defiende a los inversores que tienen los bonos frente al emisor."],
+];
+
+function Prospecto() {
+  const [sel, setSel] = useState(6);
+  const [k, v, exp] = PROSPECTO[sel];
+  return (
+    <Section id="prospecto" eyebrow="Aprendé a leer" title="Cómo leer el prospecto de un bono"
+      intro="Esta es la ficha resumen de una emisión de ejemplo. Tocá o pasá el mouse sobre cada dato para entender qué significa.">
+      <div className="grid lg:grid-cols-[1.3fr_1fr] gap-6 items-start">
+        <div className="rounded-2xl border border-line bg-card overflow-hidden">
+          <div className="bg-navy text-navyfg px-5 py-4 flex items-center justify-between gap-3">
+            <div><p className="text-xs uppercase tracking-wider opacity-70">Ficha de emisión</p><p className="font-display font-bold">Bonos Ejemplo Alimentos S.A.</p></div>
+            <Pill className="bg-amber text-navy">Ficticia</Pill>
+          </div>
+          <dl className="divide-y divide-line">
+            {PROSPECTO.map(([kk, vv], i) => (
+              <button key={kk} id={"pros-" + i} type="button" onMouseEnter={() => setSel(i)} onFocus={() => setSel(i)} onClick={() => setSel(i)}
+                className={"w-full text-left grid grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)] gap-3 px-5 py-2.5 text-sm transition " + (sel === i ? "bg-emsoft" : "hover:bg-soft")}>
+                <dt className={sel === i ? "font-semibold text-em" : "text-muted"}>{kk}</dt>
+                <dd className="text-ink font-medium num">{vv}</dd>
+              </button>
+            ))}
+          </dl>
+        </div>
+        <aside className="rounded-2xl border border-em/40 bg-card p-6 lg:sticky lg:top-24">
+          <p className="flex items-center gap-2 text-sm font-semibold text-em"><Icon name="HelpCircle" className="w-4 h-4" /> ¿Qué significa?</p>
+          <h3 className="mt-2 text-xl font-bold text-ink">{k}</h3>
+          <p className="mt-1 text-sm text-muted num">En este ejemplo: <span className="text-ink font-semibold">{v}</span></p>
+          <p key={sel} className="fade-in mt-4 text-ink">{exp}</p>
+          <div className="mt-5 flex justify-between gap-2">
+            <button onClick={() => setSel((sel - 1 + PROSPECTO.length) % PROSPECTO.length)} className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-line text-sm text-ink hover:bg-soft"><Icon name="ChevronLeft" className="w-4 h-4" /> Anterior</button>
+            <span className="text-xs text-muted num self-center">{sel + 1} / {PROSPECTO.length}</span>
+            <button onClick={() => setSel((sel + 1) % PROSPECTO.length)} className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-line text-sm text-ink hover:bg-soft">Siguiente <Icon name="ChevronRight" className="w-4 h-4" /></button>
+          </div>
+        </aside>
+      </div>
+    </Section>
+  );
+}
+
+/* ---------- 8. línea de tiempo de una inversión ---------- */
+function LineaTiempo() {
+  const start = new Date(2026, 0, 15);
+  const nominal = 10000000, rate = 9, per = 6, years = 3;
+  const coupon = (nominal * rate) / 100 / (12 / per);
+  const events = [{ type: "buy", date: start, title: "Compra", amount: -nominal, text: "Comprás Gs. 10.000.000 en bonos a 3 años, al 9 % anual con cupón semestral, a través de tu Casa de Bolsa. El dinero sale de tu cuenta y los títulos quedan registrados a tu nombre." }];
+  for (let k = 1; k <= (years * 12) / per; k++) {
+    const last = k === (years * 12) / per;
+    events.push({ type: last ? "end" : "coupon", date: addMonths(start, k * per), title: last ? "Vencimiento" : "Cupón " + k, amount: last ? coupon + nominal : coupon,
+      text: last ? "Cobrás el último cupón de Gs. 450.000 y te devuelven el capital de Gs. 10.000.000. La inversión terminó." : "Cobrás Gs. 450.000 de intereses (9 % ÷ 2). El dinero llega a tu cuenta en la Casa de Bolsa y podés retirarlo o reinvertirlo." });
+  }
+  events.push({ type: "reinvest", date: addMonths(start, years * 12 + 1), title: "Reinversión", amount: 0, text: "Decidís qué hacer: reinvertir el capital y los intereses en una nueva emisión, cambiar de instrumento o usar el dinero para tu meta." });
+  const [sel, setSel] = useState(1);
+  const e = events[sel];
+  const totalInt = coupon * ((years * 12) / per);
+  const style = { buy: "bg-navy text-navyfg", coupon: "bg-em text-white", end: "bg-amber text-navy", reinvest: "bg-soft text-ink border border-line" };
+  const icon = { buy: "ShoppingCart", coupon: "Coins", end: "Flag", reinvest: "RefreshCw" };
+  return (
+    <Section id="linea" eyebrow="Ciclo de vida" title="Línea de tiempo de una inversión"
+      intro="Así se ve, paso a paso, un bono de Gs. 10.000.000 a 3 años con cupón semestral. Tocá cada punto para ver qué pasa ese día.">
+      <div className="rounded-2xl border border-line bg-card p-5 sm:p-7">
+        <div className="overflow-x-auto pb-2">
+          <ol className="relative flex min-w-[720px] justify-between gap-2 pt-2">
+            <div className="absolute left-6 right-6 top-8 h-1 rounded-full bg-soft" aria-hidden="true" />
+            <div className="absolute left-6 top-8 h-1 rounded-full bg-em transition-all duration-500" style={{ width: "calc((100% - 3rem) * " + sel / (events.length - 1) + ")" }} aria-hidden="true" />
+            {events.map((ev, k) => (
+              <li key={k} className="relative flex flex-col items-center text-center w-20">
+                <button id={"ev-" + k} onClick={() => setSel(k)} aria-pressed={sel === k} aria-label={ev.title + " " + fmtDate(ev.date)}
+                  className={"grid place-items-center w-12 h-12 rounded-full transition " + style[ev.type] + (sel === k ? " ring-4 ring-em/30 scale-110" : " hover:scale-105")}>
+                  <Icon name={icon[ev.type]} className="w-5 h-5" />
+                </button>
+                <p className="mt-2 text-xs font-semibold text-ink">{ev.title}</p>
+                <p className="text-[11px] text-muted num">{fmtDate(ev.date)}</p>
+              </li>
+            ))}
+          </ol>
+        </div>
+        <div key={sel} className="fade-in mt-5 grid md:grid-cols-[1fr_auto] gap-4 items-center rounded-xl bg-bg border border-line p-5">
+          <div className="min-w-0">
+            <p className="text-sm font-semibold text-em num">{fmtDate(e.date)}</p>
+            <h3 className="text-lg font-bold text-ink">{e.title}</h3>
+            <p className="mt-1 text-sm text-muted">{e.text}</p>
+          </div>
+          {e.amount !== 0 && <p className={"num font-display text-2xl font-bold " + (e.amount < 0 ? "text-ink" : "text-em")}>{e.amount < 0 ? "− " : "+ "}{fmtMoney(Math.abs(e.amount), "PYG")}</p>}
+        </div>
+        <div className="mt-4 grid sm:grid-cols-3 gap-3">
+          <Stat label="Invertiste" value={fmtMoney(nominal, "PYG")} />
+          <Stat tone="em" label="Cobraste en intereses" value={"+ " + fmtMoney(totalInt, "PYG")} sub="6 cupones de Gs. 450.000" />
+          <Stat tone="navy" label="Recibiste en total" value={fmtMoney(nominal + totalInt, "PYG")} />
+        </div>
+        <p className="mt-3 text-xs text-muted">Ejemplo ilustrativo sin comisiones ni impuestos. Las fechas reales de pago figuran en el prospecto de cada emisión.</p>
+      </div>
+    </Section>
+  );
+}
+
+/* ===== PARTE 5 DE 6: Simulador y calculadoras ===== */
 /* ---------- 6a. simulador ---------- */
 const SIM_PRESETS = ["fm", "cda", "bc", "bt", "fi", "ap", "ao"];
 
@@ -768,760 +1510,6 @@ function Simulador() {
         </div>
       </div>
     </div>
-  );
-}
-
-/* ---------- 6b. perfil ---------- */
-const QUESTIONS = [
-  { q: "¿Cuál es tu objetivo principal al invertir?", a: [["Proteger mis ahorros de la inflación", 1], ["Hacer crecer mi dinero con algo de riesgo", 2], ["Maximizar la ganancia a largo plazo", 3]] },
-  { q: "¿En cuánto tiempo vas a necesitar este dinero?", a: [["En menos de 1 año", 1], ["Entre 1 y 3 años", 2], ["En más de 3 años", 3]] },
-  { q: "Si tu inversión baja un 15 % en un año, ¿qué hacés?", a: [["Retiro todo para no perder más", 1], ["Espero a que se recupere", 2], ["Aprovecho para invertir más", 3]] },
-  { q: "¿Cuánta experiencia tenés invirtiendo?", a: [["Ninguna, solo caja de ahorro o plazo fijo", 1], ["Algo: fondos mutuos o CDA", 2], ["Bastante: bonos, acciones u otros", 3]] },
-  { q: "¿Qué parte de tus ahorros vas a invertir?", a: [["La mayor parte de lo que tengo", 1], ["Una parte, tengo un colchón aparte", 2], ["Un excedente que no voy a necesitar", 3]] },
-];
-const PROFILES = {
-  Conservador: { color: "text-em", desc: "Priorizás la seguridad y la liquidez por sobre la rentabilidad. Te conviene una cartera de renta fija de emisores bien calificados y plazos cortos a medianos.",
-    alloc: [["Fondo mutuo", 40], ["CDA", 35], ["Bonos AAApy/AApy y del Tesoro", 25], ["Acciones", 0]] },
-  Moderado: { color: "text-amber", desc: "Buscás un equilibrio entre seguridad y crecimiento. Aceptás alguna variación a cambio de mejores tasas en plazos medianos.",
-    alloc: [["Fondo mutuo", 20], ["CDA", 25], ["Bonos corporativos y del Tesoro", 40], ["Acciones preferidas", 15]] },
-  Dinámico: { color: "text-danger", desc: "Tenés horizonte largo y tolerás caídas temporales. Podés sumar más bonos de mayor tasa y una porción relevante de acciones.",
-    alloc: [["Fondo mutuo", 10], ["CDA", 10], ["Bonos corporativos", 45], ["Acciones y fondos de inversión", 35]] },
-};
-const PIE_COLORS = ["rgb(var(--em))", "rgb(var(--navy))", "rgb(var(--amber))", "rgb(var(--muted))"];
-
-function Perfil() {
-  const [answers, setAnswers] = useState({});
-  const [idx, setIdx] = useState(0);
-  const finished = Object.keys(answers).length === QUESTIONS.length && idx >= QUESTIONS.length;
-  const score = Object.values(answers).reduce((s, v) => s + v, 0);
-  const profile = score <= 8 ? "Conservador" : score <= 11 ? "Moderado" : "Dinámico";
-  const P = PROFILES[profile];
-  const pick = (v) => { setAnswers({ ...answers, [idx]: v }); setIdx(idx + 1); };
-  const reset = () => { setAnswers({}); setIdx(0); };
-  const { ResponsiveContainer, PieChart, Pie, Cell, Tooltip } = RC || {};
-  const pieData = P.alloc.filter(([, v]) => v > 0).map(([name, value]) => ({ name, value }));
-
-  return (
-    <Section id="perfil" eyebrow="Test" title="Test rápido de perfil de inversionista"
-      intro="Cinco preguntas, menos de un minuto. Al final te mostramos tu perfil y una distribución de cartera de ejemplo con instrumentos paraguayos.">
-      <div className="rounded-2xl border border-line bg-card p-6 sm:p-8 max-w-4xl">
-        {!finished ? (
-          <div key={idx} className="fade-in">
-            <div className="flex items-center justify-between gap-3">
-              <p className="text-sm font-semibold text-em num">Pregunta {idx + 1} de {QUESTIONS.length}</p>
-              {idx > 0 && <button onClick={() => setIdx(idx - 1)} className="text-sm text-muted hover:text-ink inline-flex items-center gap-1"><Icon name="ArrowLeft" className="w-4 h-4" /> Volver</button>}
-            </div>
-            <div className="mt-3 h-1.5 rounded-full bg-soft overflow-hidden"><div className="h-full bg-em transition-all" style={{ width: (idx / QUESTIONS.length) * 100 + "%" }} /></div>
-            <h3 className="mt-6 text-2xl font-bold text-ink">{QUESTIONS[idx].q}</h3>
-            <div className="mt-5 grid gap-3">
-              {QUESTIONS[idx].a.map(([t, v]) => (
-                <button key={t} id={"q" + idx + "-" + v} onClick={() => pick(v)}
-                  className={"text-left rounded-xl border px-4 py-3.5 font-medium transition flex items-center justify-between gap-3 " + (answers[idx] === v ? "border-em bg-emsoft text-ink" : "border-line text-ink hover:border-em hover:bg-soft")}>
-                  {t}<Icon name="ChevronRight" className="w-4 h-4 text-muted shrink-0" />
-                </button>
-              ))}
-            </div>
-          </div>
-        ) : (
-          <div className="fade-in grid md:grid-cols-[1fr_280px] gap-8 items-center">
-            <div className="min-w-0">
-              <p className="text-sm font-semibold text-muted">Tu perfil es</p>
-              <h3 className={"text-4xl font-extrabold " + P.color}>{profile}</h3>
-              <p className="mt-1 text-xs text-muted num">Puntaje: {score} de 15</p>
-              <p className="mt-4 text-ink">{P.desc}</p>
-              <ul className="mt-5 space-y-2">
-                {P.alloc.map(([n, v], k) => (
-                  <li key={n} className="flex items-center gap-3 text-sm">
-                    <span className="w-3 h-3 rounded-sm shrink-0" style={{ background: PIE_COLORS[k] }} />
-                    <span className="flex-1 text-ink">{n}</span>
-                    <span className="num font-bold text-ink">{v} %</span>
-                  </li>
-                ))}
-              </ul>
-              <div className="mt-6 flex flex-wrap gap-3">
-                <button onClick={reset} className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-line font-semibold text-ink hover:bg-soft"><Icon name="RotateCcw" className="w-4 h-4" /> Repetir test</button>
-                <button onClick={() => scrollTo("simulador")} className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-em text-white font-semibold hover:brightness-110">Simular con esta idea <Icon name="ArrowRight" className="w-4 h-4" /></button>
-              </div>
-              <div className="mt-4"><ShareButtons text={"Hice el test de perfil de inversionista y soy " + profile + ". ¿Qué perfil tenés vos?"} /></div>
-            </div>
-            <div className="h-64">
-              {ResponsiveContainer && (
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie data={pieData} dataKey="value" nameKey="name" innerRadius="55%" outerRadius="90%" paddingAngle={2} stroke="rgb(var(--card))" strokeWidth={2}>
-                      {pieData.map((d) => <Cell key={d.name} fill={PIE_COLORS[P.alloc.findIndex(([n]) => n === d.name)]} />)}
-                    </Pie>
-                    <Tooltip formatter={(v, n) => [v + " %", n]} contentStyle={{ background: "rgb(var(--card))", border: "1px solid rgb(var(--line))", borderRadius: 12 }} itemStyle={{ color: "rgb(var(--ink))" }} />
-                  </PieChart>
-                </ResponsiveContainer>
-              )}
-            </div>
-            <div className="md:col-span-2"><Notice>Distribución de ejemplo con fines educativos. No es una recomendación personalizada: tu Casa de Bolsa debe evaluar tu perfil formalmente antes de ofrecerte productos.</Notice></div>
-          </div>
-        )}
-      </div>
-    </Section>
-  );
-}
-
-/* ---------- 7. glosario + faq ---------- */
-const highlight = (text, q) => {
-  if (!q) return text;
-  const i = text.toLowerCase().indexOf(q.toLowerCase());
-  if (i < 0) return text;
-  return <>{text.slice(0, i)}<mark className="bg-ambersoft text-ink rounded px-0.5">{text.slice(i, i + q.length)}</mark>{text.slice(i + q.length)}</>;
-};
-const norm = (s) => s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
-
-function GlosarioFAQ() {
-  const [q, setQ] = useState("");
-  const [open, setOpen] = useState(0);
-  const items = GLOSSARY.filter(([t, d]) => norm(t + " " + d).includes(norm(q.trim())));
-  return (
-    <Section id="glosario" alt eyebrow="Aprendé el idioma" title="Glosario bursátil y preguntas frecuentes">
-      <div className="grid lg:grid-cols-2 gap-10 items-start">
-        <div className="min-w-0">
-          <h3 className="text-xl font-bold text-ink">Glosario</h3>
-          <div className="relative mt-4">
-            <Icon name="Search" className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
-            <input id="glossary-search" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Buscá un término, por ejemplo «cupón»"
-              className="w-full rounded-xl border border-line bg-bg pl-9 pr-9 py-3 text-ink placeholder:text-muted focus:border-em outline-none" />
-            {q && <button aria-label="Borrar búsqueda" onClick={() => setQ("")} className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded text-muted hover:text-ink"><Icon name="X" className="w-4 h-4" /></button>}
-          </div>
-          <p className="mt-2 text-xs text-muted num">{items.length} {items.length === 1 ? "término" : "términos"}</p>
-          <dl className="mt-3 space-y-2 max-h-[560px] overflow-y-auto pr-1">
-            {items.map(([t, d]) => (
-              <div key={t} className="rounded-xl border border-line bg-bg p-4">
-                <dt className="font-bold text-ink">{highlight(t, q.trim())}</dt>
-                <dd className="mt-1 text-sm text-muted">{highlight(d, q.trim())}</dd>
-              </div>
-            ))}
-            {items.length === 0 && <p className="rounded-xl border border-dashed border-line p-6 text-center text-muted text-sm">No encontramos «{q}». Probá con otra palabra.</p>}
-          </dl>
-        </div>
-
-        <div className="min-w-0">
-          <h3 className="text-xl font-bold text-ink">Preguntas frecuentes</h3>
-          <div className="mt-4 space-y-2">
-            {FAQ.map(([qq, a], k) => (
-              <div key={k} className={"rounded-xl border bg-bg transition " + (open === k ? "border-em/50" : "border-line")}>
-                <h4>
-                  <button id={"faq-" + k} aria-expanded={open === k} aria-controls={"faq-p-" + k} onClick={() => setOpen(open === k ? -1 : k)}
-                    className="w-full flex items-center justify-between gap-3 text-left p-4 font-semibold text-ink">
-                    {qq}<Icon name="ChevronDown" className={"w-5 h-5 shrink-0 text-muted transition-transform " + (open === k ? "rotate-180 text-em" : "")} />
-                  </button>
-                </h4>
-                {open === k && <div id={"faq-p-" + k} className="fade-in px-4 pb-4 text-sm text-muted">{a}</div>}
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    </Section>
-  );
-}
-
-/* ---------- 8. footer ---------- */
-function Footer() {
-  return (
-    <footer className="bg-navy text-navyfg">
-      <div className="wrap py-12 grid md:grid-cols-[1fr_1.4fr] gap-10">
-        <div>
-          <p className="font-display font-extrabold text-lg">Bolsa<span className="text-em">PY</span> Aprende</p>
-          <p className="mt-2 text-sm opacity-75 max-w-sm">Guía educativa para dar los primeros pasos en el mercado de valores paraguayo.</p>
-          <div className="mt-4 flex flex-col gap-1 text-sm">
-            <a href="https://www.bcp.gov.py" target="_blank" rel="noopener" className="inline-flex items-center gap-1.5 opacity-90 hover:opacity-100 underline-offset-2 hover:underline">Banco Central del Paraguay <Icon name="ExternalLink" className="w-3.5 h-3.5" /></a>
-            <a href="https://www.bolsadevalores.com.py" target="_blank" rel="noopener" className="inline-flex items-center gap-1.5 opacity-90 hover:opacity-100 underline-offset-2 hover:underline">Bolsa de Valores de Asunción <Icon name="ExternalLink" className="w-3.5 h-3.5" /></a>
-          </div>
-        </div>
-        <div className="rounded-2xl border border-white/15 p-5">
-          <p className="flex items-center gap-2 font-semibold"><Icon name="AlertTriangle" className="w-4 h-4 text-amber" /> Aviso legal</p>
-          <p className="mt-2 text-sm opacity-80">
-            Todo el contenido de este sitio es exclusivamente educativo e informativo. No constituye asesoría financiera, legal ni tributaria, ni una recomendación de compra o venta de ningún valor o instrumento. Las tasas, montos mínimos y entidades mencionadas son ilustrativas y pueden no estar vigentes. Toda inversión implica riesgos, incluida la posible pérdida del capital, y los rendimientos pasados no garantizan resultados futuros. Antes de invertir, consultá con una Casa de Bolsa autorizada por la Superintendencia de Valores del Banco Central del Paraguay y leé el prospecto de cada emisión.
-          </p>
-        </div>
-      </div>
-    </footer>
-  );
-}
-
-/* =====================================================================
-   SECCIONES NUEVAS (v2): beneficios, dónde invertir, casos, checklist,
-   mapa del mercado, prospecto, línea de tiempo, calculadoras, aprender,
-   quiz, datos oficiales y compartir.
-   ===================================================================== */
-const SITE_URL = "https://hrivarolainsfran-sys.github.io/invertir-bolsa-paraguay/";
-const store = {
-  get(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } },
-  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* sin almacenamiento */ } },
-};
-function usePersisted(key, init) {
-  const [v, setV] = useState(() => store.get(key, init));
-  useEffect(() => { store.set(key, v); }, [key, v]);
-  return [v, setV];
-}
-const toNum = (v) => { const n = Number(v); return isFinite(n) ? n : 0; };
-const pct = (v, d = 1) => toNum(v).toLocaleString("es-PY", { maximumFractionDigits: d }) + " %";
-const fv = (initial, monthly, ratePct, months) => {
-  const rm = Math.pow(1 + toNum(ratePct) / 100, 1 / 12) - 1;
-  let b = toNum(initial);
-  for (let k = 0; k < months; k++) b = b * (1 + rm) + toNum(monthly);
-  return b;
-};
-const addMonths = (d, m) => { const x = new Date(d.getTime()); const day = x.getDate(); x.setMonth(x.getMonth() + m); if (x.getDate() < day) x.setDate(0); return x; };
-const fmtDate = (d) => d.toLocaleDateString("es-PY", { day: "2-digit", month: "2-digit", year: "numeric" });
-const FIELD = "w-full rounded-lg border border-line bg-card px-3 py-2.5 text-ink num focus:border-em outline-none";
-const instById = (id) => INSTRUMENTS.find((i) => i.id === id);
-const rateOf = (inst, cur) => (cur === "PYG" ? inst.ratePYG : inst.rateUSD);
-const TOOLTIP_STYLE = { background: "rgb(var(--card))", border: "1px solid rgb(var(--line))", borderRadius: 12, color: "rgb(var(--ink))" };
-
-function NumField({ id, label, value, onChange, cur, suffix, step, min = 0, max, hint }) {
-  return (
-    <div className="min-w-0">
-      <label htmlFor={id} className="text-sm font-semibold text-ink block mb-1.5">{label}</label>
-      <div className="relative">
-        <input id={id} type="number" inputMode="decimal" min={min} max={max} step={step || "any"} value={value}
-          onChange={(e) => onChange(e.target.value)} className={FIELD + (suffix ? " pr-16" : "")} />
-        {suffix && <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted pointer-events-none">{suffix}</span>}
-      </div>
-      {cur && <p className="mt-1 text-xs text-muted num">{fmtMoney(toNum(value), cur)}</p>}
-      {hint && <p className="mt-1 text-xs text-muted">{hint}</p>}
-    </div>
-  );
-}
-
-const Stat = ({ label, value, tone = "plain", sub }) => (
-  <div className={"rounded-2xl p-4 sm:p-5 min-w-0 " + (tone === "navy" ? "bg-navy text-navyfg" : tone === "em" ? "bg-emsoft border border-em/30" : tone === "danger" ? "bg-dangersoft border border-danger/30" : "bg-bg border border-line")}>
-    <p className={"text-xs uppercase tracking-wider " + (tone === "navy" ? "opacity-70" : tone === "em" ? "text-em" : tone === "danger" ? "text-danger" : "text-muted")}>{label}</p>
-    <p className={"mt-1 num font-display text-xl font-bold break-words " + (tone === "navy" ? "" : tone === "em" ? "text-em" : tone === "danger" ? "text-danger" : "text-ink")}>{value}</p>
-    {sub && <p className={"mt-1 text-xs " + (tone === "navy" ? "opacity-70" : "text-muted")}>{sub}</p>}
-  </div>
-);
-
-const CurToggle = ({ id, cur, setCur, disabled }) => (
-  <div className={disabled ? "opacity-60 pointer-events-none" : ""}>
-    <Segmented idBase={id} label="Moneda" value={cur} onChange={setCur} options={[["PYG", "Guaraníes"], ["USD", "Dólares"]]} />
-  </div>
-);
-
-/* ---------- 15. compartir ---------- */
-function ShareButtons({ text }) {
-  const [state, setState] = useState("idle");
-  const full = text + "\n\nAprendé a invertir en la Bolsa de Paraguay: " + SITE_URL;
-  const copy = async () => {
-    try { await navigator.clipboard.writeText(full); setState("ok"); setTimeout(() => setState("idle"), 2000); }
-    catch (e) { setState("manual"); }
-  };
-  return (
-    <div className="min-w-0">
-      <div className="flex flex-wrap gap-2">
-        <a href={"https://wa.me/?text=" + encodeURIComponent(full)} target="_blank" rel="noopener"
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg font-semibold bg-em text-white hover:brightness-110 transition">
-          <Icon name="MessageCircle" className="w-4 h-4" /> Compartir por WhatsApp
-        </a>
-        <button type="button" onClick={copy} className="inline-flex items-center gap-2 px-4 py-2 rounded-lg font-semibold border border-line text-ink hover:bg-soft transition">
-          <Icon name={state === "ok" ? "Check" : "Copy"} className="w-4 h-4" /> {state === "ok" ? "Copiado" : "Copiar texto"}
-        </button>
-      </div>
-      {state === "manual" && (
-        <textarea readOnly value={full} onFocus={(e) => e.target.select()} autoFocus rows={3}
-          className="mt-2 w-full rounded-lg border border-line bg-card p-2 text-xs text-ink" aria-label="Texto para copiar" />
-      )}
-    </div>
-  );
-}
-
-/* ---------- Beneficios + 1. caja de ahorro vs invertir ---------- */
-const BENEFITS = [
-  ["TrendingUp", "Rinde más que la caja de ahorro", "Un CDA o un bono suele pagar varias veces la tasa de una caja de ahorro y te ayuda a ganarle a la inflación."],
-  ["CalendarClock", "Ingreso pasivo con cupones", "Los bonos pagan intereses periódicos: podés cobrar cada mes, trimestre o semestre sin vender nada."],
-  ["Coins", "Empezás con poco", "Con un fondo mutuo podés arrancar con montos accesibles y sumar aportes cuando puedas."],
-  ["DollarSign", "Guaraníes o dólares", "Elegís la moneda según tus metas: PYG para gastos locales y USD para protegerte de la suba del dólar."],
-  ["ShieldCheck", "Mercado regulado", "La Superintendencia de Valores del BCP supervisa a las Casas de Bolsa y registra cada emisión."],
-  ["PieChart", "Diversificación", "Repartís tu dinero entre varios emisores, plazos e instrumentos para bajar el riesgo."],
-  ["ArrowLeftRight", "Podés salir antes", "En el mercado secundario podés vender un bono o un CDA antes del vencimiento, si hay un comprador."],
-  ["Factory", "Impulsás la economía local", "Tu dinero financia a empresas paraguayas y al Estado, que generan empleo, producción y obras."],
-];
-
-function Beneficios() {
-  const [cur, setCur] = useState("PYG");
-  const [amount, setAmount] = useState(10000000);
-  const [caja, setCaja] = useState(1);
-  const [inst, setInst] = useState("cda");
-  const [inv, setInv] = useState(7.5);
-  const [infl, setInfl] = useState(4);
-  const [years, setYears] = useState(5);
-  const changeCur = (c) => { setCur(c); setAmount(c === "PYG" ? 10000000 : 2000); setCaja(c === "PYG" ? 1 : 0.5); setInv(rateOf(instById(inst), c)); };
-  const changeInst = (id) => { setInst(id); setInv(rateOf(instById(id), cur)); };
-
-  const Y = Math.max(1, Math.min(30, Math.round(toNum(years))));
-  const m = toNum(amount), c = toNum(caja) / 100, i = toNum(inv) / 100, f = toNum(infl) / 100;
-  const data = Array.from({ length: Y + 1 }, (_, y) => ({
-    label: y === 0 ? "Hoy" : "Año " + y,
-    "Caja de ahorro": m * Math.pow(1 + c, y),
-    "Invirtiendo": m * Math.pow(1 + i, y),
-    "Para no perder (inflación)": m * Math.pow(1 + f, y),
-  }));
-  const cajaF = m * Math.pow(1 + c, Y), invF = m * Math.pow(1 + i, Y);
-  const realLoss = 1 - Math.pow(1 + c, Y) / Math.pow(1 + f, Y);
-  const realInv = Math.pow(1 + i, Y) / Math.pow(1 + f, Y) - 1;
-  const { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid } = RC || {};
-
-  return (
-    <Section id="beneficios" eyebrow="Por qué invertir" title="Beneficios de invertir en la bolsa"
-      intro="Dejar el dinero quieto también tiene un costo: la inflación le quita poder de compra todos los años. Estos son los motivos por los que miles de paraguayos ya invierten en la bolsa.">
-      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {BENEFITS.map(([ic, t, d]) => (
-          <article key={t} className="group rounded-2xl border border-line bg-card p-5 hover:border-em/50 hover:-translate-y-0.5 transition">
-            <span className="grid place-items-center w-11 h-11 rounded-xl bg-emsoft text-em group-hover:bg-em group-hover:text-white transition"><Icon name={ic} /></span>
-            <h3 className="mt-4 font-bold text-ink">{t}</h3>
-            <p className="mt-1 text-sm text-muted">{d}</p>
-          </article>
-        ))}
-      </div>
-
-      <div id="ahorro-vs-invertir" className="mt-10 rounded-2xl border border-line bg-card p-5 sm:p-7">
-        <div className="flex items-start justify-between gap-4 flex-wrap">
-          <div className="prose-w">
-            <p className="eyebrow">Calculadora</p>
-            <h3 className="mt-1 text-2xl font-bold text-ink">Caja de ahorro vs. invertir</h3>
-            <p className="mt-2 text-sm text-muted">Compará lo que pasa con tu dinero si lo dejás en la caja de ahorro o si lo invertís, frente a la inflación. La meta de inflación del BCP es 4 % anual.</p>
-          </div>
-          <CurToggle id="ben-cur" cur={cur} setCur={changeCur} />
-        </div>
-        <div className="mt-6 grid lg:grid-cols-[320px_1fr] gap-6">
-          <div className="grid gap-4 content-start">
-            <NumField id="ben-amount" label={"Dinero que tenés hoy (" + (cur === "PYG" ? "Gs." : "US$") + ")"} value={amount} onChange={setAmount} cur={cur} step={cur === "PYG" ? 100000 : 50} />
-            <div>
-              <label htmlFor="ben-inst" className="text-sm font-semibold text-ink block mb-1.5">Invertirlo en</label>
-              <select id="ben-inst" value={inst} onChange={(e) => changeInst(e.target.value)} className={FIELD}>
-                {["fm", "cda", "bc", "bt", "fi"].filter((id) => instById(id).currencies.includes(cur)).map((id) => <option key={id} value={id}>{instById(id).name}</option>)}
-              </select>
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <NumField id="ben-inv" label="Tasa inversión" value={inv} onChange={setInv} suffix="% año" step={0.1} />
-              <NumField id="ben-caja" label="Tasa caja ahorro" value={caja} onChange={setCaja} suffix="% año" step={0.1} />
-              <NumField id="ben-infl" label="Inflación" value={infl} onChange={setInfl} suffix="% año" step={0.1} />
-              <NumField id="ben-years" label="Años" value={years} onChange={setYears} min={1} max={30} step={1} />
-            </div>
-          </div>
-          <div className="min-w-0 space-y-4">
-            <div className="grid sm:grid-cols-3 gap-3">
-              <Stat tone="em" label="Invirtiendo tendrías" value={fmtMoney(invF, cur)} sub={"Rendimiento real: " + (realInv >= 0 ? "+" : "") + pct(realInv * 100)} />
-              <Stat label="En la caja de ahorro" value={fmtMoney(cajaF, cur)} sub={realLoss > 0 ? "Perdés " + pct(realLoss * 100) + " de poder de compra" : "Mantenés tu poder de compra"} />
-              <Stat tone="navy" label="Dejás de ganar por año" value={fmtMoney((invF - cajaF) / Y, cur)} sub={"Promedio en " + Y + (Y === 1 ? " año" : " años")} />
-            </div>
-            <div className="h-64 rounded-xl border border-line bg-bg p-3">
-              {ResponsiveContainer && (
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={data} margin={{ top: 8, right: 12, left: 0, bottom: 0 }}>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                    <XAxis dataKey="label" tickLine={false} axisLine={false} minTickGap={20} />
-                    <YAxis tickLine={false} axisLine={false} width={84} tickFormatter={(v) => fmtShort(v, cur)} domain={["auto", "auto"]} />
-                    <Tooltip formatter={(v, n) => [fmtMoney(v, cur), n]} contentStyle={TOOLTIP_STYLE} />
-                    <Line type="monotone" dataKey="Invirtiendo" stroke="rgb(var(--em))" strokeWidth={3} dot={false} />
-                    <Line type="monotone" dataKey="Caja de ahorro" stroke="rgb(var(--muted))" strokeWidth={2} dot={false} />
-                    <Line type="monotone" dataKey="Para no perder (inflación)" stroke="rgb(var(--amber))" strokeWidth={2} strokeDasharray="6 4" dot={false} />
-                  </LineChart>
-                </ResponsiveContainer>
-              )}
-            </div>
-            <div className="flex flex-wrap gap-4 text-xs text-muted">
-              <span className="flex items-center gap-1.5"><span className="w-4 h-1 rounded bg-em" />Invirtiendo</span>
-              <span className="flex items-center gap-1.5"><span className="w-4 h-1 rounded bg-muted" />Caja de ahorro</span>
-              <span className="flex items-center gap-1.5"><span className="w-4 h-1 rounded bg-amber" />Lo que necesitás para no perder frente a la inflación</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </Section>
-  );
-}
-
-/* ---------- Dónde invertir según tu objetivo ---------- */
-const GOALS = [
-  { id: "emergencia", icon: "Umbrella", label: "Fondo de emergencia", months: 12, main: "fm", alt: "rep",
-    where: "En una Administradora de Fondos (AFPISA) o a través de tu Casa de Bolsa. Algunos bancos también los ofrecen desde su app.",
-    why: "Necesitás poder retirar el dinero en 24 a 72 horas sin perder valor. Un fondo mutuo rescatable te da esa liquidez con un rendimiento mayor que la caja de ahorro.",
-    tips: ["Separá entre 3 y 6 meses de tus gastos.", "Evitá instrumentos con plazo fijo para este dinero.", "Elegí un fondo de renta fija de corto plazo."] },
-  { id: "meta", icon: "Car", label: "Meta en 1 a 3 años", months: 24, main: "cda", alt: "bc",
-    where: "En tu banco (CDA nuevo) o en una Casa de Bolsa (CDA o bonos cortos en el mercado secundario, a veces con mejor tasa).",
-    why: "Como sabés cuándo vas a usar el dinero, podés elegir un plazo que venza justo antes de tu meta y asegurar la tasa desde hoy.",
-    tips: ["Hacé coincidir el vencimiento con la fecha de tu meta.", "Preferí emisores con calificación AApy o superior.", "Compará la tasa del banco con la del mercado secundario."] },
-  { id: "ingreso", icon: "CalendarClock", label: "Cobrar un ingreso mensual", months: 36, main: "bc", alt: "bt", income: true,
-    where: "En una Casa de Bolsa: bonos con cupón mensual o trimestral, en colocaciones nuevas o en el mercado secundario.",
-    why: "Los bonos pagan intereses periódicos sin que tengas que vender. Si combinás emisiones con distintas fechas de pago, podés cobrar todos los meses.",
-    tips: ["Combiná bonos con cupones en meses distintos.", "Diversificá entre varios emisores.", "Revisá cuándo vence cada bono para reinvertir el capital."] },
-  { id: "largo", icon: "Sprout", label: "Jubilación o largo plazo", months: 120, main: "bt", alt: "ap",
-    where: "En una Casa de Bolsa: bonos del Tesoro y corporativos de largo plazo, acciones y cuotas de fondos de inversión.",
-    why: "Con 10 años o más por delante podés tolerar variaciones de precio y aprovechar al máximo el interés compuesto reinvirtiendo los cupones.",
-    tips: ["Reinvertí los intereses para potenciar el interés compuesto.", "Sumá una parte en acciones solo si toleras caídas temporales.", "Revisá tu cartera una vez al año."] },
-  { id: "dolar", icon: "DollarSign", label: "Protegerme del dólar", months: 36, main: "cda", alt: "bc", forceCur: "USD",
-    where: "En un banco o una Casa de Bolsa: CDA, bonos y fondos mutuos en dólares.",
-    why: "Si tus metas están en dólares (viajes, estudios, importaciones), invertir en USD evita que una suba del tipo de cambio reduzca tu poder de compra.",
-    tips: ["Las empresas con pagos en USD pueden usar futuros de divisas para cubrirse.", "Compará la tasa en USD con la de PYG usando la calculadora PYG vs. USD.", "Tené en cuenta el tipo de cambio de compra y de venta."] },
-];
-
-function DondeInvertir() {
-  const [goalId, setGoalId] = useState("meta");
-  const [curSel, setCurSel] = useState("PYG");
-  const [amount, setAmount] = useState(10000000);
-  const goal = GOALS.find((g) => g.id === goalId);
-  const cur = goal.forceCur || curSel;
-  const pick = (id) => { const x = instById(id); return x.currencies.includes(cur) ? x : instById("bc"); };
-  const main = pick(goal.main), alt = pick(goal.alt);
-  const rate = rateOf(main, cur), altRate = rateOf(alt, cur);
-  const amt = toNum(amount);
-  const final = fv(amt, 0, rate, goal.months);
-  const changeCur = (c) => { setCurSel(c); setAmount(c === "PYG" ? 10000000 : 2000); };
-  const selectGoal = (id) => { setGoalId(id); const g = GOALS.find((x) => x.id === id); if (g.forceCur && curSel !== "USD") { setCurSel("USD"); setAmount(5000); } };
-
-  return (
-    <Section id="donde" eyebrow="Dónde invertir" title="¿Dónde invierto según mi objetivo?"
-      intro="Elegí qué querés lograr y cuánto tenés. Te mostramos qué instrumento suele encajar, dónde se compra y cuánto podría rendir. Es una guía educativa, no una recomendación personal.">
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3" role="radiogroup" aria-label="Objetivo">
-        {GOALS.map((g) => (
-          <button key={g.id} id={"goal-" + g.id} role="radio" aria-checked={goalId === g.id} onClick={() => selectGoal(g.id)}
-            className={"text-left rounded-2xl border p-4 transition " + (goalId === g.id ? "border-em bg-emsoft ring-2 ring-em/20" : "border-line bg-card hover:border-em/50")}>
-            <Icon name={g.icon} className={"w-6 h-6 " + (goalId === g.id ? "text-em" : "text-muted")} />
-            <p className="mt-2 font-semibold text-ink leading-snug text-sm sm:text-base">{g.label}</p>
-          </button>
-        ))}
-      </div>
-
-      <div className="mt-5 flex flex-wrap items-end gap-4 rounded-2xl border border-line bg-card p-4">
-        <div>
-          <p className="text-sm font-semibold text-ink mb-1.5">Moneda</p>
-          <CurToggle id="donde-cur" cur={cur} setCur={changeCur} disabled={!!goal.forceCur} />
-        </div>
-        <div className="w-full sm:w-64">
-          <NumField id="donde-amount" label={"Monto a invertir (" + (cur === "PYG" ? "Gs." : "US$") + ")"} value={amount} onChange={setAmount} cur={cur} step={cur === "PYG" ? 100000 : 50} />
-        </div>
-        {goal.forceCur && <p className="text-xs text-amber">Para este objetivo el cálculo se hace en dólares.</p>}
-      </div>
-
-      <div key={goalId + cur} className="fade-in mt-5 grid lg:grid-cols-[1.4fr_1fr] gap-5">
-        <article className="rounded-2xl border border-em/40 bg-card p-6 sm:p-7 min-w-0">
-          <div className="flex items-start justify-between gap-3 flex-wrap">
-            <div>
-              <p className="eyebrow">Opción principal</p>
-              <h3 className="mt-1 text-2xl font-bold text-ink">{main.name} {cur === "USD" && "en dólares"}</h3>
-            </div>
-            <Pill className={RISK_STYLE[main.risk]}>Riesgo {main.risk.toLowerCase()}</Pill>
-          </div>
-          <p className="mt-3 text-ink">{goal.why}</p>
-          <div className="mt-4 rounded-xl bg-soft p-4 flex gap-3">
-            <Icon name="MapPin" className="w-5 h-5 text-em shrink-0 mt-0.5" />
-            <div><p className="text-sm font-semibold text-ink">Dónde se compra</p><p className="text-sm text-muted">{goal.where}</p></div>
-          </div>
-          <dl className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-3 text-sm">
-            {[["Tasa de referencia", "≈ " + pct(rate)], ["Plazo típico", main.term], ["Liquidez", main.liquidity], ["Monto mínimo", main.min]].map(([k, v]) => (
-              <div key={k} className="min-w-0"><dt className="text-xs text-muted">{k}</dt><dd className="font-semibold text-ink num">{v}</dd></div>
-            ))}
-          </dl>
-          <div className="mt-5 grid sm:grid-cols-2 gap-3">
-            <Stat tone="navy" label={"En " + (goal.months >= 12 ? goal.months / 12 + (goal.months === 12 ? " año" : " años") : goal.months + " meses") + " tendrías"} value={fmtMoney(final, cur)} sub="Reinvirtiendo los intereses" />
-            {goal.income
-              ? <Stat tone="em" label="Cobro mensual estimado" value={fmtMoney(amt * rate / 100 / 12, cur)} sub="Si cobrás los cupones en vez de reinvertir" />
-              : <Stat tone="em" label="Intereses ganados" value={"+ " + fmtMoney(final - amt, cur)} />}
-          </div>
-        </article>
-
-        <div className="space-y-5 min-w-0">
-          <article className="rounded-2xl border border-line bg-card p-5">
-            <p className="text-xs font-semibold uppercase tracking-wider text-muted">Alternativa</p>
-            <div className="mt-1 flex items-center justify-between gap-3">
-              <h4 className="text-lg font-bold text-ink">{alt.name}</h4>
-              <span className="num font-semibold text-em">≈ {pct(altRate)}</span>
-            </div>
-            <p className="mt-1 text-sm text-muted line-clamp-3">{alt.summary}</p>
-          </article>
-          <article className="rounded-2xl border border-line bg-card p-5">
-            <p className="flex items-center gap-2 text-sm font-bold text-ink"><Icon name="Lightbulb" className="w-4 h-4 text-amber" /> Tené en cuenta</p>
-            <ul className="mt-3 space-y-2">{goal.tips.map((t) => <li key={t} className="flex gap-2 text-sm text-ink"><Icon name="Check" className="w-4 h-4 text-em shrink-0 mt-0.5" />{t}</li>)}</ul>
-          </article>
-          <button onClick={() => scrollTo("simulador")} className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-em px-5 py-3 font-semibold text-white hover:brightness-110 transition">
-            <Icon name="Calculator" className="w-4 h-4" /> Simular con aportes mensuales
-          </button>
-        </div>
-      </div>
-      <div className="mt-5"><Notice>Las tasas son orientativas y cambian con el mercado. Antes de invertir, pedí a tu Casa de Bolsa las opciones vigentes, el prospecto y la calificación de cada emisor.</Notice></div>
-    </Section>
-  );
-}
-
-/* ---------- 6. casos de ejemplo ---------- */
-const CASES = [
-  { name: "Ana", age: 24, who: "Empleada, primer trabajo", icon: "User", goal: "Armar su fondo de emergencia y empezar a invertir.", cur: "PYG", initial: 500000, monthly: 500000, years: 3,
-    mix: [["Fondo mutuo", 70, 6], ["CDA", 30, 7.5]] },
-  { name: "Diego", age: 35, who: "Profesional independiente", icon: "Briefcase", goal: "Juntar la entrega de un departamento en 4 años.", cur: "PYG", initial: 20000000, monthly: 2000000, years: 4,
-    mix: [["CDA", 50, 7.5], ["Bonos corporativos AApy", 50, 9.5]] },
-  { name: "Don Carlos", age: 66, who: "Jubilado", icon: "Sprout", goal: "Complementar su jubilación con cupones mensuales.", cur: "PYG", initial: 300000000, monthly: 0, years: 5, income: true,
-    mix: [["Bonos del Tesoro", 50, 8.5], ["Bonos corporativos", 30, 9.5], ["Fondo mutuo", 20, 6]] },
-  { name: "Laura", age: 29, who: "Trabaja para una empresa del exterior", icon: "Plane", goal: "Ahorrar en dólares para un posgrado.", cur: "USD", initial: 3000, monthly: 300, years: 3,
-    mix: [["Fondo mutuo USD", 30, 3.8], ["CDA USD", 40, 5.2], ["Bonos USD", 30, 7]] },
-];
-
-function Casos() {
-  const [sel, setSel] = useState(0);
-  const c = CASES[sel];
-  const rate = c.mix.reduce((s, [, w, r]) => s + (w * r) / 100, 0);
-  const months = c.years * 12;
-  const final = fv(c.initial, c.monthly, rate, months);
-  const contrib = c.initial + c.monthly * months;
-  return (
-    <Section id="casos" eyebrow="Casos de ejemplo" title="Cómo invierten personas como vos"
-      intro="Cuatro ejemplos ilustrativos con objetivos distintos. Tocá cada persona para ver su cartera y su resultado estimado.">
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        {CASES.map((p, k) => (
-          <button key={p.name} id={"case-" + k} onClick={() => setSel(k)} aria-pressed={sel === k}
-            className={"text-left rounded-2xl border p-4 transition " + (sel === k ? "border-em bg-emsoft" : "border-line bg-card hover:border-em/50")}>
-            <span className={"grid place-items-center w-10 h-10 rounded-full " + (sel === k ? "bg-em text-white" : "bg-soft text-ink")}><Icon name={p.icon} className="w-5 h-5" /></span>
-            <p className="mt-2 font-bold text-ink">{p.name}, <span className="num">{p.age}</span></p>
-            <p className="text-xs text-muted">{p.who}</p>
-          </button>
-        ))}
-      </div>
-      <article key={sel} className="fade-in mt-5 rounded-2xl border border-line bg-card p-6 sm:p-7 grid lg:grid-cols-[1fr_1fr] gap-6">
-        <div className="min-w-0">
-          <p className="eyebrow">Objetivo</p>
-          <h3 className="mt-1 text-xl font-bold text-ink">{c.goal}</h3>
-          <p className="mt-3 text-sm text-muted num">
-            Empieza con {fmtMoney(c.initial, c.cur)}{c.monthly > 0 ? " y suma " + fmtMoney(c.monthly, c.cur) + " por mes" : ""} durante {c.years} años.
-          </p>
-          <p className="mt-5 text-sm font-semibold text-ink">Su cartera</p>
-          <ul className="mt-2 space-y-3">
-            {c.mix.map(([n, w, r]) => (
-              <li key={n}>
-                <div className="flex justify-between text-sm"><span className="text-ink">{n}</span><span className="num text-muted">{w} % · ≈ {pct(r)}</span></div>
-                <div className="mt-1 h-2 rounded-full bg-soft overflow-hidden"><div className="h-full bg-em rounded-full" style={{ width: w + "%" }} /></div>
-              </li>
-            ))}
-          </ul>
-          <p className="mt-3 text-xs text-muted num">Tasa promedio ponderada: ≈ {pct(rate, 2)} anual</p>
-        </div>
-        <div className="grid gap-3 content-start">
-          {c.income ? (
-            <>
-              <Stat tone="navy" label="Cobro mensual estimado" value={fmtMoney((c.initial * rate) / 100 / 12, c.cur)} sub="Cobrando los cupones sin reinvertir" />
-              <Stat label="Cobro anual estimado" value={fmtMoney((c.initial * rate) / 100, c.cur)} />
-              <Stat tone="em" label="Capital que conserva" value={fmtMoney(c.initial, c.cur)} sub="Se devuelve al vencimiento de cada título" />
-            </>
-          ) : (
-            <>
-              <Stat tone="navy" label={"Tendría en " + c.years + " años"} value={fmtMoney(final, c.cur)} />
-              <Stat label="Total aportado" value={fmtMoney(contrib, c.cur)} />
-              <Stat tone="em" label="Intereses ganados" value={"+ " + fmtMoney(final - contrib, c.cur)} />
-            </>
-          )}
-        </div>
-      </article>
-      <p className="mt-3 text-xs text-muted">Personas y cifras ficticias, con tasas constantes y sin comisiones ni impuestos. Sirven para entender el mecanismo, no como recomendación.</p>
-    </Section>
-  );
-}
-
-/* ---------- 9. checklist antes de invertir ---------- */
-const PRE_CHECK = [
-  "Tengo un fondo de emergencia separado (3 a 6 meses de gastos).",
-  "Sé para qué invierto y cuándo voy a necesitar el dinero.",
-  "Verifiqué que la Casa de Bolsa esté habilitada por el BCP y la BVA.",
-  "Conozco el tarifario: comisiones, custodia y aranceles.",
-  "Leí el prospecto o la ficha del producto.",
-  "Revisé la calificación de riesgo del emisor.",
-  "Entiendo cuándo y cómo cobro los intereses y el capital.",
-  "Sé si puedo vender antes del vencimiento y en qué condiciones.",
-  "No estoy usando dinero que necesito para los gastos del mes.",
-  "Diversifiqué: no puse todo en un solo emisor.",
-];
-
-function ChecklistPre() {
-  const [done, setDone] = usePersisted("bpy-checklist", {});
-  const n = PRE_CHECK.filter((_, k) => done[k]).length;
-  const ready = n === PRE_CHECK.length;
-  return (
-    <Section id="checklist" eyebrow="Antes de invertir" title="Checklist: ¿estás listo para tu primera inversión?"
-      intro="Marcá cada punto que ya cumpliste. Tu progreso se guarda en este navegador.">
-      <div className="grid lg:grid-cols-[1fr_300px] gap-6 items-start">
-        <ul className="grid sm:grid-cols-2 gap-3">
-          {PRE_CHECK.map((t, k) => (
-            <li key={k}>
-              <label htmlFor={"pre-" + k} className={"flex gap-3 h-full cursor-pointer rounded-xl border p-4 transition " + (done[k] ? "border-em/40 bg-emsoft" : "border-line bg-card hover:border-em/50")}>
-                <input id={"pre-" + k} type="checkbox" className="mt-1 w-4 h-4 accent-[rgb(var(--em))] shrink-0" checked={!!done[k]} onChange={(e) => setDone({ ...done, [k]: e.target.checked })} />
-                <span className="text-sm text-ink"><span className="num text-muted mr-1">{k + 1}.</span>{t}</span>
-              </label>
-            </li>
-          ))}
-        </ul>
-        <aside className="rounded-2xl border border-line bg-card p-6 text-center lg:sticky lg:top-24">
-          <div className="relative mx-auto w-32 h-32">
-            <svg viewBox="0 0 120 120" className="w-full h-full -rotate-90" aria-hidden="true">
-              <circle cx="60" cy="60" r="52" fill="none" stroke="rgb(var(--soft))" strokeWidth="12" />
-              <circle cx="60" cy="60" r="52" fill="none" stroke="rgb(var(--em))" strokeWidth="12" strokeLinecap="round"
-                strokeDasharray={2 * Math.PI * 52} strokeDashoffset={2 * Math.PI * 52 * (1 - n / PRE_CHECK.length)} style={{ transition: "stroke-dashoffset .5s" }} />
-            </svg>
-            <div className="absolute inset-0 grid place-items-center"><p className="num font-display text-3xl font-extrabold text-ink">{n}/{PRE_CHECK.length}</p></div>
-          </div>
-          <p className={"mt-4 font-bold " + (ready ? "text-em" : "text-ink")}>{ready ? "¡Estás listo para invertir!" : n >= 7 ? "Te falta poco" : "Seguí preparándote"}</p>
-          <p className="mt-1 text-sm text-muted">{ready ? "Cumpliste todos los puntos básicos. El siguiente paso es hablar con tu Casa de Bolsa." : "Completá los puntos pendientes antes de transferir dinero."}</p>
-          {n > 0 && <button onClick={() => setDone({})} className="mt-4 text-sm text-muted underline hover:text-ink">Reiniciar</button>}
-        </aside>
-      </div>
-    </Section>
-  );
-}
-
-/* ---------- 13. mapa del mercado ---------- */
-const SECTORS = [
-  { icon: "Landmark", name: "Bancos y financieras", issues: ["CDA", "Bonos", "Bonos subordinados"], risk: "Bajo a medio", text: "Son los emisores más frecuentes. Captan fondos con CDA y bonos para prestar a sus clientes. Además están supervisados por la Superintendencia de Bancos del BCP." },
-  { icon: "Building2", name: "Estado paraguayo", issues: ["Bonos del Tesoro"], risk: "Bajo", text: "El Ministerio de Economía y Finanzas emite bonos para financiar el presupuesto y obras públicas." },
-  { icon: "Wheat", name: "Agro y agroindustria", issues: ["Bonos", "Acciones preferidas"], risk: "Medio", text: "Exportadores, acopiadores e industrias de alimentos se financian para capital de trabajo e inversión. Su desempeño depende del clima y de los precios internacionales." },
-  { icon: "Store", name: "Comercio y consumo", issues: ["Bonos", "Acciones preferidas"], risk: "Medio", text: "Cadenas de retail, distribuidoras y empresas de consumo masivo que financian su expansión." },
-  { icon: "HardHat", name: "Inmobiliario y construcción", issues: ["Bonos", "Fondos de inversión"], risk: "Medio a alto", text: "Desarrolladoras y fondos que financian edificios, loteamientos y proyectos de largo plazo." },
-  { icon: "Zap", name: "Industria, energía y servicios", issues: ["Bonos", "Acciones"], risk: "Medio", text: "Empresas industriales, de logística, salud, educación y servicios que buscan financiamiento de mediano plazo." },
-  { icon: "PieChart", name: "Administradoras de fondos", issues: ["Fondos mutuos", "Fondos de inversión"], risk: "Bajo a alto", text: "Las AFPISA reúnen el dinero de muchos inversores y lo invierten en una cartera diversificada según el reglamento de cada fondo." },
-];
-
-function Mapa() {
-  const [sel, setSel] = useState(0);
-  const s = SECTORS[sel];
-  return (
-    <Section id="mapa" eyebrow="Mapa del mercado" title="¿Quiénes emiten en la bolsa paraguaya?"
-      intro="Distintos sectores de la economía se financian en la bolsa. Elegí uno para ver qué tipo de títulos suele emitir y cuál es su perfil de riesgo.">
-      <div className="grid lg:grid-cols-[1fr_360px] gap-5 items-start">
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-          {SECTORS.map((x, k) => (
-            <button key={x.name} id={"sector-" + k} onClick={() => setSel(k)} aria-pressed={sel === k}
-              className={"text-left rounded-2xl border p-4 transition min-h-[120px] " + (sel === k ? "border-navy bg-navy text-navyfg" : "border-line bg-card hover:border-em/50 text-ink")}>
-              <Icon name={x.icon} className={"w-6 h-6 " + (sel === k ? "" : "text-em")} />
-              <p className="mt-3 font-semibold text-sm leading-snug">{x.name}</p>
-            </button>
-          ))}
-        </div>
-        <article key={sel} className="fade-in rounded-2xl border border-line bg-card p-6">
-          <span className="grid place-items-center w-11 h-11 rounded-xl bg-emsoft text-em"><Icon name={s.icon} /></span>
-          <h3 className="mt-3 text-xl font-bold text-ink">{s.name}</h3>
-          <p className="mt-2 text-sm text-muted">{s.text}</p>
-          <p className="mt-4 text-xs font-semibold uppercase tracking-wider text-muted">Suele emitir</p>
-          <div className="mt-2 flex flex-wrap gap-1.5">{s.issues.map((i) => <Pill key={i} className="bg-soft text-ink">{i}</Pill>)}</div>
-          <p className="mt-4 text-sm"><span className="text-muted">Riesgo típico: </span><span className="font-semibold text-ink">{s.risk}</span></p>
-          <p className="mt-4 text-xs text-muted">Las emisiones vigentes y sus emisores se publican en el sitio de la BVA. El riesgo real depende de cada emisor: revisá siempre su calificación.</p>
-        </article>
-      </div>
-    </Section>
-  );
-}
-
-/* ---------- 7. cómo leer un prospecto ---------- */
-const PROSPECTO = [
-  ["Emisor", "Ejemplo Alimentos S.A.", "La empresa que pide el dinero prestado. Investigá a qué se dedica, hace cuánto opera y cómo le va."],
-  ["Programa de emisión", "PEG G1 · hasta Gs. 50.000.000.000", "Programa de Emisión Global: el monto máximo que la empresa puede emitir, dividido en series que se colocan en distintos momentos."],
-  ["Serie", "Serie 3", "Cada colocación dentro del programa. Las series pueden tener distinta tasa, plazo y monto."],
-  ["Moneda", "Guaraníes (PYG)", "La moneda en que invertís, cobrás los intereses y recibís el capital."],
-  ["Monto de la serie", "Gs. 10.000.000.000", "Cuánto dinero busca colocar el emisor en esta serie."],
-  ["Valor nominal", "Gs. 1.000.000 por título", "El valor de cada título y la base sobre la que se calculan los intereses. Suele ser el monto mínimo de compra."],
-  ["Tasa de interés", "9,50 % anual", "El rendimiento anual que paga el bono sobre el valor nominal."],
-  ["Pago de intereses", "Trimestral", "Cada cuánto cobrás el cupón. Trimestral significa 4 pagos por año: con Gs. 10.000.000 cobrarías Gs. 237.500 cada tres meses."],
-  ["Plazo y vencimiento", "1.825 días · 15/11/2031", "Cuánto dura el bono y en qué fecha te devuelven el capital."],
-  ["Amortización", "Al vencimiento", "Cómo se devuelve el capital: todo junto al final o en cuotas durante la vida del bono."],
-  ["Garantía", "Común", "Garantía común: respaldada por todo el patrimonio del emisor, sin un bien específico. Otras emisiones tienen garantías especiales, como hipotecas o fideicomisos."],
-  ["Calificación", "AApy · Tendencia estable", "La nota de riesgo que asignó una calificadora. La tendencia (fuerte, estable o sensible) anticipa posibles cambios."],
-  ["Destino de los fondos", "Capital de trabajo y refinanciación de deudas", "Para qué usará la empresa tu dinero. Un destino claro y productivo es una buena señal."],
-  ["Agente colocador", "Casa de Bolsa Ejemplo S.A.", "La Casa de Bolsa encargada de colocar la emisión en el mercado primario."],
-  ["Representante de obligacionistas", "Ejemplo Representante S.A.", "Representa y defiende a los inversores que tienen los bonos frente al emisor."],
-];
-
-function Prospecto() {
-  const [sel, setSel] = useState(6);
-  const [k, v, exp] = PROSPECTO[sel];
-  return (
-    <Section id="prospecto" eyebrow="Aprendé a leer" title="Cómo leer el prospecto de un bono"
-      intro="Esta es la ficha resumen de una emisión de ejemplo. Tocá o pasá el mouse sobre cada dato para entender qué significa.">
-      <div className="grid lg:grid-cols-[1.3fr_1fr] gap-6 items-start">
-        <div className="rounded-2xl border border-line bg-card overflow-hidden">
-          <div className="bg-navy text-navyfg px-5 py-4 flex items-center justify-between gap-3">
-            <div><p className="text-xs uppercase tracking-wider opacity-70">Ficha de emisión</p><p className="font-display font-bold">Bonos Ejemplo Alimentos S.A.</p></div>
-            <Pill className="bg-amber text-navy">Ficticia</Pill>
-          </div>
-          <dl className="divide-y divide-line">
-            {PROSPECTO.map(([kk, vv], i) => (
-              <button key={kk} id={"pros-" + i} type="button" onMouseEnter={() => setSel(i)} onFocus={() => setSel(i)} onClick={() => setSel(i)}
-                className={"w-full text-left grid grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)] gap-3 px-5 py-2.5 text-sm transition " + (sel === i ? "bg-emsoft" : "hover:bg-soft")}>
-                <dt className={sel === i ? "font-semibold text-em" : "text-muted"}>{kk}</dt>
-                <dd className="text-ink font-medium num">{vv}</dd>
-              </button>
-            ))}
-          </dl>
-        </div>
-        <aside className="rounded-2xl border border-em/40 bg-card p-6 lg:sticky lg:top-24">
-          <p className="flex items-center gap-2 text-sm font-semibold text-em"><Icon name="HelpCircle" className="w-4 h-4" /> ¿Qué significa?</p>
-          <h3 className="mt-2 text-xl font-bold text-ink">{k}</h3>
-          <p className="mt-1 text-sm text-muted num">En este ejemplo: <span className="text-ink font-semibold">{v}</span></p>
-          <p key={sel} className="fade-in mt-4 text-ink">{exp}</p>
-          <div className="mt-5 flex justify-between gap-2">
-            <button onClick={() => setSel((sel - 1 + PROSPECTO.length) % PROSPECTO.length)} className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-line text-sm text-ink hover:bg-soft"><Icon name="ChevronLeft" className="w-4 h-4" /> Anterior</button>
-            <span className="text-xs text-muted num self-center">{sel + 1} / {PROSPECTO.length}</span>
-            <button onClick={() => setSel((sel + 1) % PROSPECTO.length)} className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-line text-sm text-ink hover:bg-soft">Siguiente <Icon name="ChevronRight" className="w-4 h-4" /></button>
-          </div>
-        </aside>
-      </div>
-    </Section>
-  );
-}
-
-/* ---------- 8. línea de tiempo de una inversión ---------- */
-function LineaTiempo() {
-  const start = new Date(2026, 0, 15);
-  const nominal = 10000000, rate = 9, per = 6, years = 3;
-  const coupon = (nominal * rate) / 100 / (12 / per);
-  const events = [{ type: "buy", date: start, title: "Compra", amount: -nominal, text: "Comprás Gs. 10.000.000 en bonos a 3 años, al 9 % anual con cupón semestral, a través de tu Casa de Bolsa. El dinero sale de tu cuenta y los títulos quedan registrados a tu nombre." }];
-  for (let k = 1; k <= (years * 12) / per; k++) {
-    const last = k === (years * 12) / per;
-    events.push({ type: last ? "end" : "coupon", date: addMonths(start, k * per), title: last ? "Vencimiento" : "Cupón " + k, amount: last ? coupon + nominal : coupon,
-      text: last ? "Cobrás el último cupón de Gs. 450.000 y te devuelven el capital de Gs. 10.000.000. La inversión terminó." : "Cobrás Gs. 450.000 de intereses (9 % ÷ 2). El dinero llega a tu cuenta en la Casa de Bolsa y podés retirarlo o reinvertirlo." });
-  }
-  events.push({ type: "reinvest", date: addMonths(start, years * 12 + 1), title: "Reinversión", amount: 0, text: "Decidís qué hacer: reinvertir el capital y los intereses en una nueva emisión, cambiar de instrumento o usar el dinero para tu meta." });
-  const [sel, setSel] = useState(1);
-  const e = events[sel];
-  const totalInt = coupon * ((years * 12) / per);
-  const style = { buy: "bg-navy text-navyfg", coupon: "bg-em text-white", end: "bg-amber text-navy", reinvest: "bg-soft text-ink border border-line" };
-  const icon = { buy: "ShoppingCart", coupon: "Coins", end: "Flag", reinvest: "RefreshCw" };
-  return (
-    <Section id="linea" eyebrow="Ciclo de vida" title="Línea de tiempo de una inversión"
-      intro="Así se ve, paso a paso, un bono de Gs. 10.000.000 a 3 años con cupón semestral. Tocá cada punto para ver qué pasa ese día.">
-      <div className="rounded-2xl border border-line bg-card p-5 sm:p-7">
-        <div className="overflow-x-auto pb-2">
-          <ol className="relative flex min-w-[720px] justify-between gap-2 pt-2">
-            <div className="absolute left-6 right-6 top-8 h-1 rounded-full bg-soft" aria-hidden="true" />
-            <div className="absolute left-6 top-8 h-1 rounded-full bg-em transition-all duration-500" style={{ width: "calc((100% - 3rem) * " + sel / (events.length - 1) + ")" }} aria-hidden="true" />
-            {events.map((ev, k) => (
-              <li key={k} className="relative flex flex-col items-center text-center w-20">
-                <button id={"ev-" + k} onClick={() => setSel(k)} aria-pressed={sel === k} aria-label={ev.title + " " + fmtDate(ev.date)}
-                  className={"grid place-items-center w-12 h-12 rounded-full transition " + style[ev.type] + (sel === k ? " ring-4 ring-em/30 scale-110" : " hover:scale-105")}>
-                  <Icon name={icon[ev.type]} className="w-5 h-5" />
-                </button>
-                <p className="mt-2 text-xs font-semibold text-ink">{ev.title}</p>
-                <p className="text-[11px] text-muted num">{fmtDate(ev.date)}</p>
-              </li>
-            ))}
-          </ol>
-        </div>
-        <div key={sel} className="fade-in mt-5 grid md:grid-cols-[1fr_auto] gap-4 items-center rounded-xl bg-bg border border-line p-5">
-          <div className="min-w-0">
-            <p className="text-sm font-semibold text-em num">{fmtDate(e.date)}</p>
-            <h3 className="text-lg font-bold text-ink">{e.title}</h3>
-            <p className="mt-1 text-sm text-muted">{e.text}</p>
-          </div>
-          {e.amount !== 0 && <p className={"num font-display text-2xl font-bold " + (e.amount < 0 ? "text-ink" : "text-em")}>{e.amount < 0 ? "− " : "+ "}{fmtMoney(Math.abs(e.amount), "PYG")}</p>}
-        </div>
-        <div className="mt-4 grid sm:grid-cols-3 gap-3">
-          <Stat label="Invertiste" value={fmtMoney(nominal, "PYG")} />
-          <Stat tone="em" label="Cobraste en intereses" value={"+ " + fmtMoney(totalInt, "PYG")} sub="6 cupones de Gs. 450.000" />
-          <Stat tone="navy" label="Recibiste en total" value={fmtMoney(nominal + totalInt, "PYG")} />
-        </div>
-        <p className="mt-3 text-xs text-muted">Ejemplo ilustrativo sin comisiones ni impuestos. Las fechas reales de pago figuran en el prospecto de cada emisión.</p>
-      </div>
-    </Section>
   );
 }
 
@@ -1801,6 +1789,157 @@ function Herramientas() {
         {tab === "bono" && <CalcBono />}
         {tab === "moneda" && <CalcMoneda />}
         {tab === "costo" && <CalcCosto />}
+      </div>
+    </Section>
+  );
+}
+
+/* ===== PARTE 6 DE 6: Perfil, aprender, quiz, glosario, fuentes oficiales y App ===== */
+/* ---------- 6b. perfil ---------- */
+const QUESTIONS = [
+  { q: "¿Cuál es tu objetivo principal al invertir?", a: [["Proteger mis ahorros de la inflación", 1], ["Hacer crecer mi dinero con algo de riesgo", 2], ["Maximizar la ganancia a largo plazo", 3]] },
+  { q: "¿En cuánto tiempo vas a necesitar este dinero?", a: [["En menos de 1 año", 1], ["Entre 1 y 3 años", 2], ["En más de 3 años", 3]] },
+  { q: "Si tu inversión baja un 15 % en un año, ¿qué hacés?", a: [["Retiro todo para no perder más", 1], ["Espero a que se recupere", 2], ["Aprovecho para invertir más", 3]] },
+  { q: "¿Cuánta experiencia tenés invirtiendo?", a: [["Ninguna, solo caja de ahorro o plazo fijo", 1], ["Algo: fondos mutuos o CDA", 2], ["Bastante: bonos, acciones u otros", 3]] },
+  { q: "¿Qué parte de tus ahorros vas a invertir?", a: [["La mayor parte de lo que tengo", 1], ["Una parte, tengo un colchón aparte", 2], ["Un excedente que no voy a necesitar", 3]] },
+];
+const PROFILES = {
+  Conservador: { color: "text-em", desc: "Priorizás la seguridad y la liquidez por sobre la rentabilidad. Te conviene una cartera de renta fija de emisores bien calificados y plazos cortos a medianos.",
+    alloc: [["Fondo mutuo", 40], ["CDA", 35], ["Bonos AAApy/AApy y del Tesoro", 25], ["Acciones", 0]] },
+  Moderado: { color: "text-amber", desc: "Buscás un equilibrio entre seguridad y crecimiento. Aceptás alguna variación a cambio de mejores tasas en plazos medianos.",
+    alloc: [["Fondo mutuo", 20], ["CDA", 25], ["Bonos corporativos y del Tesoro", 40], ["Acciones preferidas", 15]] },
+  Dinámico: { color: "text-danger", desc: "Tenés horizonte largo y tolerás caídas temporales. Podés sumar más bonos de mayor tasa y una porción relevante de acciones.",
+    alloc: [["Fondo mutuo", 10], ["CDA", 10], ["Bonos corporativos", 45], ["Acciones y fondos de inversión", 35]] },
+};
+const PIE_COLORS = ["rgb(var(--em))", "rgb(var(--navy))", "rgb(var(--amber))", "rgb(var(--muted))"];
+
+function Perfil() {
+  const [answers, setAnswers] = useState({});
+  const [idx, setIdx] = useState(0);
+  const finished = Object.keys(answers).length === QUESTIONS.length && idx >= QUESTIONS.length;
+  const score = Object.values(answers).reduce((s, v) => s + v, 0);
+  const profile = score <= 8 ? "Conservador" : score <= 11 ? "Moderado" : "Dinámico";
+  const P = PROFILES[profile];
+  const pick = (v) => { setAnswers({ ...answers, [idx]: v }); setIdx(idx + 1); };
+  const reset = () => { setAnswers({}); setIdx(0); };
+  const { ResponsiveContainer, PieChart, Pie, Cell, Tooltip } = RC || {};
+  const pieData = P.alloc.filter(([, v]) => v > 0).map(([name, value]) => ({ name, value }));
+
+  return (
+    <Section id="perfil" eyebrow="Test" title="Test rápido de perfil de inversionista"
+      intro="Cinco preguntas, menos de un minuto. Al final te mostramos tu perfil y una distribución de cartera de ejemplo con instrumentos paraguayos.">
+      <div className="rounded-2xl border border-line bg-card p-6 sm:p-8 max-w-4xl">
+        {!finished ? (
+          <div key={idx} className="fade-in">
+            <div className="flex items-center justify-between gap-3">
+              <p className="text-sm font-semibold text-em num">Pregunta {idx + 1} de {QUESTIONS.length}</p>
+              {idx > 0 && <button onClick={() => setIdx(idx - 1)} className="text-sm text-muted hover:text-ink inline-flex items-center gap-1"><Icon name="ArrowLeft" className="w-4 h-4" /> Volver</button>}
+            </div>
+            <div className="mt-3 h-1.5 rounded-full bg-soft overflow-hidden"><div className="h-full bg-em transition-all" style={{ width: (idx / QUESTIONS.length) * 100 + "%" }} /></div>
+            <h3 className="mt-6 text-2xl font-bold text-ink">{QUESTIONS[idx].q}</h3>
+            <div className="mt-5 grid gap-3">
+              {QUESTIONS[idx].a.map(([t, v]) => (
+                <button key={t} id={"q" + idx + "-" + v} onClick={() => pick(v)}
+                  className={"text-left rounded-xl border px-4 py-3.5 font-medium transition flex items-center justify-between gap-3 " + (answers[idx] === v ? "border-em bg-emsoft text-ink" : "border-line text-ink hover:border-em hover:bg-soft")}>
+                  {t}<Icon name="ChevronRight" className="w-4 h-4 text-muted shrink-0" />
+                </button>
+              ))}
+            </div>
+          </div>
+        ) : (
+          <div className="fade-in grid md:grid-cols-[1fr_280px] gap-8 items-center">
+            <div className="min-w-0">
+              <p className="text-sm font-semibold text-muted">Tu perfil es</p>
+              <h3 className={"text-4xl font-extrabold " + P.color}>{profile}</h3>
+              <p className="mt-1 text-xs text-muted num">Puntaje: {score} de 15</p>
+              <p className="mt-4 text-ink">{P.desc}</p>
+              <ul className="mt-5 space-y-2">
+                {P.alloc.map(([n, v], k) => (
+                  <li key={n} className="flex items-center gap-3 text-sm">
+                    <span className="w-3 h-3 rounded-sm shrink-0" style={{ background: PIE_COLORS[k] }} />
+                    <span className="flex-1 text-ink">{n}</span>
+                    <span className="num font-bold text-ink">{v} %</span>
+                  </li>
+                ))}
+              </ul>
+              <div className="mt-6 flex flex-wrap gap-3">
+                <button onClick={reset} className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-line font-semibold text-ink hover:bg-soft"><Icon name="RotateCcw" className="w-4 h-4" /> Repetir test</button>
+                <button onClick={() => scrollTo("simulador")} className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-em text-white font-semibold hover:brightness-110">Simular con esta idea <Icon name="ArrowRight" className="w-4 h-4" /></button>
+              </div>
+              <div className="mt-4"><ShareButtons text={"Hice el test de perfil de inversionista y soy " + profile + ". ¿Qué perfil tenés vos?"} /></div>
+            </div>
+            <div className="h-64">
+              {ResponsiveContainer && (
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie data={pieData} dataKey="value" nameKey="name" innerRadius="55%" outerRadius="90%" paddingAngle={2} stroke="rgb(var(--card))" strokeWidth={2}>
+                      {pieData.map((d) => <Cell key={d.name} fill={PIE_COLORS[P.alloc.findIndex(([n]) => n === d.name)]} />)}
+                    </Pie>
+                    <Tooltip formatter={(v, n) => [v + " %", n]} contentStyle={{ background: "rgb(var(--card))", border: "1px solid rgb(var(--line))", borderRadius: 12 }} itemStyle={{ color: "rgb(var(--ink))" }} />
+                  </PieChart>
+                </ResponsiveContainer>
+              )}
+            </div>
+            <div className="md:col-span-2"><Notice>Distribución de ejemplo con fines educativos. No es una recomendación personalizada: tu Casa de Bolsa debe evaluar tu perfil formalmente antes de ofrecerte productos.</Notice></div>
+          </div>
+        )}
+      </div>
+    </Section>
+  );
+}
+
+/* ---------- 7. glosario + faq ---------- */
+const highlight = (text, q) => {
+  if (!q) return text;
+  const i = text.toLowerCase().indexOf(q.toLowerCase());
+  if (i < 0) return text;
+  return <>{text.slice(0, i)}<mark className="bg-ambersoft text-ink rounded px-0.5">{text.slice(i, i + q.length)}</mark>{text.slice(i + q.length)}</>;
+};
+const norm = (s) => s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
+
+function GlosarioFAQ() {
+  const [q, setQ] = useState("");
+  const [open, setOpen] = useState(0);
+  const items = GLOSSARY.filter(([t, d]) => norm(t + " " + d).includes(norm(q.trim())));
+  return (
+    <Section id="glosario" alt eyebrow="Aprendé el idioma" title="Glosario bursátil y preguntas frecuentes">
+      <div className="grid lg:grid-cols-2 gap-10 items-start">
+        <div className="min-w-0">
+          <h3 className="text-xl font-bold text-ink">Glosario</h3>
+          <div className="relative mt-4">
+            <Icon name="Search" className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
+            <input id="glossary-search" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Buscá un término, por ejemplo «cupón»"
+              className="w-full rounded-xl border border-line bg-bg pl-9 pr-9 py-3 text-ink placeholder:text-muted focus:border-em outline-none" />
+            {q && <button aria-label="Borrar búsqueda" onClick={() => setQ("")} className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded text-muted hover:text-ink"><Icon name="X" className="w-4 h-4" /></button>}
+          </div>
+          <p className="mt-2 text-xs text-muted num">{items.length} {items.length === 1 ? "término" : "términos"}</p>
+          <dl className="mt-3 space-y-2 max-h-[560px] overflow-y-auto pr-1">
+            {items.map(([t, d]) => (
+              <div key={t} className="rounded-xl border border-line bg-bg p-4">
+                <dt className="font-bold text-ink">{highlight(t, q.trim())}</dt>
+                <dd className="mt-1 text-sm text-muted">{highlight(d, q.trim())}</dd>
+              </div>
+            ))}
+            {items.length === 0 && <p className="rounded-xl border border-dashed border-line p-6 text-center text-muted text-sm">No encontramos «{q}». Probá con otra palabra.</p>}
+          </dl>
+        </div>
+
+        <div className="min-w-0">
+          <h3 className="text-xl font-bold text-ink">Preguntas frecuentes</h3>
+          <div className="mt-4 space-y-2">
+            {FAQ.map(([qq, a], k) => (
+              <div key={k} className={"rounded-xl border bg-bg transition " + (open === k ? "border-em/50" : "border-line")}>
+                <h4>
+                  <button id={"faq-" + k} aria-expanded={open === k} aria-controls={"faq-p-" + k} onClick={() => setOpen(open === k ? -1 : k)}
+                    className="w-full flex items-center justify-between gap-3 text-left p-4 font-semibold text-ink">
+                    {qq}<Icon name="ChevronDown" className={"w-5 h-5 shrink-0 text-muted transition-transform " + (open === k ? "rotate-180 text-em" : "")} />
+                  </button>
+                </h4>
+                {open === k && <div id={"faq-p-" + k} className="fade-in px-4 pb-4 text-sm text-muted">{a}</div>}
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     </Section>
   );
@@ -2094,32 +2233,42 @@ function DatosOficiales() {
 }
 
 function App() {
+  const [view, setView] = useState(readHash);
+  useEffect(() => {
+    const onHash = () => setView(readHash());
+    window.addEventListener("hashchange", onHash);
+    return () => window.removeEventListener("hashchange", onHash);
+  }, []);
+  useEffect(() => { window.scrollTo({ top: 0 }); }, [view]);
+  currentView = view;
+  const v = VIEWS.find((x) => x.id === view);
+  const pages = {
+    invertir: [<DondeInvertir key="d" />, <Casos key="c" />, <Instrumentos key="i" />, <Casas key="cb" />],
+    mercado: [<Ecosistema key="e" />, <Mapa key="m" />, <Prospecto key="p" />, <LineaTiempo key="l" />],
+    empezar: [<Stepper key="s" />, <ChecklistPre key="ch" />, <Perfil key="pf" />],
+    herramientas: [<Herramientas key="h" />],
+    aprender: [<Aprender key="a" />, <Quiz key="q" />, <GlosarioFAQ key="g" />, <DatosOficiales key="o" />],
+  };
   return (
     <>
-      <Nav />
-      <main>
-        <Hero />
-        <Beneficios />
-        <DondeInvertir />
-        <Ecosistema />
-        <Mapa />
-        <Casos />
-        <Stepper />
-        <ChecklistPre />
-        <Casas />
-        <Instrumentos />
-        <Prospecto />
-        <LineaTiempo />
-        <Herramientas />
-        <Perfil />
-        <Aprender />
-        <Quiz />
-        <GlosarioFAQ />
-        <DatosOficiales />
-      </main>
+      <Nav view={view} />
+      {view === "inicio" ? (
+        <main key="inicio">
+          <Hero />
+          <Beneficios />
+          <Explorar />
+        </main>
+      ) : (
+        <>
+          <ViewHeader v={v} />
+          <main key={view} className="fade-in">{pages[view]}</main>
+        </>
+      )}
+      <ViewPager view={view} />
       <Footer />
     </>
   );
 }
 
 ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+

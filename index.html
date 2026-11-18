@@ -1,8 +1,10 @@
+<!doctype html>
+<html lang="es">
 <meta charset="utf-8">
 <title>Invertí en Bolsa Paraguay</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
 <style>
 /* Layout: fintech de una columna, bandas alternas claro/blanco, contenido máx. 1152px, nav fija arriba */
 :root {
@@ -20,6 +22,9 @@
   --navy-fg: 248 250 252;
   --red: 185 28 28;
   --red-soft: 254 242 242;
+  --up: 52 211 153;          /* verde de cotización sobre fondo oscuro */
+  --gold: 251 191 36;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
   --font-display: "Plus Jakarta Sans", "Inter", system-ui, sans-serif;
   --font-body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
 }
@@ -39,18 +44,23 @@
 }
 html { scroll-behavior: smooth; }
 body { background: rgb(var(--bg)); color: rgb(var(--ink)); font-family: var(--font-body); font-size: 16px; line-height: 1.6; -webkit-font-smoothing: antialiased; }
-body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 60; background: rgb(var(--card)); }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 60; background: rgb(var(--navy)); }
 h1, h2, h3, h4 { font-family: var(--font-display); text-wrap: balance; letter-spacing: -0.02em; line-height: 1.15; }
 .wrap { max-width: 1152px; margin-inline: auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
 .num { font-variant-numeric: tabular-nums; }
-.eyebrow { font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: rgb(var(--em)); }
+.eyebrow { font-family: var(--font-mono); font-size: 12px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: rgb(var(--em)); }
 .prose-w { max-width: 65ch; }
-section[id] { scroll-margin-top: 80px; }
+section[id] { scroll-margin-top: 140px; }
+@media (min-width: 1024px) { section[id] { scroll-margin-top: 104px; } }
+.board-bg { background-image: radial-gradient(60rem 30rem at 85% -10%, rgb(var(--up) / .14), transparent 60%), linear-gradient(rgb(var(--navy-fg) / .05) 1px, transparent 1px), linear-gradient(90deg, rgb(var(--navy-fg) / .05) 1px, transparent 1px); background-size: auto, 32px 32px, 32px 32px; }
+.ticker-track { display: inline-block; animation: ticker 70s linear infinite; }
+.ticker-track:hover { animation-play-state: paused; }
+@keyframes ticker { from { transform: translateX(0); } to { transform: translateX(-50%); } }
 :focus-visible { outline: 2px solid rgb(var(--em)); outline-offset: 2px; border-radius: 6px; }
 input[type=range] { accent-color: rgb(var(--em)); }
 .fade-in { animation: fadeIn .35s ease both; }
 @keyframes fadeIn { from { opacity: .4; transform: translateY(4px); } to { opacity: 1; transform: none; } }
-@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } .fade-in { animation: none; } * { transition: none !important; } }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } .fade-in, .ticker-track { animation: none; } * { transition: none !important; } }
 .recharts-cartesian-axis-tick-value { fill: rgb(var(--muted)); font-size: 12px; }
 .recharts-cartesian-grid line { stroke: rgb(var(--line)); }
 main > section:nth-of-type(even) { background: rgb(var(--soft) / .6); border-block: 1px solid rgb(var(--line)); }
@@ -72,8 +82,9 @@ main > section:nth-of-type(even) { background: rgb(var(--soft) / .6); border-blo
           amber: 'rgb(var(--amber) / <alpha-value>)', ambersoft: 'rgb(var(--amber-soft) / <alpha-value>)',
           navy: 'rgb(var(--navy) / <alpha-value>)', navyfg: 'rgb(var(--navy-fg) / <alpha-value>)',
           danger: 'rgb(var(--red) / <alpha-value>)', dangersoft: 'rgb(var(--red-soft) / <alpha-value>)',
+          up: 'rgb(var(--up) / <alpha-value>)', gold: 'rgb(var(--gold) / <alpha-value>)',
         },
-        fontFamily: { display: ['"Plus Jakarta Sans"', 'Inter', 'system-ui', 'sans-serif'], sans: ['Inter', 'system-ui', 'sans-serif'] },
+        fontFamily: { display: ['"Plus Jakarta Sans"', 'Inter', 'system-ui', 'sans-serif'], sans: ['Inter', 'system-ui', 'sans-serif'], mono: ['"IBM Plex Mono"', 'ui-monospace', 'Menlo', 'monospace'] },
       },
     },
   };
@@ -89,6 +100,8 @@ main > section:nth-of-type(even) { background: rgb(var(--soft) / .6); border-blo
 /* Código compilado desde App.jsx (JSX → JS) */
 (function () {
 function _extends() { return _extends = Object.assign ? Object.assign.bind() : function (n) { for (var e = 1; e < arguments.length; e++) { var t = arguments[e]; for (var r in t) ({}).hasOwnProperty.call(t, r) && (n[r] = t[r]); } return n; }, _extends.apply(null, arguments); }
+/* ===== PARTE 1 DE 6: Base: utilidades, datos y componentes compartidos ===== */
+
 const {
   useState,
   useMemo,
@@ -133,16 +146,74 @@ const fmtShort = (v, cur) => {
   return p + Math.round(v);
 };
 const scrollTo = id => {
-  const el = document.getElementById(id);
-  if (el) el.scrollIntoView({
-    behavior: "smooth",
-    block: "start"
-  });
+  const go = () => {
+    const el = document.getElementById(id);
+    if (el) el.scrollIntoView({
+      behavior: "smooth",
+      block: "start"
+    });
+  };
+  const v = SECTION_VIEW[id];
+  if (v && v !== currentView) {
+    window.location.hash = v;
+    setTimeout(go, 150);
+  } else go();
 };
 
 /* ---------- datos ---------- */
-const NAV = [["beneficios", "Beneficios"], ["donde", "Dónde invertir"], ["ecosistema", "Cómo funciona"], ["mapa", "Mapa del mercado"], ["casos", "Casos de ejemplo"], ["guia", "Paso a paso"], ["checklist", "Checklist"], ["casas", "Casas de Bolsa"], ["instrumentos", "Instrumentos"], ["prospecto", "Leer un prospecto"], ["linea", "Línea de tiempo"], ["simulador", "Calculadoras"], ["perfil", "Mi perfil"], ["aprender", "Aprender"], ["quiz", "Quiz"], ["glosario", "Glosario y FAQ"], ["oficial", "Fuentes oficiales"]];
-const NAV_PRIMARY = [["beneficios", "Beneficios"], ["donde", "Dónde invertir"], ["ecosistema", "Cómo funciona"], ["instrumentos", "Instrumentos"], ["simulador", "Calculadoras"], ["aprender", "Aprender"], ["glosario", "Glosario"]];
+const VIEWS = [{
+  id: "inicio",
+  label: "Inicio",
+  icon: "Home",
+  title: "Inicio",
+  desc: "",
+  sections: [["beneficios", "Beneficios"], ["explorar", "Mapa de la guía"]]
+}, {
+  id: "invertir",
+  label: "Dónde invertir",
+  icon: "Target",
+  title: "Dónde invertir",
+  desc: "Qué instrumento conviene según tu objetivo, cómo invierten otras personas, qué podés comprar en la bolsa y dónde hacerlo.",
+  sections: [["donde", "Según tu objetivo"], ["casos", "Casos de ejemplo"], ["instrumentos", "Instrumentos"], ["casas", "Casas de Bolsa"]]
+}, {
+  id: "mercado",
+  label: "El mercado",
+  icon: "Landmark",
+  title: "Cómo funciona el mercado",
+  desc: "Quiénes participan en la bolsa paraguaya, qué sectores emiten títulos y cómo se lee una emisión de principio a fin.",
+  sections: [["ecosistema", "Cómo funciona"], ["mapa", "Mapa del mercado"], ["prospecto", "Leer un prospecto"], ["linea", "Línea de tiempo"]]
+}, {
+  id: "empezar",
+  label: "Empezar",
+  icon: "Rocket",
+  title: "Empezá a invertir",
+  desc: "Los pasos para abrir tu cuenta y hacer tu primera inversión, el checklist previo y el test para conocer tu perfil.",
+  sections: [["guia", "Paso a paso"], ["checklist", "Checklist"], ["perfil", "Tu perfil"]]
+}, {
+  id: "herramientas",
+  label: "Calculadoras",
+  icon: "Calculator",
+  title: "Calculadoras",
+  desc: "Simulá tu inversión, calculá cuánto ahorrar para una meta, armá el calendario de cupones de un bono y compará monedas y costos.",
+  sections: [["simulador", "Calculadoras"]]
+}, {
+  id: "aprender",
+  label: "Aprender",
+  icon: "GraduationCap",
+  title: "Aprender",
+  desc: "Tu ruta de aprendizaje, mini-cursos, un quiz para ponerte a prueba, el glosario y las fuentes oficiales.",
+  sections: [["aprender", "Ruta y mini-cursos"], ["quiz", "Quiz"], ["glosario", "Glosario y FAQ"], ["oficial", "Fuentes oficiales"]]
+}];
+const VIEW_IDS = VIEWS.map(v => v.id);
+const SECTION_VIEW = {};
+VIEWS.forEach(v => v.sections.forEach(([id]) => {
+  SECTION_VIEW[id] = v.id;
+}));
+let currentView = "inicio";
+const readHash = () => {
+  const h = (window.location.hash || "").slice(1);
+  return VIEW_IDS.includes(h) ? h : "inicio";
+};
 const REF_RATES = [{
   k: "Fondos mutuos",
   pyg: "5 – 7 %",
@@ -357,1279 +428,6 @@ const Segmented = ({
   className: "px-3 py-1.5 text-sm font-semibold rounded-md transition " + (value === v ? "bg-card text-ink shadow-sm" : "text-muted hover:text-ink")
 }, l)));
 
-/* ---------- navegación ---------- */
-function Nav() {
-  const [open, setOpen] = useState(false);
-  const go = id => {
-    setOpen(false);
-    scrollTo(id);
-  };
-  return /*#__PURE__*/React.createElement("header", {
-    className: "sticky z-50 bg-card/90 backdrop-blur border-b border-line",
-    style: {
-      top: "env(safe-area-inset-top, 0px)"
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "wrap flex items-center justify-between h-16 gap-4"
-  }, /*#__PURE__*/React.createElement("button", {
-    onClick: () => window.scrollTo({
-      top: 0,
-      behavior: "smooth"
-    }),
-    className: "flex items-center gap-2 font-display font-extrabold text-ink"
-  }, /*#__PURE__*/React.createElement("span", {
-    className: "grid place-items-center w-8 h-8 rounded-lg bg-navy text-navyfg"
-  }, /*#__PURE__*/React.createElement(Icon, {
-    name: "TrendingUp",
-    className: "w-4 h-4"
-  })), /*#__PURE__*/React.createElement("span", null, "Bolsa", /*#__PURE__*/React.createElement("span", {
-    className: "text-em"
-  }, "PY"), " Aprende")), /*#__PURE__*/React.createElement("nav", {
-    className: "hidden lg:flex items-center gap-1",
-    "aria-label": "Secciones"
-  }, NAV_PRIMARY.map(([id, l]) => /*#__PURE__*/React.createElement("button", {
-    key: id,
-    onClick: () => go(id),
-    className: "px-3 py-2 text-sm font-medium text-muted hover:text-ink rounded-md hover:bg-soft transition"
-  }, l))), /*#__PURE__*/React.createElement("button", {
-    className: "lg:hidden p-2 rounded-md text-ink hover:bg-soft",
-    "aria-label": open ? "Cerrar menú" : "Abrir menú",
-    "aria-expanded": open,
-    onClick: () => setOpen(!open)
-  }, /*#__PURE__*/React.createElement(Icon, {
-    name: open ? "X" : "Menu"
-  }))), open && /*#__PURE__*/React.createElement("nav", {
-    className: "lg:hidden border-t border-line bg-card fade-in",
-    "aria-label": "Secciones m\xF3vil"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "wrap py-2 grid grid-cols-2 gap-x-4 max-h-[70vh] overflow-y-auto"
-  }, NAV.map(([id, l]) => /*#__PURE__*/React.createElement("button", {
-    key: id,
-    onClick: () => go(id),
-    className: "text-left px-2 py-3 text-ink font-medium border-b border-line last:border-0"
-  }, l)))));
-}
-
-/* ---------- 1. hero ---------- */
-function Hero() {
-  const [cur, setCur] = useState("PYG");
-  return /*#__PURE__*/React.createElement("section", {
-    className: "pt-12 pb-16 sm:pt-20 sm:pb-24"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "wrap grid lg:grid-cols-[1.15fr_1fr] gap-12 items-center"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "min-w-0"
-  }, /*#__PURE__*/React.createElement(Pill, {
-    className: "bg-emsoft text-em mb-5"
-  }, /*#__PURE__*/React.createElement(Icon, {
-    name: "BookOpen",
-    className: "w-3.5 h-3.5"
-  }), " Gu\xEDa educativa gratuita"), /*#__PURE__*/React.createElement("h1", {
-    className: "text-4xl sm:text-5xl lg:text-6xl font-extrabold text-ink"
-  }, "Aprend\xE9 a invertir en la Bolsa de Paraguay ", /*#__PURE__*/React.createElement("span", {
-    className: "text-em"
-  }, "desde cero")), /*#__PURE__*/React.createElement("p", {
-    className: "mt-6 text-lg sm:text-xl text-muted prose-w"
-  }, "No hace falta ser millonario. Con un fondo mutuo pod\xE9s empezar con montos accesibles, en guaran\xEDes o en d\xF3lares, y poner tus ahorros a trabajar en un mercado regulado por el Banco Central del Paraguay."), /*#__PURE__*/React.createElement("div", {
-    className: "mt-8 flex flex-wrap gap-3"
-  }, /*#__PURE__*/React.createElement("button", {
-    onClick: () => scrollTo("guia"),
-    className: "inline-flex items-center gap-2 rounded-xl bg-em px-5 py-3 font-semibold text-white shadow-sm hover:brightness-110 active:scale-[.98] transition"
-  }, "Empezar la gu\xEDa paso a paso ", /*#__PURE__*/React.createElement(Icon, {
-    name: "ArrowRight",
-    className: "w-4 h-4"
-  })), /*#__PURE__*/React.createElement("button", {
-    onClick: () => scrollTo("simulador"),
-    className: "inline-flex items-center gap-2 rounded-xl border border-line bg-card px-5 py-3 font-semibold text-ink hover:border-em hover:text-em transition"
-  }, /*#__PURE__*/React.createElement(Icon, {
-    name: "Calculator",
-    className: "w-4 h-4"
-  }), " Simular mi inversi\xF3n")), /*#__PURE__*/React.createElement("dl", {
-    className: "mt-10 grid grid-cols-3 gap-4 max-w-md"
-  }, [["9", "instrumentos explicados"], ["6", "calculadoras"], ["24", "Casas de Bolsa habilitadas"]].map(([n, l]) => /*#__PURE__*/React.createElement("div", {
-    key: l
-  }, /*#__PURE__*/React.createElement("dt", {
-    className: "sr-only"
-  }, l), /*#__PURE__*/React.createElement("dd", {
-    className: "font-display text-2xl font-extrabold text-ink num"
-  }, n), /*#__PURE__*/React.createElement("p", {
-    className: "text-xs text-muted leading-snug"
-  }, l))))), /*#__PURE__*/React.createElement("div", {
-    className: "min-w-0 rounded-2xl bg-card border border-line shadow-xl shadow-navy/5 p-5 sm:p-6"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "flex items-center justify-between gap-3 flex-wrap"
-  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("p", {
-    className: "text-xs font-semibold uppercase tracking-wider text-muted"
-  }, "Tasas anuales de referencia"), /*#__PURE__*/React.createElement("p", {
-    className: "font-display font-bold text-ink text-lg"
-  }, "Mercado paraguayo")), /*#__PURE__*/React.createElement(Segmented, {
-    idBase: "hero-cur",
-    label: "Moneda",
-    value: cur,
-    onChange: setCur,
-    options: [["PYG", "Gs."], ["USD", "US$"]]
-  })), /*#__PURE__*/React.createElement("ul", {
-    className: "mt-5 divide-y divide-line"
-  }, REF_RATES.map(r => /*#__PURE__*/React.createElement("li", {
-    key: r.k,
-    className: "flex items-center justify-between py-3 gap-3"
-  }, /*#__PURE__*/React.createElement("span", {
-    className: "text-sm text-ink"
-  }, r.k), /*#__PURE__*/React.createElement("span", {
-    className: "num font-semibold text-em text-lg"
-  }, cur === "PYG" ? r.pyg : r.usd)))), /*#__PURE__*/React.createElement("div", {
-    className: "mt-4 rounded-xl bg-navy text-navyfg p-4"
-  }, /*#__PURE__*/React.createElement("p", {
-    className: "text-xs uppercase tracking-wider opacity-70"
-  }, "Ejemplo con Gs. 10.000.000 a 3 a\xF1os"), /*#__PURE__*/React.createElement("div", {
-    className: "mt-1 flex items-end justify-between gap-2 flex-wrap"
-  }, /*#__PURE__*/React.createElement("p", {
-    className: "num font-display text-2xl font-bold"
-  }, "\u2248 Gs. 12.250.000"), /*#__PURE__*/React.createElement("p", {
-    className: "text-sm opacity-80"
-  }, "CDA al 7 % con reinversi\xF3n"))), /*#__PURE__*/React.createElement("p", {
-    className: "mt-4 text-xs text-muted flex gap-1.5"
-  }, /*#__PURE__*/React.createElement(Icon, {
-    name: "Info",
-    className: "w-3.5 h-3.5 shrink-0 mt-0.5"
-  }), "Rangos orientativos con fines educativos. Las tasas cambian cada semana: consult\xE1 las vigentes en tu Casa de Bolsa."))));
-}
-
-/* ---------- 2. ecosistema ---------- */
-function Ecosistema() {
-  const actors = [{
-    icon: "Scale",
-    title: "Superintendencia de Valores (SIV – BCP)",
-    role: "Regula y supervisa",
-    text: "Dependiente del Banco Central del Paraguay (antes Comisión Nacional de Valores). Autoriza a las Casas de Bolsa, registra las emisiones y controla que se cumplan las reglas del mercado para proteger al inversor."
-  }, {
-    icon: "Landmark",
-    title: "Bolsa de Valores de Asunción (BVA)",
-    role: "Donde se negocia",
-    text: "Antes conocida como BVPASA. Es el mercado organizado donde se compran y venden los títulos, publica precios y emisiones. La custodia y liquidación de los títulos la realiza la Caja de Valores del Paraguay (CAVAPY)."
-  }, {
-    icon: "Building2",
-    title: "Casas de Bolsa (C.B.S.A.)",
-    role: "Intermediario obligatorio",
-    text: "Solo ellas pueden operar en la bolsa. Te abren la cuenta, ejecutan tus órdenes de compra y venta, te asesoran y custodian tus títulos."
-  }, {
-    icon: "Users",
-    title: "Emisores e inversionistas",
-    role: "Los protagonistas",
-    text: "Empresas, bancos y el Estado emiten títulos para financiarse. Personas y empresas como vos ponen su capital a cambio de intereses, dividendos o ganancias."
-  }];
-  const [mkt, setMkt] = useState("primario");
-  return /*#__PURE__*/React.createElement(Section, {
-    id: "ecosistema",
-    alt: true,
-    eyebrow: "El ecosistema",
-    title: "\xBFC\xF3mo funciona la Bolsa de Valores en Paraguay?",
-    intro: "La bolsa conecta a quienes necesitan financiamiento con quienes tienen ahorros. Cuatro actores hacen que eso funcione con reglas claras."
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "grid sm:grid-cols-2 lg:grid-cols-4 gap-4"
-  }, actors.map(a => /*#__PURE__*/React.createElement("article", {
-    key: a.title,
-    className: "group rounded-2xl border border-line bg-bg p-5 hover:border-em/50 hover:-translate-y-0.5 transition"
-  }, /*#__PURE__*/React.createElement("span", {
-    className: "grid place-items-center w-11 h-11 rounded-xl bg-navy text-navyfg group-hover:bg-em transition"
-  }, /*#__PURE__*/React.createElement(Icon, {
-    name: a.icon
-  })), /*#__PURE__*/React.createElement("p", {
-    className: "mt-4 text-xs font-semibold uppercase tracking-wider text-em"
-  }, a.role), /*#__PURE__*/React.createElement("h3", {
-    className: "mt-1 font-bold text-ink text-lg"
-  }, a.title), /*#__PURE__*/React.createElement("p", {
-    className: "mt-2 text-sm text-muted"
-  }, a.text)))), /*#__PURE__*/React.createElement("div", {
-    className: "mt-8 rounded-2xl border border-line bg-bg p-5 overflow-x-auto"
-  }, /*#__PURE__*/React.createElement("p", {
-    className: "text-sm font-semibold text-ink mb-4"
-  }, "C\xF3mo viaja tu dinero"), /*#__PURE__*/React.createElement("div", {
-    className: "flex items-center gap-2 min-w-[640px] text-sm"
-  }, ["Vos (inversor)", "Tu Casa de Bolsa", "BVA (negociación)", "Emisor (empresa / Estado)"].map((s, i, arr) => /*#__PURE__*/React.createElement(React.Fragment, {
-    key: s
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "flex-1 rounded-xl px-3 py-3 text-center font-semibold " + (i === 0 ? "bg-em text-white" : "bg-card border border-line text-ink")
-  }, s), i < arr.length - 1 && /*#__PURE__*/React.createElement(Icon, {
-    name: "ArrowRight",
-    className: "w-4 h-4 text-muted shrink-0"
-  })))), /*#__PURE__*/React.createElement("p", {
-    className: "mt-3 text-xs text-muted min-w-[640px]"
-  }, "Todo el circuito est\xE1 supervisado por la Superintendencia de Valores del BCP. A cambio de tu dinero recib\xEDs t\xEDtulos registrados a tu nombre y, luego, intereses o dividendos.")), /*#__PURE__*/React.createElement("div", {
-    className: "mt-8 grid lg:grid-cols-[280px_1fr] gap-6 items-start"
-  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h3", {
-    className: "text-xl font-bold text-ink"
-  }, "Mercado primario y secundario"), /*#__PURE__*/React.createElement("p", {
-    className: "mt-2 text-sm text-muted"
-  }, "Un mismo bono pasa por dos momentos de su vida. Eleg\xED uno para ver la diferencia."), /*#__PURE__*/React.createElement("div", {
-    className: "mt-4"
-  }, /*#__PURE__*/React.createElement(Segmented, {
-    idBase: "mkt",
-    label: "Tipo de mercado",
-    value: mkt,
-    onChange: setMkt,
-    options: [["primario", "Primario"], ["secundario", "Secundario"]]
-  }))), /*#__PURE__*/React.createElement("div", {
-    key: mkt,
-    className: "fade-in rounded-2xl border border-line bg-bg p-6 grid sm:grid-cols-3 gap-5"
-  }, (mkt === "primario" ? [["¿Qué pasa?", "El emisor coloca títulos nuevos por primera vez. Es el «estreno» del bono o la acción."], ["¿A quién le pagás?", "Tu dinero va directamente a la empresa o al Estado que emite."], ["Ejemplo", "Una empresa paraguaya lanza bonos a 5 años al 9 % en Gs. y vos comprás en la colocación."]] : [["¿Qué pasa?", "Los inversores compran y venden entre sí títulos que ya existen."], ["¿A quién le pagás?", "A otro inversor que quiere vender. El emisor no recibe dinero nuevo."], ["Ejemplo", "Comprás a otro inversor un CDA al que le quedan 14 meses, o vendés tu bono antes de que venza."]]).map(([t, d]) => /*#__PURE__*/React.createElement("div", {
-    key: t
-  }, /*#__PURE__*/React.createElement("p", {
-    className: "text-xs font-semibold uppercase tracking-wider text-em"
-  }, t), /*#__PURE__*/React.createElement("p", {
-    className: "mt-1 text-ink text-sm"
-  }, d))))));
-}
-
-/* ---------- 3. stepper ---------- */
-const STEPS = [{
-  icon: "Target",
-  title: "Definí objetivo, plazo y moneda",
-  body: "Antes de elegir un producto, respondé tres preguntas: ¿para qué invierto?, ¿cuándo voy a necesitar este dinero? y ¿en qué moneda lo voy a usar?",
-  list: ["Fondo de emergencia o liquidez: fondo mutuo rescatable.", "Meta a 1–3 años (auto, viaje, estudios): CDA o bonos cortos.", "Largo plazo (jubilación, patrimonio): bonos largos, fondos de inversión y una parte en acciones.", "Si tus gastos son en guaraníes, invertí mayormente en PYG; si ahorrás para algo dolarizado, considerá USD."],
-  tip: "Mantené siempre un fondo de emergencia de 3 a 6 meses de gastos fuera de inversiones de largo plazo."
-}, {
-  icon: "ShieldCheck",
-  title: "Elegí una Casa de Bolsa habilitada",
-  body: "Es tu puerta de entrada obligatoria a la bolsa. Antes de abrir cuenta, verificá que esté autorizada y comparala con otras.",
-  list: ["Buscala en el registro de Casas de Bolsa de la Superintendencia de Valores (bcp.gov.py).", "Confirmá que figure como miembro de la BVA (bolsadevalores.com.py).", "Pedí el tarifario: comisión de corretaje, custodia y otros costos.", "Probá su atención y su app antes de transferir dinero."],
-  tip: "Desconfiá de cualquiera que te prometa rendimientos garantizados muy altos o te pida transferir a una cuenta personal."
-}, {
-  icon: "FileText",
-  title: "Abrí tu cuenta comitente",
-  body: "Es la cuenta a tu nombre donde se registran tus títulos y tu dinero. Muchas casas permiten hacerlo en línea en pocos días.",
-  list: ["Cédula de identidad paraguaya vigente (o pasaporte si sos extranjero).", "Comprobante de ingresos u origen de fondos (liquidación de salario, facturas, declaraciones).", "Constancia de RUC si sos contribuyente.", "Formulario de perfil de inversionista y datos de tu cuenta bancaria."],
-  tip: "El perfil de inversionista no es un trámite más: define qué productos te pueden ofrecer. Respondelo con sinceridad."
-}, {
-  icon: "Smartphone",
-  title: "Transferí fondos y hacé tu primera compra",
-  body: "Enviá dinero desde tu banco a la cuenta de la Casa de Bolsa y da la orden de compra con tu asesor o desde la app.",
-  list: ["Transferí vía SIPAP o transferencia bancaria a la cuenta oficial de la Casa de Bolsa (nunca a cuentas personales).", "Pedile a tu asesor las opciones disponibles: tasa, plazo, emisor y calificación.", "Leé el prospecto o la ficha del producto antes de confirmar.", "Guardá el comprobante de operación que te envía la Casa de Bolsa."],
-  tip: "Para tu primera inversión, un fondo mutuo o un CDA de una entidad bien calificada es una forma sencilla de aprender."
-}, {
-  icon: "RefreshCw",
-  title: "Seguí tus pagos y reinvertí",
-  body: "Invertir no termina con la compra. Revisá tu cuenta, cobrá tus cupones y decidí qué hacer con ellos.",
-  list: ["Revisá el estado de cuenta mensual de tu Casa de Bolsa.", "Anotá fechas de cobro de cupones y vencimientos.", "Reinvertí los intereses para aprovechar el interés compuesto.", "Revisá tu cartera una o dos veces al año y ajustala a tus metas."],
-  tip: "Seguí las calificaciones de riesgo de tus emisores: si bajan, conversá con tu asesor."
-}];
-function Stepper() {
-  const [i, setI] = useState(0);
-  const s = STEPS[i];
-  return /*#__PURE__*/React.createElement(Section, {
-    id: "guia",
-    eyebrow: "Gu\xEDa paso a paso",
-    title: "C\xF3mo empezar a invertir desde cero",
-    intro: "Cinco pasos en orden. Toc\xE1 cada uno para ver qu\xE9 hacer y qu\xE9 tener en cuenta."
-  }, /*#__PURE__*/React.createElement("ol", {
-    className: "grid grid-cols-5 gap-2 sm:gap-3 mb-6",
-    "aria-label": "Pasos"
-  }, STEPS.map((st, k) => /*#__PURE__*/React.createElement("li", {
-    key: k
-  }, /*#__PURE__*/React.createElement("button", {
-    id: "step-" + k,
-    onClick: () => setI(k),
-    "aria-current": k === i ? "step" : undefined,
-    className: "w-full text-left rounded-xl border p-2 sm:p-3 transition " + (k === i ? "border-em bg-emsoft" : k < i ? "border-line bg-card" : "border-line bg-card hover:border-em/50")
-  }, /*#__PURE__*/React.createElement("span", {
-    className: "grid place-items-center w-8 h-8 rounded-full text-sm font-bold num " + (k < i ? "bg-em text-white" : k === i ? "bg-navy text-navyfg" : "bg-soft text-muted")
-  }, k < i ? /*#__PURE__*/React.createElement(Icon, {
-    name: "Check",
-    className: "w-4 h-4"
-  }) : k + 1), /*#__PURE__*/React.createElement("span", {
-    className: "hidden sm:block mt-2 text-sm font-semibold text-ink leading-snug"
-  }, st.title))))), /*#__PURE__*/React.createElement("div", {
-    className: "h-1.5 rounded-full bg-soft mb-6 overflow-hidden"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "h-full bg-em transition-all duration-500",
-    style: {
-      width: (i + 1) / STEPS.length * 100 + "%"
-    }
-  })), /*#__PURE__*/React.createElement("article", {
-    key: i,
-    className: "fade-in rounded-2xl bg-card border border-line p-6 sm:p-8 grid lg:grid-cols-[1fr_320px] gap-8"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "min-w-0"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "flex items-center gap-3"
-  }, /*#__PURE__*/React.createElement("span", {
-    className: "grid place-items-center w-11 h-11 rounded-xl bg-navy text-navyfg"
-  }, /*#__PURE__*/React.createElement(Icon, {
-    name: s.icon
-  })), /*#__PURE__*/React.createElement("p", {
-    className: "text-sm font-semibold text-em num"
-  }, "Paso ", i + 1, " de ", STEPS.length)), /*#__PURE__*/React.createElement("h3", {
-    className: "mt-4 text-2xl font-bold text-ink"
-  }, s.title), /*#__PURE__*/React.createElement("p", {
-    className: "mt-2 text-muted"
-  }, s.body), /*#__PURE__*/React.createElement("ul", {
-    className: "mt-5 space-y-3"
-  }, s.list.map(l => /*#__PURE__*/React.createElement("li", {
-    key: l,
-    className: "flex gap-3 text-ink"
-  }, /*#__PURE__*/React.createElement(Icon, {
-    name: "CheckCircle2",
-    className: "w-5 h-5 text-em shrink-0 mt-0.5"
-  }), /*#__PURE__*/React.createElement("span", null, l))))), /*#__PURE__*/React.createElement("aside", {
-    className: "rounded-xl bg-ambersoft border border-amber/30 p-5 self-start"
-  }, /*#__PURE__*/React.createElement("p", {
-    className: "flex items-center gap-2 text-sm font-bold text-amber"
-  }, /*#__PURE__*/React.createElement(Icon, {
-    name: "Lightbulb",
-    className: "w-4 h-4"
-  }), " Consejo pr\xE1ctico"), /*#__PURE__*/React.createElement("p", {
-    className: "mt-2 text-sm text-ink"
-  }, s.tip)), /*#__PURE__*/React.createElement("div", {
-    className: "lg:col-span-2 flex justify-between gap-3 pt-2 border-t border-line"
-  }, /*#__PURE__*/React.createElement("button", {
-    disabled: i === 0,
-    onClick: () => setI(i - 1),
-    className: "inline-flex items-center gap-2 px-4 py-2 rounded-lg font-semibold text-ink border border-line disabled:opacity-40 hover:bg-soft transition"
-  }, /*#__PURE__*/React.createElement(Icon, {
-    name: "ArrowLeft",
-    className: "w-4 h-4"
-  }), " Anterior"), i < STEPS.length - 1 ? /*#__PURE__*/React.createElement("button", {
-    onClick: () => setI(i + 1),
-    className: "inline-flex items-center gap-2 px-4 py-2 rounded-lg font-semibold bg-em text-white hover:brightness-110 transition"
-  }, "Siguiente ", /*#__PURE__*/React.createElement(Icon, {
-    name: "ArrowRight",
-    className: "w-4 h-4"
-  })) : /*#__PURE__*/React.createElement("button", {
-    onClick: () => scrollTo("perfil"),
-    className: "inline-flex items-center gap-2 px-4 py-2 rounded-lg font-semibold bg-em text-white hover:brightness-110 transition"
-  }, "Descubr\xED tu perfil ", /*#__PURE__*/React.createElement(Icon, {
-    name: "ArrowRight",
-    className: "w-4 h-4"
-  })))));
-}
-
-/* ---------- 4. casas de bolsa ---------- */
-function Casas() {
-  const services = [["MessagesSquare", "Asesoría", "Te explican opciones según tu perfil y objetivo."], ["ArrowLeftRight", "Compra y venta", "Ejecutan tus órdenes en la BVA, en mercado primario y secundario."], ["Lock", "Custodia", "Registran tus títulos a tu nombre y te informan cobros y vencimientos."], ["Smartphone", "Apps digitales", "Varias permiten invertir y seguir tu cartera desde el celular."]];
-  const checklist = ["Está registrada en la Superintendencia de Valores del BCP y es miembro de la BVA.", "Te entrega por escrito el tarifario: corretaje, custodia y aranceles.", "Responde rápido y explica sin apuros ni presiones.", "Ofrece app o plataforma web para ver tu cartera y estados de cuenta.", "Tiene productos propios o vinculados, como fondos mutuos de su administradora.", "Publica información clara de sus emisiones y riesgos."];
-  const [checked, setChecked] = useState({});
-  const [q, setQ] = useState("");
-  const done = Object.values(checked).filter(Boolean).length;
-  const list = BROKERS.filter(b => b.name.toLowerCase().includes(q.toLowerCase()));
-  return /*#__PURE__*/React.createElement(Section, {
-    id: "casas",
-    alt: true,
-    eyebrow: "Intermediarios",
-    title: "Casas de Bolsa en Paraguay",
-    intro: "Una Casa de Bolsa (C.B.S.A.) es una sociedad an\xF3nima autorizada para comprar y vender t\xEDtulos en la bolsa por cuenta de sus clientes. Ganan dinero con comisiones de corretaje sobre cada operaci\xF3n y, en algunos casos, con cargos de custodia."
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "grid sm:grid-cols-2 lg:grid-cols-4 gap-4"
-  }, services.map(([ic, t, d]) => /*#__PURE__*/React.createElement("div", {
-    key: t,
-    className: "rounded-2xl border border-line bg-bg p-5"
-  }, /*#__PURE__*/React.createElement(Icon, {
-    name: ic,
-    className: "w-6 h-6 text-em"
-  }), /*#__PURE__*/React.createElement("p", {
-    className: "mt-3 font-bold text-ink"
-  }, t), /*#__PURE__*/React.createElement("p", {
-    className: "mt-1 text-sm text-muted"
-  }, d)))), /*#__PURE__*/React.createElement("div", {
-    className: "mt-10 grid lg:grid-cols-[380px_1fr] gap-6 items-start"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "rounded-2xl border border-line bg-bg p-5 sm:p-6"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "flex items-center justify-between gap-3"
-  }, /*#__PURE__*/React.createElement("h3", {
-    className: "text-lg font-bold text-ink"
-  }, "Checklist para elegir"), /*#__PURE__*/React.createElement("span", {
-    className: "num text-sm font-semibold text-em"
-  }, done, "/", checklist.length)), /*#__PURE__*/React.createElement("div", {
-    className: "mt-3 h-1.5 rounded-full bg-soft overflow-hidden"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "h-full bg-em transition-all",
-    style: {
-      width: done / checklist.length * 100 + "%"
-    }
-  })), /*#__PURE__*/React.createElement("ul", {
-    className: "mt-4 space-y-2"
-  }, checklist.map((c, k) => /*#__PURE__*/React.createElement("li", {
-    key: k
-  }, /*#__PURE__*/React.createElement("label", {
-    htmlFor: "chk-" + k,
-    className: "flex gap-3 cursor-pointer rounded-lg p-2 hover:bg-soft"
-  }, /*#__PURE__*/React.createElement("input", {
-    id: "chk-" + k,
-    type: "checkbox",
-    className: "mt-1 w-4 h-4 accent-[rgb(var(--em))] shrink-0",
-    checked: !!checked[k],
-    onChange: e => setChecked({
-      ...checked,
-      [k]: e.target.checked
-    })
-  }), /*#__PURE__*/React.createElement("span", {
-    className: "text-sm " + (checked[k] ? "text-muted line-through" : "text-ink")
-  }, c))))), done === checklist.length && /*#__PURE__*/React.createElement("p", {
-    className: "mt-3 text-sm font-semibold text-em fade-in"
-  }, "Excelente: esa Casa de Bolsa cumple todos los criterios b\xE1sicos.")), /*#__PURE__*/React.createElement("div", {
-    className: "min-w-0"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "flex flex-wrap items-center gap-3 mb-4"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "relative flex-1 min-w-[200px]"
-  }, /*#__PURE__*/React.createElement(Icon, {
-    name: "Search",
-    className: "w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted"
-  }), /*#__PURE__*/React.createElement("input", {
-    id: "broker-search",
-    value: q,
-    onChange: e => setQ(e.target.value),
-    placeholder: "Buscar Casa de Bolsa",
-    className: "w-full rounded-lg border border-line bg-card pl-9 pr-3 py-2 text-sm text-ink placeholder:text-muted focus:border-em outline-none"
-  })), /*#__PURE__*/React.createElement("p", {
-    className: "text-sm text-muted num"
-  }, list.length, " de ", BROKERS.length, " habilitadas")), /*#__PURE__*/React.createElement("div", {
-    className: "grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-2"
-  }, list.map(b => /*#__PURE__*/React.createElement("div", {
-    key: b.name,
-    className: "flex items-center gap-3 rounded-xl border border-line bg-card px-3 py-2.5"
-  }, /*#__PURE__*/React.createElement("span", {
-    className: "grid place-items-center w-9 h-9 shrink-0 rounded-lg bg-navy text-navyfg font-display font-bold text-xs"
-  }, b.name.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase()), /*#__PURE__*/React.createElement("div", {
-    className: "min-w-0"
-  }, /*#__PURE__*/React.createElement("p", {
-    className: "font-semibold text-ink leading-snug text-sm"
-  }, b.name), /*#__PURE__*/React.createElement("p", {
-    className: "text-xs text-muted"
-  }, "Casa de Bolsa S.A.")))), list.length === 0 && /*#__PURE__*/React.createElement("p", {
-    className: "text-sm text-muted sm:col-span-2 p-4"
-  }, "No hay resultados para \xAB", q, "\xBB. Prob\xE1 con otro nombre.")), /*#__PURE__*/React.createElement("div", {
-    className: "mt-4"
-  }, /*#__PURE__*/React.createElement(Notice, null, /*#__PURE__*/React.createElement("strong", null, "Lista de Casas de Bolsa habilitadas seg\xFAn el sitio de la BVA, consultado en noviembre de 2026."), " Es informativa y no constituye una recomendaci\xF3n. La lista puede cambiar. Verific\xE1 siempre la lista vigente en el sitio oficial del Banco Central del Paraguay (", /*#__PURE__*/React.createElement("a", {
-    className: "underline text-em",
-    href: "https://www.bcp.gov.py",
-    target: "_blank",
-    rel: "noopener"
-  }, "bcp.gov.py"), ") y de la Bolsa de Valores de Asunci\xF3n (", /*#__PURE__*/React.createElement("a", {
-    className: "underline text-em",
-    href: "https://www.bolsadevalores.com.py",
-    target: "_blank",
-    rel: "noopener"
-  }, "bolsadevalores.com.py"), ").")))));
-}
-
-/* ---------- 5. instrumentos ---------- */
-function Instrumentos() {
-  const [risk, setRisk] = useState("Todos");
-  const [liq, setLiq] = useState("Todas");
-  const [cur, setCur] = useState("Todas");
-  const [sel, setSel] = useState("fm");
-  const [compare, setCompare] = useState(["fm", "cda", "bc"]);
-  const filtered = INSTRUMENTS.filter(x => (risk === "Todos" || x.risk === risk) && (liq === "Todas" || x.liquidity === liq) && (cur === "Todas" || x.currencies.includes(cur)));
-  const active = INSTRUMENTS.find(x => x.id === sel);
-  const toggleCompare = id => setCompare(c => c.includes(id) ? c.filter(x => x !== id) : c.length >= 4 ? [...c.slice(1), id] : [...c, id]);
-  const cmp = INSTRUMENTS.filter(x => compare.includes(x.id));
-  const ratings = [["AAApy", "Máxima capacidad de pago. Riesgo muy bajo.", "bg-emsoft text-em"], ["AApy", "Muy alta capacidad de pago.", "bg-emsoft text-em"], ["Apy", "Alta capacidad, algo más sensible a cambios económicos.", "bg-ambersoft text-amber"], ["BBBpy", "Capacidad suficiente; último escalón del grado de inversión.", "bg-ambersoft text-amber"], ["BBpy o menor", "Especulativo: mayor riesgo de atrasos o impago.", "bg-dangersoft text-danger"]];
-  const Filter = ({
-    label,
-    value,
-    onChange,
-    options,
-    idBase
-  }) => /*#__PURE__*/React.createElement("div", {
-    className: "min-w-0"
-  }, /*#__PURE__*/React.createElement("p", {
-    className: "text-xs font-semibold uppercase tracking-wider text-muted mb-1.5"
-  }, label), /*#__PURE__*/React.createElement("div", {
-    className: "flex flex-wrap gap-1.5"
-  }, options.map(o => /*#__PURE__*/React.createElement("button", {
-    key: o,
-    id: idBase + "-" + o,
-    onClick: () => onChange(o),
-    "aria-pressed": value === o,
-    className: "px-3 py-1.5 rounded-full text-sm font-medium border transition " + (value === o ? "bg-navy text-navyfg border-navy" : "bg-card text-ink border-line hover:border-em")
-  }, o))));
-  return /*#__PURE__*/React.createElement(Section, {
-    id: "instrumentos",
-    eyebrow: "Instrumentos financieros",
-    title: "Qu\xE9 pod\xE9s comprar en la bolsa paraguaya",
-    intro: "Filtr\xE1 por riesgo, liquidez y moneda. Toc\xE1 una tarjeta para leer la explicaci\xF3n completa y marc\xE1 hasta cuatro para compararlas lado a lado."
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "rounded-2xl border border-line bg-card p-4 sm:p-5 grid md:grid-cols-3 gap-4"
-  }, /*#__PURE__*/React.createElement(Filter, {
-    idBase: "f-risk",
-    label: "Nivel de riesgo",
-    value: risk,
-    onChange: setRisk,
-    options: ["Todos", "Bajo", "Medio", "Alto"]
-  }), /*#__PURE__*/React.createElement(Filter, {
-    idBase: "f-liq",
-    label: "Liquidez",
-    value: liq,
-    onChange: setLiq,
-    options: ["Todas", "Alta", "Media", "Baja"]
-  }), /*#__PURE__*/React.createElement(Filter, {
-    idBase: "f-cur",
-    label: "Moneda",
-    value: cur,
-    onChange: setCur,
-    options: ["Todas", "PYG", "USD"]
-  })), /*#__PURE__*/React.createElement("p", {
-    className: "mt-3 text-sm text-muted num"
-  }, filtered.length, " de ", INSTRUMENTS.length, " instrumentos"), /*#__PURE__*/React.createElement("div", {
-    className: "mt-4 grid sm:grid-cols-2 lg:grid-cols-3 gap-4"
-  }, filtered.map(x => /*#__PURE__*/React.createElement("article", {
-    key: x.id,
-    className: "rounded-2xl border bg-card p-5 flex flex-col transition " + (sel === x.id ? "border-em ring-2 ring-em/20" : "border-line hover:border-em/50")
-  }, /*#__PURE__*/React.createElement("button", {
-    onClick: () => setSel(x.id),
-    className: "text-left flex-1"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "flex items-start justify-between gap-3"
-  }, /*#__PURE__*/React.createElement("span", {
-    className: "grid place-items-center w-10 h-10 rounded-xl bg-soft text-ink"
-  }, /*#__PURE__*/React.createElement(Icon, {
-    name: x.icon
-  })), /*#__PURE__*/React.createElement(Pill, {
-    className: RISK_STYLE[x.risk]
-  }, "Riesgo ", x.risk.toLowerCase())), /*#__PURE__*/React.createElement("p", {
-    className: "mt-3 text-xs font-semibold uppercase tracking-wider text-muted"
-  }, x.family), /*#__PURE__*/React.createElement("h3", {
-    className: "text-lg font-bold text-ink"
-  }, x.name), /*#__PURE__*/React.createElement("p", {
-    className: "mt-1 text-sm text-muted line-clamp-3"
-  }, x.summary), /*#__PURE__*/React.createElement("div", {
-    className: "mt-3 flex flex-wrap gap-1.5"
-  }, /*#__PURE__*/React.createElement(Pill, {
-    className: "bg-soft text-ink"
-  }, "Liquidez ", x.liquidity.toLowerCase()), x.currencies.map(c => /*#__PURE__*/React.createElement(Pill, {
-    key: c,
-    className: "bg-soft text-ink"
-  }, c)))), /*#__PURE__*/React.createElement("div", {
-    className: "mt-4 pt-3 border-t border-line flex items-center justify-between gap-2"
-  }, /*#__PURE__*/React.createElement("button", {
-    onClick: () => setSel(x.id),
-    className: "text-sm font-semibold text-em inline-flex items-center gap-1"
-  }, "Ver detalle ", /*#__PURE__*/React.createElement(Icon, {
-    name: "ChevronRight",
-    className: "w-4 h-4"
-  })), /*#__PURE__*/React.createElement("label", {
-    htmlFor: "cmp-" + x.id,
-    className: "inline-flex items-center gap-2 text-sm text-ink cursor-pointer"
-  }, /*#__PURE__*/React.createElement("input", {
-    id: "cmp-" + x.id,
-    type: "checkbox",
-    className: "w-4 h-4 accent-[rgb(var(--em))]",
-    checked: compare.includes(x.id),
-    onChange: () => toggleCompare(x.id)
-  }), " Comparar")))), filtered.length === 0 && /*#__PURE__*/React.createElement("div", {
-    className: "sm:col-span-2 lg:col-span-3 rounded-2xl border border-dashed border-line p-8 text-center text-muted"
-  }, "Ning\xFAn instrumento combina esos filtros. ", /*#__PURE__*/React.createElement("button", {
-    className: "text-em font-semibold underline",
-    onClick: () => {
-      setRisk("Todos");
-      setLiq("Todas");
-      setCur("Todas");
-    }
-  }, "Quitar filtros"))), active && /*#__PURE__*/React.createElement("article", {
-    key: active.id,
-    className: "fade-in mt-6 rounded-2xl border border-line bg-card p-6 sm:p-8 grid lg:grid-cols-[1fr_300px] gap-8"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "min-w-0"
-  }, /*#__PURE__*/React.createElement("p", {
-    className: "eyebrow"
-  }, active.family), /*#__PURE__*/React.createElement("h3", {
-    className: "mt-1 text-2xl font-bold text-ink"
-  }, active.name), /*#__PURE__*/React.createElement("p", {
-    className: "mt-3 text-ink"
-  }, active.summary), /*#__PURE__*/React.createElement("ul", {
-    className: "mt-5 space-y-3"
-  }, active.points.map(p => /*#__PURE__*/React.createElement("li", {
-    key: p,
-    className: "flex gap-3 text-ink text-sm"
-  }, /*#__PURE__*/React.createElement(Icon, {
-    name: "CheckCircle2",
-    className: "w-5 h-5 text-em shrink-0"
-  }), /*#__PURE__*/React.createElement("span", null, p))))), /*#__PURE__*/React.createElement("dl", {
-    className: "rounded-xl bg-bg border border-line p-5 space-y-3 text-sm self-start"
-  }, [["Riesgo", active.risk], ["Liquidez", active.liquidity], ["Monedas", active.currencies.join(" / ")], ["Plazo típico", active.term], ["Monto mínimo", active.min], ["Tasa ref. PYG", active.ratePYG ? "≈ " + active.ratePYG.toLocaleString("es-PY") + " % anual" : "No aplica"], ["Tasa ref. USD", active.currencies.includes("USD") && active.rateUSD ? "≈ " + active.rateUSD.toLocaleString("es-PY") + " % anual" : "No aplica"]].map(([k, v]) => /*#__PURE__*/React.createElement("div", {
-    key: k,
-    className: "flex justify-between gap-4"
-  }, /*#__PURE__*/React.createElement("dt", {
-    className: "text-muted"
-  }, k), /*#__PURE__*/React.createElement("dd", {
-    className: "text-ink font-semibold text-right num"
-  }, v))), /*#__PURE__*/React.createElement("p", {
-    className: "text-xs text-muted pt-2 border-t border-line"
-  }, "Valores orientativos. En acciones, la cifra es un rendimiento hist\xF3rico esperado, no una tasa."))), /*#__PURE__*/React.createElement("div", {
-    className: "mt-10"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "flex items-end justify-between gap-3 flex-wrap mb-3"
-  }, /*#__PURE__*/React.createElement("h3", {
-    className: "text-xl font-bold text-ink"
-  }, "Comparador"), /*#__PURE__*/React.createElement("p", {
-    className: "text-sm text-muted"
-  }, "Comparando ", /*#__PURE__*/React.createElement("span", {
-    className: "num"
-  }, cmp.length), " de 4 posibles")), cmp.length === 0 ? /*#__PURE__*/React.createElement("p", {
-    className: "rounded-2xl border border-dashed border-line p-6 text-center text-muted"
-  }, "Marc\xE1 \xABComparar\xBB en al menos una tarjeta.") : /*#__PURE__*/React.createElement("div", {
-    className: "overflow-x-auto rounded-2xl border border-line bg-card"
-  }, /*#__PURE__*/React.createElement("table", {
-    className: "w-full text-sm min-w-[560px]"
-  }, /*#__PURE__*/React.createElement("thead", null, /*#__PURE__*/React.createElement("tr", {
-    className: "bg-soft text-left"
-  }, /*#__PURE__*/React.createElement("th", {
-    className: "p-3 font-semibold text-muted w-36"
-  }, "Caracter\xEDstica"), cmp.map(x => /*#__PURE__*/React.createElement("th", {
-    key: x.id,
-    className: "p-3 font-bold text-ink"
-  }, x.name)))), /*#__PURE__*/React.createElement("tbody", {
-    className: "divide-y divide-line"
-  }, [["Riesgo", x => /*#__PURE__*/React.createElement(Pill, {
-    className: RISK_STYLE[x.risk]
-  }, x.risk)], ["Liquidez", x => x.liquidity], ["Monedas", x => x.currencies.join(" / ")], ["Plazo típico", x => x.term], ["Tasa ref. PYG", x => /*#__PURE__*/React.createElement("span", {
-    className: "num font-semibold text-em"
-  }, x.ratePYG ? x.ratePYG.toLocaleString("es-PY") + " %" : "—")], ["Tasa ref. USD", x => /*#__PURE__*/React.createElement("span", {
-    className: "num font-semibold text-em"
-  }, x.currencies.includes("USD") && x.rateUSD ? x.rateUSD.toLocaleString("es-PY") + " %" : "—")], ["Mínimo", x => x.min]].map(([k, f]) => /*#__PURE__*/React.createElement("tr", {
-    key: k
-  }, /*#__PURE__*/React.createElement("th", {
-    scope: "row",
-    className: "p-3 text-left font-medium text-muted align-top"
-  }, k), cmp.map(x => /*#__PURE__*/React.createElement("td", {
-    key: x.id,
-    className: "p-3 text-ink align-top"
-  }, f(x))))))))), /*#__PURE__*/React.createElement("div", {
-    className: "mt-10 rounded-2xl border border-line bg-card p-6"
-  }, /*#__PURE__*/React.createElement("h3", {
-    className: "text-xl font-bold text-ink"
-  }, "C\xF3mo leer una calificaci\xF3n de riesgo local"), /*#__PURE__*/React.createElement("p", {
-    className: "mt-2 text-sm text-muted prose-w"
-  }, "Las calificadoras autorizadas por la Superintendencia de Valores eval\xFAan a cada emisor. El sufijo \xABpy\xBB indica escala nacional paraguaya. Los signos + y \u2212 ordenan dentro de cada categor\xEDa, y la tendencia (fuerte, estable, sensible) anticipa cambios."), /*#__PURE__*/React.createElement("div", {
-    className: "mt-5 grid sm:grid-cols-2 lg:grid-cols-5 gap-3"
-  }, ratings.map(([r, d, c]) => /*#__PURE__*/React.createElement("div", {
-    key: r,
-    className: "rounded-xl border border-line p-4"
-  }, /*#__PURE__*/React.createElement(Pill, {
-    className: c + " text-sm"
-  }, r), /*#__PURE__*/React.createElement("p", {
-    className: "mt-2 text-sm text-ink"
-  }, d))))));
-}
-
-/* ---------- 6a. simulador ---------- */
-const SIM_PRESETS = ["fm", "cda", "bc", "bt", "fi", "ap", "ao"];
-function Simulador() {
-  const [cur, setCur] = useState("PYG");
-  const [inst, setInst] = useState("cda");
-  const [rate, setRate] = useState(7.5);
-  const [initial, setInitial] = useState(10000000);
-  const [monthly, setMonthly] = useState(500000);
-  const [term, setTerm] = useState(5);
-  const [unit, setUnit] = useState("años");
-  const [reinvest, setReinvest] = useState(true);
-  const defaults = {
-    PYG: {
-      initial: 10000000,
-      monthly: 500000
-    },
-    USD: {
-      initial: 2000,
-      monthly: 100
-    }
-  };
-  const changeCur = c => {
-    setCur(c);
-    setInitial(defaults[c].initial);
-    setMonthly(defaults[c].monthly);
-    const x = INSTRUMENTS.find(i => i.id === inst);
-    setRate(c === "PYG" ? x.ratePYG : x.rateUSD);
-  };
-  const changeInst = id => {
-    setInst(id);
-    const x = INSTRUMENTS.find(i => i.id === id);
-    setRate(cur === "PYG" ? x.ratePYG : x.rateUSD);
-  };
-  const months = Math.max(1, Math.min(600, Math.round(unit === "años" ? term * 12 : term)));
-  const sim = useMemo(() => {
-    const a = Math.max(0, Number(rate) || 0) / 100;
-    const rm = Math.pow(1 + a, 1 / 12) - 1;
-    let bal = Math.max(0, Number(initial) || 0),
-      contrib = bal,
-      paidOut = 0;
-    const m = Math.max(0, Number(monthly) || 0);
-    const step = months <= 36 ? 1 : months <= 120 ? 3 : 12;
-    const data = [{
-      label: "0",
-      Aportado: contrib,
-      Intereses: 0
-    }];
-    for (let k = 1; k <= months; k++) {
-      if (reinvest) {
-        bal = bal * (1 + rm) + m;
-      } else {
-        paidOut += bal * a / 12;
-        bal += m;
-      }
-      contrib += m;
-      if (k % step === 0 || k === months) {
-        const total = reinvest ? bal : bal + paidOut;
-        data.push({
-          label: months <= 36 ? "Mes " + k : (k / 12).toLocaleString("es-PY", {
-            maximumFractionDigits: 1
-          }) + " a",
-          Aportado: contrib,
-          Intereses: Math.max(0, total - contrib)
-        });
-      }
-    }
-    const total = reinvest ? bal : bal + paidOut;
-    return {
-      data,
-      total,
-      contrib,
-      interest: total - contrib
-    };
-  }, [rate, initial, monthly, months, reinvest]);
-  const field = "w-full rounded-lg border border-line bg-card px-3 py-2.5 text-ink num focus:border-em outline-none";
-  const step = cur === "PYG" ? 100000 : 50;
-  const {
-    ResponsiveContainer,
-    AreaChart,
-    Area,
-    XAxis,
-    YAxis,
-    Tooltip,
-    CartesianGrid
-  } = RC || {};
-  return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
-    className: "grid lg:grid-cols-[360px_1fr] gap-6 items-start"
-  }, /*#__PURE__*/React.createElement("form", {
-    className: "rounded-2xl border border-line bg-bg p-5 sm:p-6 space-y-5",
-    onSubmit: e => e.preventDefault()
-  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("p", {
-    className: "text-sm font-semibold text-ink mb-2"
-  }, "Moneda"), /*#__PURE__*/React.createElement(Segmented, {
-    idBase: "sim-cur",
-    label: "Moneda",
-    value: cur,
-    onChange: changeCur,
-    options: [["PYG", "Guaraníes (PYG)"], ["USD", "Dólares (USD)"]]
-  })), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("label", {
-    htmlFor: "sim-inst",
-    className: "text-sm font-semibold text-ink block mb-2"
-  }, "Instrumento"), /*#__PURE__*/React.createElement("select", {
-    id: "sim-inst",
-    value: inst,
-    onChange: e => changeInst(e.target.value),
-    className: field
-  }, SIM_PRESETS.map(id => {
-    const x = INSTRUMENTS.find(i => i.id === id);
-    return /*#__PURE__*/React.createElement("option", {
-      key: id,
-      value: id
-    }, x.name);
-  }))), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("label", {
-    htmlFor: "sim-rate",
-    className: "text-sm font-semibold text-ink flex justify-between mb-2"
-  }, "Tasa anual estimada ", /*#__PURE__*/React.createElement("span", {
-    className: "text-em num"
-  }, Number(rate).toLocaleString("es-PY"), " %")), /*#__PURE__*/React.createElement("div", {
-    className: "flex gap-3 items-center"
-  }, /*#__PURE__*/React.createElement("input", {
-    id: "sim-rate-range",
-    type: "range",
-    min: "0",
-    max: "20",
-    step: "0.1",
-    value: rate,
-    onChange: e => setRate(e.target.value),
-    className: "flex-1",
-    "aria-label": "Tasa anual"
-  }), /*#__PURE__*/React.createElement("input", {
-    id: "sim-rate",
-    type: "number",
-    min: "0",
-    max: "50",
-    step: "0.1",
-    value: rate,
-    onChange: e => setRate(e.target.value),
-    className: field + " w-24"
-  }))), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("label", {
-    htmlFor: "sim-initial",
-    className: "text-sm font-semibold text-ink block mb-2"
-  }, "Monto inicial (", cur === "PYG" ? "Gs." : "US$", ")"), /*#__PURE__*/React.createElement("input", {
-    id: "sim-initial",
-    type: "number",
-    min: "0",
-    step: step,
-    value: initial,
-    onChange: e => setInitial(e.target.value),
-    className: field
-  }), /*#__PURE__*/React.createElement("p", {
-    className: "mt-1 text-xs text-muted num"
-  }, fmtMoney(Number(initial) || 0, cur))), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("label", {
-    htmlFor: "sim-monthly",
-    className: "text-sm font-semibold text-ink block mb-2"
-  }, "Aporte mensual (", cur === "PYG" ? "Gs." : "US$", ")"), /*#__PURE__*/React.createElement("input", {
-    id: "sim-monthly",
-    type: "number",
-    min: "0",
-    step: step / 2,
-    value: monthly,
-    onChange: e => setMonthly(e.target.value),
-    className: field
-  }), /*#__PURE__*/React.createElement("p", {
-    className: "mt-1 text-xs text-muted num"
-  }, fmtMoney(Number(monthly) || 0, cur))), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("label", {
-    htmlFor: "sim-term",
-    className: "text-sm font-semibold text-ink block mb-2"
-  }, "Plazo"), /*#__PURE__*/React.createElement("div", {
-    className: "flex gap-2"
-  }, /*#__PURE__*/React.createElement("input", {
-    id: "sim-term",
-    type: "number",
-    min: "1",
-    max: unit === "años" ? 50 : 600,
-    value: term,
-    onChange: e => setTerm(e.target.value),
-    className: field + " flex-1"
-  }), /*#__PURE__*/React.createElement(Segmented, {
-    idBase: "sim-unit",
-    label: "Unidad de plazo",
-    value: unit,
-    onChange: u => {
-      setUnit(u);
-      setTerm(u === "meses" ? Math.round((Number(term) || 1) * 12) : Math.max(1, Math.round((Number(term) || 12) / 12)));
-    },
-    options: [["meses", "Meses"], ["años", "Años"]]
-  }))), /*#__PURE__*/React.createElement("label", {
-    htmlFor: "sim-reinvest",
-    className: "flex items-start gap-3 cursor-pointer"
-  }, /*#__PURE__*/React.createElement("input", {
-    id: "sim-reinvest",
-    type: "checkbox",
-    checked: reinvest,
-    onChange: e => setReinvest(e.target.checked),
-    className: "mt-1 w-4 h-4 accent-[rgb(var(--em))]"
-  }), /*#__PURE__*/React.createElement("span", {
-    className: "text-sm text-ink"
-  }, "Reinvertir intereses (inter\xE9s compuesto)", /*#__PURE__*/React.createElement("span", {
-    className: "block text-xs text-muted"
-  }, "Si lo desmarc\xE1s, los intereses se cobran como cupones y no generan nuevos intereses.")))), /*#__PURE__*/React.createElement("div", {
-    className: "min-w-0 space-y-4"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "grid sm:grid-cols-3 gap-3"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "rounded-2xl bg-navy text-navyfg p-5"
-  }, /*#__PURE__*/React.createElement("p", {
-    className: "text-xs uppercase tracking-wider opacity-70"
-  }, "Capital final"), /*#__PURE__*/React.createElement("p", {
-    className: "mt-1 num font-display text-2xl font-bold break-words"
-  }, fmtMoney(sim.total, cur))), /*#__PURE__*/React.createElement("div", {
-    className: "rounded-2xl border border-line bg-bg p-5"
-  }, /*#__PURE__*/React.createElement("p", {
-    className: "text-xs uppercase tracking-wider text-muted"
-  }, "Total aportado"), /*#__PURE__*/React.createElement("p", {
-    className: "mt-1 num font-display text-xl font-bold text-ink break-words"
-  }, fmtMoney(sim.contrib, cur))), /*#__PURE__*/React.createElement("div", {
-    className: "rounded-2xl border border-em/30 bg-emsoft p-5"
-  }, /*#__PURE__*/React.createElement("p", {
-    className: "text-xs uppercase tracking-wider text-em"
-  }, "Intereses ganados"), /*#__PURE__*/React.createElement("p", {
-    className: "mt-1 num font-display text-xl font-bold text-em break-words"
-  }, "+ ", fmtMoney(sim.interest, cur)))), /*#__PURE__*/React.createElement("div", {
-    className: "rounded-2xl border border-line bg-bg p-4 sm:p-5"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "flex items-center justify-between gap-3 flex-wrap mb-3"
-  }, /*#__PURE__*/React.createElement("p", {
-    className: "font-semibold text-ink"
-  }, "Crecimiento en ", /*#__PURE__*/React.createElement("span", {
-    className: "num"
-  }, months), " meses"), /*#__PURE__*/React.createElement("div", {
-    className: "flex gap-4 text-xs text-muted"
-  }, /*#__PURE__*/React.createElement("span", {
-    className: "flex items-center gap-1.5"
-  }, /*#__PURE__*/React.createElement("span", {
-    className: "w-3 h-3 rounded-sm",
-    style: {
-      background: "rgb(var(--navy))",
-      opacity: .55
-    }
-  }), "Aportado"), /*#__PURE__*/React.createElement("span", {
-    className: "flex items-center gap-1.5"
-  }, /*#__PURE__*/React.createElement("span", {
-    className: "w-3 h-3 rounded-sm bg-em"
-  }), "Intereses"))), /*#__PURE__*/React.createElement("div", {
-    className: "h-72"
-  }, ResponsiveContainer ? /*#__PURE__*/React.createElement(ResponsiveContainer, {
-    width: "100%",
-    height: "100%"
-  }, /*#__PURE__*/React.createElement(AreaChart, {
-    data: sim.data,
-    margin: {
-      top: 8,
-      right: 8,
-      left: 0,
-      bottom: 0
-    }
-  }, /*#__PURE__*/React.createElement("defs", null, /*#__PURE__*/React.createElement("linearGradient", {
-    id: "gEm",
-    x1: "0",
-    y1: "0",
-    x2: "0",
-    y2: "1"
-  }, /*#__PURE__*/React.createElement("stop", {
-    offset: "0%",
-    stopColor: "rgb(var(--em))",
-    stopOpacity: 0.55
-  }), /*#__PURE__*/React.createElement("stop", {
-    offset: "100%",
-    stopColor: "rgb(var(--em))",
-    stopOpacity: 0.15
-  }))), /*#__PURE__*/React.createElement(CartesianGrid, {
-    strokeDasharray: "3 3",
-    vertical: false
-  }), /*#__PURE__*/React.createElement(XAxis, {
-    dataKey: "label",
-    tickLine: false,
-    axisLine: false,
-    minTickGap: 24
-  }), /*#__PURE__*/React.createElement(YAxis, {
-    tickLine: false,
-    axisLine: false,
-    width: 84,
-    tickFormatter: v => fmtShort(v, cur)
-  }), /*#__PURE__*/React.createElement(Tooltip, {
-    formatter: (v, n) => [fmtMoney(v, cur), n],
-    contentStyle: {
-      background: "rgb(var(--card))",
-      border: "1px solid rgb(var(--line))",
-      borderRadius: 12,
-      color: "rgb(var(--ink))"
-    },
-    labelStyle: {
-      color: "rgb(var(--muted))"
-    }
-  }), /*#__PURE__*/React.createElement(Area, {
-    type: "monotone",
-    dataKey: "Aportado",
-    stackId: "1",
-    stroke: "rgb(var(--navy))",
-    fill: "rgb(var(--navy))",
-    fillOpacity: 0.35,
-    strokeWidth: 2
-  }), /*#__PURE__*/React.createElement(Area, {
-    type: "monotone",
-    dataKey: "Intereses",
-    stackId: "1",
-    stroke: "rgb(var(--em))",
-    fill: "url(#gEm)",
-    strokeWidth: 2
-  }))) : /*#__PURE__*/React.createElement("p", {
-    className: "text-sm text-muted"
-  }, "El gr\xE1fico no pudo cargarse."))), /*#__PURE__*/React.createElement(Notice, null, "Simulaci\xF3n educativa con tasa constante y capitalizaci\xF3n mensual equivalente. No incluye comisiones, impuestos ni variaciones de precio. Las tasas reales dependen del emisor, el plazo y el momento del mercado."), /*#__PURE__*/React.createElement(ShareButtons, {
-    text: "Simulé invertir " + fmtMoney(toNum(initial), cur) + " + " + fmtMoney(toNum(monthly), cur) + " por mes durante " + months + " meses al " + rate + " % anual: llegaría a " + fmtMoney(sim.total, cur) + "."
-  }))));
-}
-
-/* ---------- 6b. perfil ---------- */
-const QUESTIONS = [{
-  q: "¿Cuál es tu objetivo principal al invertir?",
-  a: [["Proteger mis ahorros de la inflación", 1], ["Hacer crecer mi dinero con algo de riesgo", 2], ["Maximizar la ganancia a largo plazo", 3]]
-}, {
-  q: "¿En cuánto tiempo vas a necesitar este dinero?",
-  a: [["En menos de 1 año", 1], ["Entre 1 y 3 años", 2], ["En más de 3 años", 3]]
-}, {
-  q: "Si tu inversión baja un 15 % en un año, ¿qué hacés?",
-  a: [["Retiro todo para no perder más", 1], ["Espero a que se recupere", 2], ["Aprovecho para invertir más", 3]]
-}, {
-  q: "¿Cuánta experiencia tenés invirtiendo?",
-  a: [["Ninguna, solo caja de ahorro o plazo fijo", 1], ["Algo: fondos mutuos o CDA", 2], ["Bastante: bonos, acciones u otros", 3]]
-}, {
-  q: "¿Qué parte de tus ahorros vas a invertir?",
-  a: [["La mayor parte de lo que tengo", 1], ["Una parte, tengo un colchón aparte", 2], ["Un excedente que no voy a necesitar", 3]]
-}];
-const PROFILES = {
-  Conservador: {
-    color: "text-em",
-    desc: "Priorizás la seguridad y la liquidez por sobre la rentabilidad. Te conviene una cartera de renta fija de emisores bien calificados y plazos cortos a medianos.",
-    alloc: [["Fondo mutuo", 40], ["CDA", 35], ["Bonos AAApy/AApy y del Tesoro", 25], ["Acciones", 0]]
-  },
-  Moderado: {
-    color: "text-amber",
-    desc: "Buscás un equilibrio entre seguridad y crecimiento. Aceptás alguna variación a cambio de mejores tasas en plazos medianos.",
-    alloc: [["Fondo mutuo", 20], ["CDA", 25], ["Bonos corporativos y del Tesoro", 40], ["Acciones preferidas", 15]]
-  },
-  Dinámico: {
-    color: "text-danger",
-    desc: "Tenés horizonte largo y tolerás caídas temporales. Podés sumar más bonos de mayor tasa y una porción relevante de acciones.",
-    alloc: [["Fondo mutuo", 10], ["CDA", 10], ["Bonos corporativos", 45], ["Acciones y fondos de inversión", 35]]
-  }
-};
-const PIE_COLORS = ["rgb(var(--em))", "rgb(var(--navy))", "rgb(var(--amber))", "rgb(var(--muted))"];
-function Perfil() {
-  const [answers, setAnswers] = useState({});
-  const [idx, setIdx] = useState(0);
-  const finished = Object.keys(answers).length === QUESTIONS.length && idx >= QUESTIONS.length;
-  const score = Object.values(answers).reduce((s, v) => s + v, 0);
-  const profile = score <= 8 ? "Conservador" : score <= 11 ? "Moderado" : "Dinámico";
-  const P = PROFILES[profile];
-  const pick = v => {
-    setAnswers({
-      ...answers,
-      [idx]: v
-    });
-    setIdx(idx + 1);
-  };
-  const reset = () => {
-    setAnswers({});
-    setIdx(0);
-  };
-  const {
-    ResponsiveContainer,
-    PieChart,
-    Pie,
-    Cell,
-    Tooltip
-  } = RC || {};
-  const pieData = P.alloc.filter(([, v]) => v > 0).map(([name, value]) => ({
-    name,
-    value
-  }));
-  return /*#__PURE__*/React.createElement(Section, {
-    id: "perfil",
-    eyebrow: "Test",
-    title: "Test r\xE1pido de perfil de inversionista",
-    intro: "Cinco preguntas, menos de un minuto. Al final te mostramos tu perfil y una distribuci\xF3n de cartera de ejemplo con instrumentos paraguayos."
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "rounded-2xl border border-line bg-card p-6 sm:p-8 max-w-4xl"
-  }, !finished ? /*#__PURE__*/React.createElement("div", {
-    key: idx,
-    className: "fade-in"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "flex items-center justify-between gap-3"
-  }, /*#__PURE__*/React.createElement("p", {
-    className: "text-sm font-semibold text-em num"
-  }, "Pregunta ", idx + 1, " de ", QUESTIONS.length), idx > 0 && /*#__PURE__*/React.createElement("button", {
-    onClick: () => setIdx(idx - 1),
-    className: "text-sm text-muted hover:text-ink inline-flex items-center gap-1"
-  }, /*#__PURE__*/React.createElement(Icon, {
-    name: "ArrowLeft",
-    className: "w-4 h-4"
-  }), " Volver")), /*#__PURE__*/React.createElement("div", {
-    className: "mt-3 h-1.5 rounded-full bg-soft overflow-hidden"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "h-full bg-em transition-all",
-    style: {
-      width: idx / QUESTIONS.length * 100 + "%"
-    }
-  })), /*#__PURE__*/React.createElement("h3", {
-    className: "mt-6 text-2xl font-bold text-ink"
-  }, QUESTIONS[idx].q), /*#__PURE__*/React.createElement("div", {
-    className: "mt-5 grid gap-3"
-  }, QUESTIONS[idx].a.map(([t, v]) => /*#__PURE__*/React.createElement("button", {
-    key: t,
-    id: "q" + idx + "-" + v,
-    onClick: () => pick(v),
-    className: "text-left rounded-xl border px-4 py-3.5 font-medium transition flex items-center justify-between gap-3 " + (answers[idx] === v ? "border-em bg-emsoft text-ink" : "border-line text-ink hover:border-em hover:bg-soft")
-  }, t, /*#__PURE__*/React.createElement(Icon, {
-    name: "ChevronRight",
-    className: "w-4 h-4 text-muted shrink-0"
-  }))))) : /*#__PURE__*/React.createElement("div", {
-    className: "fade-in grid md:grid-cols-[1fr_280px] gap-8 items-center"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "min-w-0"
-  }, /*#__PURE__*/React.createElement("p", {
-    className: "text-sm font-semibold text-muted"
-  }, "Tu perfil es"), /*#__PURE__*/React.createElement("h3", {
-    className: "text-4xl font-extrabold " + P.color
-  }, profile), /*#__PURE__*/React.createElement("p", {
-    className: "mt-1 text-xs text-muted num"
-  }, "Puntaje: ", score, " de 15"), /*#__PURE__*/React.createElement("p", {
-    className: "mt-4 text-ink"
-  }, P.desc), /*#__PURE__*/React.createElement("ul", {
-    className: "mt-5 space-y-2"
-  }, P.alloc.map(([n, v], k) => /*#__PURE__*/React.createElement("li", {
-    key: n,
-    className: "flex items-center gap-3 text-sm"
-  }, /*#__PURE__*/React.createElement("span", {
-    className: "w-3 h-3 rounded-sm shrink-0",
-    style: {
-      background: PIE_COLORS[k]
-    }
-  }), /*#__PURE__*/React.createElement("span", {
-    className: "flex-1 text-ink"
-  }, n), /*#__PURE__*/React.createElement("span", {
-    className: "num font-bold text-ink"
-  }, v, " %")))), /*#__PURE__*/React.createElement("div", {
-    className: "mt-6 flex flex-wrap gap-3"
-  }, /*#__PURE__*/React.createElement("button", {
-    onClick: reset,
-    className: "inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-line font-semibold text-ink hover:bg-soft"
-  }, /*#__PURE__*/React.createElement(Icon, {
-    name: "RotateCcw",
-    className: "w-4 h-4"
-  }), " Repetir test"), /*#__PURE__*/React.createElement("button", {
-    onClick: () => scrollTo("simulador"),
-    className: "inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-em text-white font-semibold hover:brightness-110"
-  }, "Simular con esta idea ", /*#__PURE__*/React.createElement(Icon, {
-    name: "ArrowRight",
-    className: "w-4 h-4"
-  }))), /*#__PURE__*/React.createElement("div", {
-    className: "mt-4"
-  }, /*#__PURE__*/React.createElement(ShareButtons, {
-    text: "Hice el test de perfil de inversionista y soy " + profile + ". ¿Qué perfil tenés vos?"
-  }))), /*#__PURE__*/React.createElement("div", {
-    className: "h-64"
-  }, ResponsiveContainer && /*#__PURE__*/React.createElement(ResponsiveContainer, {
-    width: "100%",
-    height: "100%"
-  }, /*#__PURE__*/React.createElement(PieChart, null, /*#__PURE__*/React.createElement(Pie, {
-    data: pieData,
-    dataKey: "value",
-    nameKey: "name",
-    innerRadius: "55%",
-    outerRadius: "90%",
-    paddingAngle: 2,
-    stroke: "rgb(var(--card))",
-    strokeWidth: 2
-  }, pieData.map(d => /*#__PURE__*/React.createElement(Cell, {
-    key: d.name,
-    fill: PIE_COLORS[P.alloc.findIndex(([n]) => n === d.name)]
-  }))), /*#__PURE__*/React.createElement(Tooltip, {
-    formatter: (v, n) => [v + " %", n],
-    contentStyle: {
-      background: "rgb(var(--card))",
-      border: "1px solid rgb(var(--line))",
-      borderRadius: 12
-    },
-    itemStyle: {
-      color: "rgb(var(--ink))"
-    }
-  })))), /*#__PURE__*/React.createElement("div", {
-    className: "md:col-span-2"
-  }, /*#__PURE__*/React.createElement(Notice, null, "Distribuci\xF3n de ejemplo con fines educativos. No es una recomendaci\xF3n personalizada: tu Casa de Bolsa debe evaluar tu perfil formalmente antes de ofrecerte productos.")))));
-}
-
-/* ---------- 7. glosario + faq ---------- */
-const highlight = (text, q) => {
-  if (!q) return text;
-  const i = text.toLowerCase().indexOf(q.toLowerCase());
-  if (i < 0) return text;
-  return /*#__PURE__*/React.createElement(React.Fragment, null, text.slice(0, i), /*#__PURE__*/React.createElement("mark", {
-    className: "bg-ambersoft text-ink rounded px-0.5"
-  }, text.slice(i, i + q.length)), text.slice(i + q.length));
-};
-const norm = s => s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
-function GlosarioFAQ() {
-  const [q, setQ] = useState("");
-  const [open, setOpen] = useState(0);
-  const items = GLOSSARY.filter(([t, d]) => norm(t + " " + d).includes(norm(q.trim())));
-  return /*#__PURE__*/React.createElement(Section, {
-    id: "glosario",
-    alt: true,
-    eyebrow: "Aprend\xE9 el idioma",
-    title: "Glosario burs\xE1til y preguntas frecuentes"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "grid lg:grid-cols-2 gap-10 items-start"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "min-w-0"
-  }, /*#__PURE__*/React.createElement("h3", {
-    className: "text-xl font-bold text-ink"
-  }, "Glosario"), /*#__PURE__*/React.createElement("div", {
-    className: "relative mt-4"
-  }, /*#__PURE__*/React.createElement(Icon, {
-    name: "Search",
-    className: "w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted"
-  }), /*#__PURE__*/React.createElement("input", {
-    id: "glossary-search",
-    value: q,
-    onChange: e => setQ(e.target.value),
-    placeholder: "Busc\xE1 un t\xE9rmino, por ejemplo \xABcup\xF3n\xBB",
-    className: "w-full rounded-xl border border-line bg-bg pl-9 pr-9 py-3 text-ink placeholder:text-muted focus:border-em outline-none"
-  }), q && /*#__PURE__*/React.createElement("button", {
-    "aria-label": "Borrar b\xFAsqueda",
-    onClick: () => setQ(""),
-    className: "absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded text-muted hover:text-ink"
-  }, /*#__PURE__*/React.createElement(Icon, {
-    name: "X",
-    className: "w-4 h-4"
-  }))), /*#__PURE__*/React.createElement("p", {
-    className: "mt-2 text-xs text-muted num"
-  }, items.length, " ", items.length === 1 ? "término" : "términos"), /*#__PURE__*/React.createElement("dl", {
-    className: "mt-3 space-y-2 max-h-[560px] overflow-y-auto pr-1"
-  }, items.map(([t, d]) => /*#__PURE__*/React.createElement("div", {
-    key: t,
-    className: "rounded-xl border border-line bg-bg p-4"
-  }, /*#__PURE__*/React.createElement("dt", {
-    className: "font-bold text-ink"
-  }, highlight(t, q.trim())), /*#__PURE__*/React.createElement("dd", {
-    className: "mt-1 text-sm text-muted"
-  }, highlight(d, q.trim())))), items.length === 0 && /*#__PURE__*/React.createElement("p", {
-    className: "rounded-xl border border-dashed border-line p-6 text-center text-muted text-sm"
-  }, "No encontramos \xAB", q, "\xBB. Prob\xE1 con otra palabra."))), /*#__PURE__*/React.createElement("div", {
-    className: "min-w-0"
-  }, /*#__PURE__*/React.createElement("h3", {
-    className: "text-xl font-bold text-ink"
-  }, "Preguntas frecuentes"), /*#__PURE__*/React.createElement("div", {
-    className: "mt-4 space-y-2"
-  }, FAQ.map(([qq, a], k) => /*#__PURE__*/React.createElement("div", {
-    key: k,
-    className: "rounded-xl border bg-bg transition " + (open === k ? "border-em/50" : "border-line")
-  }, /*#__PURE__*/React.createElement("h4", null, /*#__PURE__*/React.createElement("button", {
-    id: "faq-" + k,
-    "aria-expanded": open === k,
-    "aria-controls": "faq-p-" + k,
-    onClick: () => setOpen(open === k ? -1 : k),
-    className: "w-full flex items-center justify-between gap-3 text-left p-4 font-semibold text-ink"
-  }, qq, /*#__PURE__*/React.createElement(Icon, {
-    name: "ChevronDown",
-    className: "w-5 h-5 shrink-0 text-muted transition-transform " + (open === k ? "rotate-180 text-em" : "")
-  }))), open === k && /*#__PURE__*/React.createElement("div", {
-    id: "faq-p-" + k,
-    className: "fade-in px-4 pb-4 text-sm text-muted"
-  }, a)))))));
-}
-
-/* ---------- 8. footer ---------- */
-function Footer() {
-  return /*#__PURE__*/React.createElement("footer", {
-    className: "bg-navy text-navyfg"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "wrap py-12 grid md:grid-cols-[1fr_1.4fr] gap-10"
-  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("p", {
-    className: "font-display font-extrabold text-lg"
-  }, "Bolsa", /*#__PURE__*/React.createElement("span", {
-    className: "text-em"
-  }, "PY"), " Aprende"), /*#__PURE__*/React.createElement("p", {
-    className: "mt-2 text-sm opacity-75 max-w-sm"
-  }, "Gu\xEDa educativa para dar los primeros pasos en el mercado de valores paraguayo."), /*#__PURE__*/React.createElement("div", {
-    className: "mt-4 flex flex-col gap-1 text-sm"
-  }, /*#__PURE__*/React.createElement("a", {
-    href: "https://www.bcp.gov.py",
-    target: "_blank",
-    rel: "noopener",
-    className: "inline-flex items-center gap-1.5 opacity-90 hover:opacity-100 underline-offset-2 hover:underline"
-  }, "Banco Central del Paraguay ", /*#__PURE__*/React.createElement(Icon, {
-    name: "ExternalLink",
-    className: "w-3.5 h-3.5"
-  })), /*#__PURE__*/React.createElement("a", {
-    href: "https://www.bolsadevalores.com.py",
-    target: "_blank",
-    rel: "noopener",
-    className: "inline-flex items-center gap-1.5 opacity-90 hover:opacity-100 underline-offset-2 hover:underline"
-  }, "Bolsa de Valores de Asunci\xF3n ", /*#__PURE__*/React.createElement(Icon, {
-    name: "ExternalLink",
-    className: "w-3.5 h-3.5"
-  })))), /*#__PURE__*/React.createElement("div", {
-    className: "rounded-2xl border border-white/15 p-5"
-  }, /*#__PURE__*/React.createElement("p", {
-    className: "flex items-center gap-2 font-semibold"
-  }, /*#__PURE__*/React.createElement(Icon, {
-    name: "AlertTriangle",
-    className: "w-4 h-4 text-amber"
-  }), " Aviso legal"), /*#__PURE__*/React.createElement("p", {
-    className: "mt-2 text-sm opacity-80"
-  }, "Todo el contenido de este sitio es exclusivamente educativo e informativo. No constituye asesor\xEDa financiera, legal ni tributaria, ni una recomendaci\xF3n de compra o venta de ning\xFAn valor o instrumento. Las tasas, montos m\xEDnimos y entidades mencionadas son ilustrativas y pueden no estar vigentes. Toda inversi\xF3n implica riesgos, incluida la posible p\xE9rdida del capital, y los rendimientos pasados no garantizan resultados futuros. Antes de invertir, consult\xE1 con una Casa de Bolsa autorizada por la Superintendencia de Valores del Banco Central del Paraguay y le\xE9 el prospecto de cada emisi\xF3n."))));
-}
-
 /* =====================================================================
    SECCIONES NUEVAS (v2): beneficios, dónde invertir, casos, checklist,
    mapa del mercado, prospecto, línea de tiempo, calculadoras, aprender,
@@ -1801,6 +599,338 @@ function ShareButtons({
     className: "mt-2 w-full rounded-lg border border-line bg-card p-2 text-xs text-ink",
     "aria-label": "Texto para copiar"
   }));
+}
+
+/* ===== PARTE 2 DE 6: Navegación, portada, beneficios, dónde invertir y pie de página ===== */
+/* ---------- navegación ---------- */
+function Ticker() {
+  const items = [...INSTRUMENTS.filter(x => x.ratePYG > 0).map(x => [x.name.toUpperCase(), x.currencies.includes("PYG") ? "PYG " + pct(x.ratePYG) : null, x.currencies.includes("USD") && x.rateUSD ? "USD " + pct(x.rateUSD) : null]), ["META DE INFLACIÓN BCP", "4 %", null], ["CASAS DE BOLSA HABILITADAS", "24", null]];
+  const row = prefix => items.map(([k, a, b], i) => /*#__PURE__*/React.createElement("span", {
+    key: prefix + i,
+    className: "inline-flex items-center gap-2 px-5"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "opacity-60"
+  }, k), a && /*#__PURE__*/React.createElement("span", {
+    className: "text-up font-semibold"
+  }, "\u25B2 ", a), b && /*#__PURE__*/React.createElement("span", {
+    className: "text-up font-semibold"
+  }, b)));
+  return /*#__PURE__*/React.createElement("div", {
+    className: "bg-navy text-navyfg text-[11px] font-mono tracking-wide border-b border-navyfg/10",
+    "aria-label": "Tasas anuales referenciales"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-stretch"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "shrink-0 bg-em text-white px-3 py-1.5 font-semibold tracking-widest"
+  }, "TASAS REF."), /*#__PURE__*/React.createElement("div", {
+    className: "overflow-hidden flex-1 min-w-0"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "ticker-track whitespace-nowrap py-1.5"
+  }, row("a"), row("b")))));
+}
+function Nav({
+  view
+}) {
+  const tab = (v, compact) => /*#__PURE__*/React.createElement("a", {
+    key: v.id,
+    href: "#" + v.id,
+    "aria-current": view === v.id ? "page" : undefined,
+    className: "inline-flex items-center gap-1.5 rounded-lg font-semibold transition whitespace-nowrap " + (compact ? "px-3 py-1.5 text-sm " : "px-3 py-2 text-sm ") + (view === v.id ? "bg-navy text-navyfg" : "text-muted hover:text-ink hover:bg-soft")
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: v.icon,
+    className: "w-4 h-4"
+  }), v.label);
+  return /*#__PURE__*/React.createElement("header", {
+    className: "sticky z-50",
+    style: {
+      top: "env(safe-area-inset-top, 0px)"
+    }
+  }, /*#__PURE__*/React.createElement(Ticker, null), /*#__PURE__*/React.createElement("div", {
+    className: "bg-card/95 backdrop-blur border-b border-line"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "wrap flex items-center justify-between h-14 gap-4"
+  }, /*#__PURE__*/React.createElement("a", {
+    href: "#inicio",
+    className: "flex items-center gap-2 font-display font-extrabold text-ink shrink-0"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "grid place-items-center w-8 h-8 rounded-lg bg-navy text-up"
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "CandlestickChart",
+    className: "w-4 h-4"
+  })), /*#__PURE__*/React.createElement("span", null, "Bolsa", /*#__PURE__*/React.createElement("span", {
+    className: "text-em"
+  }, "PY"), " Aprende")), /*#__PURE__*/React.createElement("nav", {
+    className: "hidden lg:flex items-center gap-1",
+    "aria-label": "Secciones"
+  }, VIEWS.map(v => tab(v, false)))), /*#__PURE__*/React.createElement("nav", {
+    className: "lg:hidden border-t border-line overflow-x-auto",
+    "aria-label": "Secciones"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "wrap flex gap-1 py-1.5 min-w-max"
+  }, VIEWS.map(v => tab(v, true))))));
+}
+function ViewHeader({
+  v
+}) {
+  const i = VIEWS.findIndex(x => x.id === v.id);
+  return /*#__PURE__*/React.createElement("header", {
+    className: "board-bg bg-navy text-navyfg"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "wrap py-10 sm:py-14"
+  }, /*#__PURE__*/React.createElement("p", {
+    className: "font-mono text-xs tracking-widest uppercase text-up flex items-center gap-2"
+  }, /*#__PURE__*/React.createElement("a", {
+    href: "#inicio",
+    className: "hover:underline"
+  }, "Inicio"), /*#__PURE__*/React.createElement("span", {
+    className: "opacity-50"
+  }, "/"), /*#__PURE__*/React.createElement("span", null, "Secci\xF3n ", i, " de ", VIEWS.length - 1)), /*#__PURE__*/React.createElement("h1", {
+    className: "mt-3 text-3xl sm:text-5xl font-extrabold"
+  }, v.title), /*#__PURE__*/React.createElement("p", {
+    className: "mt-3 max-w-2xl text-lg opacity-80"
+  }, v.desc), v.sections.length > 1 && /*#__PURE__*/React.createElement("div", {
+    className: "mt-7 flex flex-wrap gap-2"
+  }, v.sections.map(([id, l], k) => /*#__PURE__*/React.createElement("button", {
+    key: id,
+    onClick: () => scrollTo(id),
+    className: "inline-flex items-center gap-2 rounded-full border border-navyfg/20 bg-navyfg/5 px-3.5 py-1.5 text-sm font-medium hover:bg-navyfg/15 transition"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "font-mono text-xs text-up"
+  }, String(k + 1).padStart(2, "0")), l)))));
+}
+function ViewPager({
+  view
+}) {
+  const i = VIEWS.findIndex(v => v.id === view);
+  const prev = VIEWS[i - 1],
+    next = VIEWS[i + 1];
+  const card = "group rounded-2xl border border-line bg-card p-5 hover:border-em transition flex flex-col";
+  return /*#__PURE__*/React.createElement("nav", {
+    className: "wrap py-10 grid sm:grid-cols-2 gap-3",
+    "aria-label": "Recorrer la gu\xEDa"
+  }, prev ? /*#__PURE__*/React.createElement("a", {
+    href: "#" + prev.id,
+    className: card
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "text-xs font-mono uppercase tracking-wider text-muted flex items-center gap-1"
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "ArrowLeft",
+    className: "w-3.5 h-3.5"
+  }), " Anterior"), /*#__PURE__*/React.createElement("span", {
+    className: "mt-1 font-display text-lg font-bold text-ink"
+  }, prev.label)) : /*#__PURE__*/React.createElement("span", {
+    className: "hidden sm:block"
+  }), next && /*#__PURE__*/React.createElement("a", {
+    href: "#" + next.id,
+    className: card + " sm:items-end sm:text-right"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "text-xs font-mono uppercase tracking-wider text-muted flex items-center gap-1"
+  }, "Siguiente ", /*#__PURE__*/React.createElement(Icon, {
+    name: "ArrowRight",
+    className: "w-3.5 h-3.5 group-hover:translate-x-0.5 transition"
+  })), /*#__PURE__*/React.createElement("span", {
+    className: "mt-1 font-display text-lg font-bold text-ink"
+  }, next.label)));
+}
+function Explorar() {
+  return /*#__PURE__*/React.createElement(Section, {
+    id: "explorar",
+    eyebrow: "Mapa de la gu\xEDa",
+    title: "Todo lo que vas a encontrar",
+    intro: "La gu\xEDa est\xE1 ordenada en cinco secciones. Recorrelas en orden o and\xE1 directo a lo que necesit\xE1s."
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "grid sm:grid-cols-2 lg:grid-cols-3 gap-4"
+  }, VIEWS.slice(1).map((v, i) => /*#__PURE__*/React.createElement("a", {
+    key: v.id,
+    href: "#" + v.id,
+    className: "group rounded-2xl border border-line bg-card p-6 hover:border-em hover:-translate-y-0.5 transition flex flex-col"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center justify-between"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "grid place-items-center w-11 h-11 rounded-xl bg-navy text-up"
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: v.icon
+  })), /*#__PURE__*/React.createElement("span", {
+    className: "font-mono text-xs text-muted"
+  }, String(i + 1).padStart(2, "0"))), /*#__PURE__*/React.createElement("h3", {
+    className: "mt-4 text-xl font-bold text-ink"
+  }, v.label), /*#__PURE__*/React.createElement("p", {
+    className: "mt-1 text-sm text-muted"
+  }, v.desc), /*#__PURE__*/React.createElement("ul", {
+    className: "mt-4 space-y-1 flex-1"
+  }, v.sections.map(([id, l]) => /*#__PURE__*/React.createElement("li", {
+    key: id,
+    className: "text-sm text-ink flex gap-2"
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "ChevronRight",
+    className: "w-4 h-4 text-em shrink-0 mt-0.5"
+  }), l))), /*#__PURE__*/React.createElement("span", {
+    className: "mt-5 inline-flex items-center gap-1 text-sm font-semibold text-em"
+  }, "Entrar ", /*#__PURE__*/React.createElement(Icon, {
+    name: "ArrowRight",
+    className: "w-4 h-4 group-hover:translate-x-0.5 transition"
+  })))), /*#__PURE__*/React.createElement("div", {
+    className: "board-bg rounded-2xl bg-navy text-navyfg p-6 flex flex-col"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "grid place-items-center w-11 h-11 rounded-xl bg-em text-white"
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "Compass"
+  })), /*#__PURE__*/React.createElement("h3", {
+    className: "mt-4 text-xl font-bold"
+  }, "\xBFNo sab\xE9s por d\xF3nde empezar?"), /*#__PURE__*/React.createElement("p", {
+    className: "mt-1 text-sm opacity-80 flex-1"
+  }, "Hac\xE9 el test de perfil en menos de un minuto y recib\xED una cartera de ejemplo con instrumentos paraguayos."), /*#__PURE__*/React.createElement("button", {
+    onClick: () => scrollTo("perfil"),
+    className: "mt-5 self-start inline-flex items-center gap-2 rounded-xl bg-em px-4 py-2.5 font-semibold text-white hover:brightness-110 transition"
+  }, "Hacer el test ", /*#__PURE__*/React.createElement(Icon, {
+    name: "ArrowRight",
+    className: "w-4 h-4"
+  })))));
+}
+
+/* ---------- 1. hero ---------- */
+function Hero() {
+  const {
+    ResponsiveContainer,
+    AreaChart,
+    Area
+  } = RC || {};
+  const spark = Array.from({
+    length: 61
+  }, (_, m) => ({
+    m,
+    v: 10000000 * Math.pow(1.08, m / 12)
+  }));
+  const board = ["fm", "cda", "bc", "bt", "fi", "ap", "rep"].map(instById);
+  const dot = {
+    Bajo: "bg-up",
+    Medio: "bg-gold",
+    Alto: "bg-danger"
+  };
+  return /*#__PURE__*/React.createElement("section", {
+    className: "board-bg bg-navy text-navyfg"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "wrap pt-12 pb-14 sm:pt-16 sm:pb-20 grid lg:grid-cols-[1.05fr_1fr] gap-10 items-center"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "min-w-0"
+  }, /*#__PURE__*/React.createElement("p", {
+    className: "font-mono text-xs tracking-widest uppercase text-up flex items-center gap-2"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "w-2 h-2 rounded-full bg-up animate-pulse",
+    "aria-hidden": "true"
+  }), "Gu\xEDa educativa \xB7 Mercado de valores del Paraguay"), /*#__PURE__*/React.createElement("h1", {
+    className: "mt-4 text-4xl sm:text-5xl lg:text-6xl font-extrabold"
+  }, "Aprend\xE9 a invertir en la Bolsa de Paraguay ", /*#__PURE__*/React.createElement("span", {
+    className: "text-up"
+  }, "desde cero")), /*#__PURE__*/React.createElement("p", {
+    className: "mt-5 text-lg sm:text-xl opacity-80 prose-w"
+  }, "No hace falta ser millonario. Con un fondo mutuo pod\xE9s empezar con montos accesibles, en guaran\xEDes o en d\xF3lares, en un mercado regulado por el Banco Central del Paraguay."), /*#__PURE__*/React.createElement("div", {
+    className: "mt-8 flex flex-wrap gap-3"
+  }, /*#__PURE__*/React.createElement("button", {
+    onClick: () => scrollTo("guia"),
+    className: "inline-flex items-center gap-2 rounded-xl bg-em px-5 py-3 font-semibold text-white shadow-lg shadow-em/20 hover:brightness-110 active:scale-[.98] transition"
+  }, "Empezar la gu\xEDa paso a paso ", /*#__PURE__*/React.createElement(Icon, {
+    name: "ArrowRight",
+    className: "w-4 h-4"
+  })), /*#__PURE__*/React.createElement("button", {
+    onClick: () => scrollTo("simulador"),
+    className: "inline-flex items-center gap-2 rounded-xl border border-navyfg/25 px-5 py-3 font-semibold hover:bg-navyfg/10 transition"
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "Calculator",
+    className: "w-4 h-4"
+  }), " Simular mi inversi\xF3n")), /*#__PURE__*/React.createElement("dl", {
+    className: "mt-10 grid grid-cols-3 gap-4 max-w-md border-t border-navyfg/15 pt-6"
+  }, [["9", "instrumentos explicados"], ["6", "calculadoras"], ["24", "Casas de Bolsa habilitadas"]].map(([n, l]) => /*#__PURE__*/React.createElement("div", {
+    key: l
+  }, /*#__PURE__*/React.createElement("dd", {
+    className: "font-mono text-3xl font-semibold text-up"
+  }, n), /*#__PURE__*/React.createElement("dt", {
+    className: "text-xs opacity-70 leading-snug mt-1"
+  }, l))))), /*#__PURE__*/React.createElement("div", {
+    className: "min-w-0 rounded-2xl border border-navyfg/15 bg-navyfg/5 backdrop-blur shadow-2xl overflow-hidden"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center justify-between gap-3 px-5 py-3 border-b border-navyfg/15 bg-navyfg/5"
+  }, /*#__PURE__*/React.createElement("p", {
+    className: "font-mono text-xs tracking-widest uppercase"
+  }, "Pizarra de tasas referenciales"), /*#__PURE__*/React.createElement("span", {
+    className: "font-mono text-[10px] uppercase tracking-wider rounded border border-gold/50 text-gold px-1.5 py-0.5"
+  }, "Orientativo")), /*#__PURE__*/React.createElement("div", {
+    className: "overflow-x-auto"
+  }, /*#__PURE__*/React.createElement("table", {
+    className: "w-full font-mono text-sm min-w-[380px] text-navyfg"
+  }, /*#__PURE__*/React.createElement("thead", null, /*#__PURE__*/React.createElement("tr", {
+    className: "text-[11px] uppercase tracking-wider opacity-60 text-left"
+  }, /*#__PURE__*/React.createElement("th", {
+    className: "px-5 py-2 font-medium"
+  }, "Instrumento"), /*#__PURE__*/React.createElement("th", {
+    className: "px-3 py-2 font-medium text-right"
+  }, "PYG"), /*#__PURE__*/React.createElement("th", {
+    className: "px-3 py-2 font-medium text-right"
+  }, "USD"), /*#__PURE__*/React.createElement("th", {
+    className: "px-5 py-2 font-medium text-right"
+  }, "Riesgo"))), /*#__PURE__*/React.createElement("tbody", null, board.map(x => /*#__PURE__*/React.createElement("tr", {
+    key: x.id,
+    className: "border-t border-navyfg/10 hover:bg-navyfg/5"
+  }, /*#__PURE__*/React.createElement("td", {
+    className: "px-5 py-2.5 font-sans font-medium"
+  }, x.name), /*#__PURE__*/React.createElement("td", {
+    className: "px-3 py-2.5 text-right text-up"
+  }, x.currencies.includes("PYG") ? pct(x.ratePYG) : "—"), /*#__PURE__*/React.createElement("td", {
+    className: "px-3 py-2.5 text-right text-up"
+  }, x.currencies.includes("USD") && x.rateUSD ? pct(x.rateUSD) : "—"), /*#__PURE__*/React.createElement("td", {
+    className: "px-5 py-2.5 text-right"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "inline-flex items-center gap-1.5 text-xs"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "w-2 h-2 rounded-full " + dot[x.risk]
+  }), x.risk))))))), /*#__PURE__*/React.createElement("div", {
+    className: "border-t border-navyfg/15 px-5 pt-4 pb-3"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-end justify-between gap-3 flex-wrap"
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("p", {
+    className: "font-mono text-[11px] uppercase tracking-wider opacity-60"
+  }, "Gs. 10.000.000 al 8 % \xB7 5 a\xF1os"), /*#__PURE__*/React.createElement("p", {
+    className: "font-mono text-2xl font-semibold text-up"
+  }, fmtMoney(spark[60].v, "PYG"))), /*#__PURE__*/React.createElement("p", {
+    className: "font-mono text-xs text-up"
+  }, "\u25B2 ", pct((spark[60].v / spark[0].v - 1) * 100))), /*#__PURE__*/React.createElement("div", {
+    className: "h-16 mt-2",
+    "aria-hidden": "true"
+  }, ResponsiveContainer && /*#__PURE__*/React.createElement(ResponsiveContainer, {
+    width: "100%",
+    height: "100%"
+  }, /*#__PURE__*/React.createElement(AreaChart, {
+    data: spark,
+    margin: {
+      top: 4,
+      right: 0,
+      left: 0,
+      bottom: 0
+    }
+  }, /*#__PURE__*/React.createElement("defs", null, /*#__PURE__*/React.createElement("linearGradient", {
+    id: "gHero",
+    x1: "0",
+    y1: "0",
+    x2: "0",
+    y2: "1"
+  }, /*#__PURE__*/React.createElement("stop", {
+    offset: "0%",
+    stopColor: "rgb(var(--up))",
+    stopOpacity: 0.45
+  }), /*#__PURE__*/React.createElement("stop", {
+    offset: "100%",
+    stopColor: "rgb(var(--up))",
+    stopOpacity: 0
+  }))), /*#__PURE__*/React.createElement(Area, {
+    type: "monotone",
+    dataKey: "v",
+    stroke: "rgb(var(--up))",
+    strokeWidth: 2,
+    fill: "url(#gHero)",
+    isAnimationActive: false
+  }))))), /*#__PURE__*/React.createElement("p", {
+    className: "px-5 py-3 text-xs opacity-70 border-t border-navyfg/15"
+  }, "Rangos con fines educativos, no son cotizaciones en tiempo real. Consult\xE1 las tasas vigentes en tu Casa de Bolsa."))));
 }
 
 /* ---------- Beneficios + 1. caja de ahorro vs invertir ---------- */
@@ -2233,6 +1363,353 @@ function DondeInvertir() {
   }, /*#__PURE__*/React.createElement(Notice, null, "Las tasas son orientativas y cambian con el mercado. Antes de invertir, ped\xED a tu Casa de Bolsa las opciones vigentes, el prospecto y la calificaci\xF3n de cada emisor.")));
 }
 
+/* ---------- 8. footer ---------- */
+function Footer() {
+  return /*#__PURE__*/React.createElement("footer", {
+    className: "bg-navy text-navyfg"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "wrap py-12 grid md:grid-cols-[1fr_1.4fr] gap-10"
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("p", {
+    className: "font-display font-extrabold text-lg"
+  }, "Bolsa", /*#__PURE__*/React.createElement("span", {
+    className: "text-em"
+  }, "PY"), " Aprende"), /*#__PURE__*/React.createElement("p", {
+    className: "mt-2 text-sm opacity-75 max-w-sm"
+  }, "Gu\xEDa educativa para dar los primeros pasos en el mercado de valores paraguayo."), /*#__PURE__*/React.createElement("div", {
+    className: "mt-4 flex flex-col gap-1 text-sm"
+  }, /*#__PURE__*/React.createElement("a", {
+    href: "https://www.bcp.gov.py",
+    target: "_blank",
+    rel: "noopener",
+    className: "inline-flex items-center gap-1.5 opacity-90 hover:opacity-100 underline-offset-2 hover:underline"
+  }, "Banco Central del Paraguay ", /*#__PURE__*/React.createElement(Icon, {
+    name: "ExternalLink",
+    className: "w-3.5 h-3.5"
+  })), /*#__PURE__*/React.createElement("a", {
+    href: "https://www.bolsadevalores.com.py",
+    target: "_blank",
+    rel: "noopener",
+    className: "inline-flex items-center gap-1.5 opacity-90 hover:opacity-100 underline-offset-2 hover:underline"
+  }, "Bolsa de Valores de Asunci\xF3n ", /*#__PURE__*/React.createElement(Icon, {
+    name: "ExternalLink",
+    className: "w-3.5 h-3.5"
+  })))), /*#__PURE__*/React.createElement("div", {
+    className: "rounded-2xl border border-white/15 p-5"
+  }, /*#__PURE__*/React.createElement("p", {
+    className: "flex items-center gap-2 font-semibold"
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "AlertTriangle",
+    className: "w-4 h-4 text-amber"
+  }), " Aviso legal"), /*#__PURE__*/React.createElement("p", {
+    className: "mt-2 text-sm opacity-80"
+  }, "Todo el contenido de este sitio es exclusivamente educativo e informativo. No constituye asesor\xEDa financiera, legal ni tributaria, ni una recomendaci\xF3n de compra o venta de ning\xFAn valor o instrumento. Las tasas, montos m\xEDnimos y entidades mencionadas son ilustrativas y pueden no estar vigentes. Toda inversi\xF3n implica riesgos, incluida la posible p\xE9rdida del capital, y los rendimientos pasados no garantizan resultados futuros. Antes de invertir, consult\xE1 con una Casa de Bolsa autorizada por la Superintendencia de Valores del Banco Central del Paraguay y le\xE9 el prospecto de cada emisi\xF3n."))));
+}
+
+/* ===== PARTE 3 DE 6: Cómo funciona, mapa del mercado, casos, paso a paso y checklist ===== */
+/* ---------- 2. ecosistema ---------- */
+function Ecosistema() {
+  const actors = [{
+    icon: "Scale",
+    title: "Superintendencia de Valores (SIV – BCP)",
+    role: "Regula y supervisa",
+    text: "Dependiente del Banco Central del Paraguay (antes Comisión Nacional de Valores). Autoriza a las Casas de Bolsa, registra las emisiones y controla que se cumplan las reglas del mercado para proteger al inversor."
+  }, {
+    icon: "Landmark",
+    title: "Bolsa de Valores de Asunción (BVA)",
+    role: "Donde se negocia",
+    text: "Antes conocida como BVPASA. Es el mercado organizado donde se compran y venden los títulos, publica precios y emisiones. La custodia y liquidación de los títulos la realiza la Caja de Valores del Paraguay (CAVAPY)."
+  }, {
+    icon: "Building2",
+    title: "Casas de Bolsa (C.B.S.A.)",
+    role: "Intermediario obligatorio",
+    text: "Solo ellas pueden operar en la bolsa. Te abren la cuenta, ejecutan tus órdenes de compra y venta, te asesoran y custodian tus títulos."
+  }, {
+    icon: "Users",
+    title: "Emisores e inversionistas",
+    role: "Los protagonistas",
+    text: "Empresas, bancos y el Estado emiten títulos para financiarse. Personas y empresas como vos ponen su capital a cambio de intereses, dividendos o ganancias."
+  }];
+  const [mkt, setMkt] = useState("primario");
+  return /*#__PURE__*/React.createElement(Section, {
+    id: "ecosistema",
+    alt: true,
+    eyebrow: "El ecosistema",
+    title: "\xBFC\xF3mo funciona la Bolsa de Valores en Paraguay?",
+    intro: "La bolsa conecta a quienes necesitan financiamiento con quienes tienen ahorros. Cuatro actores hacen que eso funcione con reglas claras."
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "grid sm:grid-cols-2 lg:grid-cols-4 gap-4"
+  }, actors.map(a => /*#__PURE__*/React.createElement("article", {
+    key: a.title,
+    className: "group rounded-2xl border border-line bg-bg p-5 hover:border-em/50 hover:-translate-y-0.5 transition"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "grid place-items-center w-11 h-11 rounded-xl bg-navy text-navyfg group-hover:bg-em transition"
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: a.icon
+  })), /*#__PURE__*/React.createElement("p", {
+    className: "mt-4 text-xs font-semibold uppercase tracking-wider text-em"
+  }, a.role), /*#__PURE__*/React.createElement("h3", {
+    className: "mt-1 font-bold text-ink text-lg"
+  }, a.title), /*#__PURE__*/React.createElement("p", {
+    className: "mt-2 text-sm text-muted"
+  }, a.text)))), /*#__PURE__*/React.createElement("div", {
+    className: "mt-8 rounded-2xl border border-line bg-bg p-5 overflow-x-auto"
+  }, /*#__PURE__*/React.createElement("p", {
+    className: "text-sm font-semibold text-ink mb-4"
+  }, "C\xF3mo viaja tu dinero"), /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center gap-2 min-w-[640px] text-sm"
+  }, ["Vos (inversor)", "Tu Casa de Bolsa", "BVA (negociación)", "Emisor (empresa / Estado)"].map((s, i, arr) => /*#__PURE__*/React.createElement(React.Fragment, {
+    key: s
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex-1 rounded-xl px-3 py-3 text-center font-semibold " + (i === 0 ? "bg-em text-white" : "bg-card border border-line text-ink")
+  }, s), i < arr.length - 1 && /*#__PURE__*/React.createElement(Icon, {
+    name: "ArrowRight",
+    className: "w-4 h-4 text-muted shrink-0"
+  })))), /*#__PURE__*/React.createElement("p", {
+    className: "mt-3 text-xs text-muted min-w-[640px]"
+  }, "Todo el circuito est\xE1 supervisado por la Superintendencia de Valores del BCP. A cambio de tu dinero recib\xEDs t\xEDtulos registrados a tu nombre y, luego, intereses o dividendos.")), /*#__PURE__*/React.createElement("div", {
+    className: "mt-8 grid lg:grid-cols-[280px_1fr] gap-6 items-start"
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h3", {
+    className: "text-xl font-bold text-ink"
+  }, "Mercado primario y secundario"), /*#__PURE__*/React.createElement("p", {
+    className: "mt-2 text-sm text-muted"
+  }, "Un mismo bono pasa por dos momentos de su vida. Eleg\xED uno para ver la diferencia."), /*#__PURE__*/React.createElement("div", {
+    className: "mt-4"
+  }, /*#__PURE__*/React.createElement(Segmented, {
+    idBase: "mkt",
+    label: "Tipo de mercado",
+    value: mkt,
+    onChange: setMkt,
+    options: [["primario", "Primario"], ["secundario", "Secundario"]]
+  }))), /*#__PURE__*/React.createElement("div", {
+    key: mkt,
+    className: "fade-in rounded-2xl border border-line bg-bg p-6 grid sm:grid-cols-3 gap-5"
+  }, (mkt === "primario" ? [["¿Qué pasa?", "El emisor coloca títulos nuevos por primera vez. Es el «estreno» del bono o la acción."], ["¿A quién le pagás?", "Tu dinero va directamente a la empresa o al Estado que emite."], ["Ejemplo", "Una empresa paraguaya lanza bonos a 5 años al 9 % en Gs. y vos comprás en la colocación."]] : [["¿Qué pasa?", "Los inversores compran y venden entre sí títulos que ya existen."], ["¿A quién le pagás?", "A otro inversor que quiere vender. El emisor no recibe dinero nuevo."], ["Ejemplo", "Comprás a otro inversor un CDA al que le quedan 14 meses, o vendés tu bono antes de que venza."]]).map(([t, d]) => /*#__PURE__*/React.createElement("div", {
+    key: t
+  }, /*#__PURE__*/React.createElement("p", {
+    className: "text-xs font-semibold uppercase tracking-wider text-em"
+  }, t), /*#__PURE__*/React.createElement("p", {
+    className: "mt-1 text-ink text-sm"
+  }, d))))));
+}
+
+/* ---------- 3. stepper ---------- */
+const STEPS = [{
+  icon: "Target",
+  title: "Definí objetivo, plazo y moneda",
+  body: "Antes de elegir un producto, respondé tres preguntas: ¿para qué invierto?, ¿cuándo voy a necesitar este dinero? y ¿en qué moneda lo voy a usar?",
+  list: ["Fondo de emergencia o liquidez: fondo mutuo rescatable.", "Meta a 1–3 años (auto, viaje, estudios): CDA o bonos cortos.", "Largo plazo (jubilación, patrimonio): bonos largos, fondos de inversión y una parte en acciones.", "Si tus gastos son en guaraníes, invertí mayormente en PYG; si ahorrás para algo dolarizado, considerá USD."],
+  tip: "Mantené siempre un fondo de emergencia de 3 a 6 meses de gastos fuera de inversiones de largo plazo."
+}, {
+  icon: "ShieldCheck",
+  title: "Elegí una Casa de Bolsa habilitada",
+  body: "Es tu puerta de entrada obligatoria a la bolsa. Antes de abrir cuenta, verificá que esté autorizada y comparala con otras.",
+  list: ["Buscala en el registro de Casas de Bolsa de la Superintendencia de Valores (bcp.gov.py).", "Confirmá que figure como miembro de la BVA (bolsadevalores.com.py).", "Pedí el tarifario: comisión de corretaje, custodia y otros costos.", "Probá su atención y su app antes de transferir dinero."],
+  tip: "Desconfiá de cualquiera que te prometa rendimientos garantizados muy altos o te pida transferir a una cuenta personal."
+}, {
+  icon: "FileText",
+  title: "Abrí tu cuenta comitente",
+  body: "Es la cuenta a tu nombre donde se registran tus títulos y tu dinero. Muchas casas permiten hacerlo en línea en pocos días.",
+  list: ["Cédula de identidad paraguaya vigente (o pasaporte si sos extranjero).", "Comprobante de ingresos u origen de fondos (liquidación de salario, facturas, declaraciones).", "Constancia de RUC si sos contribuyente.", "Formulario de perfil de inversionista y datos de tu cuenta bancaria."],
+  tip: "El perfil de inversionista no es un trámite más: define qué productos te pueden ofrecer. Respondelo con sinceridad."
+}, {
+  icon: "Smartphone",
+  title: "Transferí fondos y hacé tu primera compra",
+  body: "Enviá dinero desde tu banco a la cuenta de la Casa de Bolsa y da la orden de compra con tu asesor o desde la app.",
+  list: ["Transferí vía SIPAP o transferencia bancaria a la cuenta oficial de la Casa de Bolsa (nunca a cuentas personales).", "Pedile a tu asesor las opciones disponibles: tasa, plazo, emisor y calificación.", "Leé el prospecto o la ficha del producto antes de confirmar.", "Guardá el comprobante de operación que te envía la Casa de Bolsa."],
+  tip: "Para tu primera inversión, un fondo mutuo o un CDA de una entidad bien calificada es una forma sencilla de aprender."
+}, {
+  icon: "RefreshCw",
+  title: "Seguí tus pagos y reinvertí",
+  body: "Invertir no termina con la compra. Revisá tu cuenta, cobrá tus cupones y decidí qué hacer con ellos.",
+  list: ["Revisá el estado de cuenta mensual de tu Casa de Bolsa.", "Anotá fechas de cobro de cupones y vencimientos.", "Reinvertí los intereses para aprovechar el interés compuesto.", "Revisá tu cartera una o dos veces al año y ajustala a tus metas."],
+  tip: "Seguí las calificaciones de riesgo de tus emisores: si bajan, conversá con tu asesor."
+}];
+function Stepper() {
+  const [i, setI] = useState(0);
+  const s = STEPS[i];
+  return /*#__PURE__*/React.createElement(Section, {
+    id: "guia",
+    eyebrow: "Gu\xEDa paso a paso",
+    title: "C\xF3mo empezar a invertir desde cero",
+    intro: "Cinco pasos en orden. Toc\xE1 cada uno para ver qu\xE9 hacer y qu\xE9 tener en cuenta."
+  }, /*#__PURE__*/React.createElement("ol", {
+    className: "grid grid-cols-5 gap-2 sm:gap-3 mb-6",
+    "aria-label": "Pasos"
+  }, STEPS.map((st, k) => /*#__PURE__*/React.createElement("li", {
+    key: k
+  }, /*#__PURE__*/React.createElement("button", {
+    id: "step-" + k,
+    onClick: () => setI(k),
+    "aria-current": k === i ? "step" : undefined,
+    className: "w-full text-left rounded-xl border p-2 sm:p-3 transition " + (k === i ? "border-em bg-emsoft" : k < i ? "border-line bg-card" : "border-line bg-card hover:border-em/50")
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "grid place-items-center w-8 h-8 rounded-full text-sm font-bold num " + (k < i ? "bg-em text-white" : k === i ? "bg-navy text-navyfg" : "bg-soft text-muted")
+  }, k < i ? /*#__PURE__*/React.createElement(Icon, {
+    name: "Check",
+    className: "w-4 h-4"
+  }) : k + 1), /*#__PURE__*/React.createElement("span", {
+    className: "hidden sm:block mt-2 text-sm font-semibold text-ink leading-snug"
+  }, st.title))))), /*#__PURE__*/React.createElement("div", {
+    className: "h-1.5 rounded-full bg-soft mb-6 overflow-hidden"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "h-full bg-em transition-all duration-500",
+    style: {
+      width: (i + 1) / STEPS.length * 100 + "%"
+    }
+  })), /*#__PURE__*/React.createElement("article", {
+    key: i,
+    className: "fade-in rounded-2xl bg-card border border-line p-6 sm:p-8 grid lg:grid-cols-[1fr_320px] gap-8"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "min-w-0"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center gap-3"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "grid place-items-center w-11 h-11 rounded-xl bg-navy text-navyfg"
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: s.icon
+  })), /*#__PURE__*/React.createElement("p", {
+    className: "text-sm font-semibold text-em num"
+  }, "Paso ", i + 1, " de ", STEPS.length)), /*#__PURE__*/React.createElement("h3", {
+    className: "mt-4 text-2xl font-bold text-ink"
+  }, s.title), /*#__PURE__*/React.createElement("p", {
+    className: "mt-2 text-muted"
+  }, s.body), /*#__PURE__*/React.createElement("ul", {
+    className: "mt-5 space-y-3"
+  }, s.list.map(l => /*#__PURE__*/React.createElement("li", {
+    key: l,
+    className: "flex gap-3 text-ink"
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "CheckCircle2",
+    className: "w-5 h-5 text-em shrink-0 mt-0.5"
+  }), /*#__PURE__*/React.createElement("span", null, l))))), /*#__PURE__*/React.createElement("aside", {
+    className: "rounded-xl bg-ambersoft border border-amber/30 p-5 self-start"
+  }, /*#__PURE__*/React.createElement("p", {
+    className: "flex items-center gap-2 text-sm font-bold text-amber"
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "Lightbulb",
+    className: "w-4 h-4"
+  }), " Consejo pr\xE1ctico"), /*#__PURE__*/React.createElement("p", {
+    className: "mt-2 text-sm text-ink"
+  }, s.tip)), /*#__PURE__*/React.createElement("div", {
+    className: "lg:col-span-2 flex justify-between gap-3 pt-2 border-t border-line"
+  }, /*#__PURE__*/React.createElement("button", {
+    disabled: i === 0,
+    onClick: () => setI(i - 1),
+    className: "inline-flex items-center gap-2 px-4 py-2 rounded-lg font-semibold text-ink border border-line disabled:opacity-40 hover:bg-soft transition"
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "ArrowLeft",
+    className: "w-4 h-4"
+  }), " Anterior"), i < STEPS.length - 1 ? /*#__PURE__*/React.createElement("button", {
+    onClick: () => setI(i + 1),
+    className: "inline-flex items-center gap-2 px-4 py-2 rounded-lg font-semibold bg-em text-white hover:brightness-110 transition"
+  }, "Siguiente ", /*#__PURE__*/React.createElement(Icon, {
+    name: "ArrowRight",
+    className: "w-4 h-4"
+  })) : /*#__PURE__*/React.createElement("button", {
+    onClick: () => scrollTo("perfil"),
+    className: "inline-flex items-center gap-2 px-4 py-2 rounded-lg font-semibold bg-em text-white hover:brightness-110 transition"
+  }, "Descubr\xED tu perfil ", /*#__PURE__*/React.createElement(Icon, {
+    name: "ArrowRight",
+    className: "w-4 h-4"
+  })))));
+}
+
+/* ---------- 13. mapa del mercado ---------- */
+const SECTORS = [{
+  icon: "Landmark",
+  name: "Bancos y financieras",
+  issues: ["CDA", "Bonos", "Bonos subordinados"],
+  risk: "Bajo a medio",
+  text: "Son los emisores más frecuentes. Captan fondos con CDA y bonos para prestar a sus clientes. Además están supervisados por la Superintendencia de Bancos del BCP."
+}, {
+  icon: "Building2",
+  name: "Estado paraguayo",
+  issues: ["Bonos del Tesoro"],
+  risk: "Bajo",
+  text: "El Ministerio de Economía y Finanzas emite bonos para financiar el presupuesto y obras públicas."
+}, {
+  icon: "Wheat",
+  name: "Agro y agroindustria",
+  issues: ["Bonos", "Acciones preferidas"],
+  risk: "Medio",
+  text: "Exportadores, acopiadores e industrias de alimentos se financian para capital de trabajo e inversión. Su desempeño depende del clima y de los precios internacionales."
+}, {
+  icon: "Store",
+  name: "Comercio y consumo",
+  issues: ["Bonos", "Acciones preferidas"],
+  risk: "Medio",
+  text: "Cadenas de retail, distribuidoras y empresas de consumo masivo que financian su expansión."
+}, {
+  icon: "HardHat",
+  name: "Inmobiliario y construcción",
+  issues: ["Bonos", "Fondos de inversión"],
+  risk: "Medio a alto",
+  text: "Desarrolladoras y fondos que financian edificios, loteamientos y proyectos de largo plazo."
+}, {
+  icon: "Zap",
+  name: "Industria, energía y servicios",
+  issues: ["Bonos", "Acciones"],
+  risk: "Medio",
+  text: "Empresas industriales, de logística, salud, educación y servicios que buscan financiamiento de mediano plazo."
+}, {
+  icon: "PieChart",
+  name: "Administradoras de fondos",
+  issues: ["Fondos mutuos", "Fondos de inversión"],
+  risk: "Bajo a alto",
+  text: "Las AFPISA reúnen el dinero de muchos inversores y lo invierten en una cartera diversificada según el reglamento de cada fondo."
+}];
+function Mapa() {
+  const [sel, setSel] = useState(0);
+  const s = SECTORS[sel];
+  return /*#__PURE__*/React.createElement(Section, {
+    id: "mapa",
+    eyebrow: "Mapa del mercado",
+    title: "\xBFQui\xE9nes emiten en la bolsa paraguaya?",
+    intro: "Distintos sectores de la econom\xEDa se financian en la bolsa. Eleg\xED uno para ver qu\xE9 tipo de t\xEDtulos suele emitir y cu\xE1l es su perfil de riesgo."
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "grid lg:grid-cols-[1fr_360px] gap-5 items-start"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3"
+  }, SECTORS.map((x, k) => /*#__PURE__*/React.createElement("button", {
+    key: x.name,
+    id: "sector-" + k,
+    onClick: () => setSel(k),
+    "aria-pressed": sel === k,
+    className: "text-left rounded-2xl border p-4 transition min-h-[120px] " + (sel === k ? "border-navy bg-navy text-navyfg" : "border-line bg-card hover:border-em/50 text-ink")
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: x.icon,
+    className: "w-6 h-6 " + (sel === k ? "" : "text-em")
+  }), /*#__PURE__*/React.createElement("p", {
+    className: "mt-3 font-semibold text-sm leading-snug"
+  }, x.name)))), /*#__PURE__*/React.createElement("article", {
+    key: sel,
+    className: "fade-in rounded-2xl border border-line bg-card p-6"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "grid place-items-center w-11 h-11 rounded-xl bg-emsoft text-em"
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: s.icon
+  })), /*#__PURE__*/React.createElement("h3", {
+    className: "mt-3 text-xl font-bold text-ink"
+  }, s.name), /*#__PURE__*/React.createElement("p", {
+    className: "mt-2 text-sm text-muted"
+  }, s.text), /*#__PURE__*/React.createElement("p", {
+    className: "mt-4 text-xs font-semibold uppercase tracking-wider text-muted"
+  }, "Suele emitir"), /*#__PURE__*/React.createElement("div", {
+    className: "mt-2 flex flex-wrap gap-1.5"
+  }, s.issues.map(i => /*#__PURE__*/React.createElement(Pill, {
+    key: i,
+    className: "bg-soft text-ink"
+  }, i))), /*#__PURE__*/React.createElement("p", {
+    className: "mt-4 text-sm"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "text-muted"
+  }, "Riesgo t\xEDpico: "), /*#__PURE__*/React.createElement("span", {
+    className: "font-semibold text-ink"
+  }, s.risk)), /*#__PURE__*/React.createElement("p", {
+    className: "mt-4 text-xs text-muted"
+  }, "Las emisiones vigentes y sus emisores se publican en el sitio de la BVA. El riesgo real depende de cada emisor: revis\xE1 siempre su calificaci\xF3n."))));
+}
+
 /* ---------- 6. casos de ejemplo ---------- */
 const CASES = [{
   name: "Ana",
@@ -2449,100 +1926,315 @@ function ChecklistPre() {
   }, "Reiniciar"))));
 }
 
-/* ---------- 13. mapa del mercado ---------- */
-const SECTORS = [{
-  icon: "Landmark",
-  name: "Bancos y financieras",
-  issues: ["CDA", "Bonos", "Bonos subordinados"],
-  risk: "Bajo a medio",
-  text: "Son los emisores más frecuentes. Captan fondos con CDA y bonos para prestar a sus clientes. Además están supervisados por la Superintendencia de Bancos del BCP."
-}, {
-  icon: "Building2",
-  name: "Estado paraguayo",
-  issues: ["Bonos del Tesoro"],
-  risk: "Bajo",
-  text: "El Ministerio de Economía y Finanzas emite bonos para financiar el presupuesto y obras públicas."
-}, {
-  icon: "Wheat",
-  name: "Agro y agroindustria",
-  issues: ["Bonos", "Acciones preferidas"],
-  risk: "Medio",
-  text: "Exportadores, acopiadores e industrias de alimentos se financian para capital de trabajo e inversión. Su desempeño depende del clima y de los precios internacionales."
-}, {
-  icon: "Store",
-  name: "Comercio y consumo",
-  issues: ["Bonos", "Acciones preferidas"],
-  risk: "Medio",
-  text: "Cadenas de retail, distribuidoras y empresas de consumo masivo que financian su expansión."
-}, {
-  icon: "HardHat",
-  name: "Inmobiliario y construcción",
-  issues: ["Bonos", "Fondos de inversión"],
-  risk: "Medio a alto",
-  text: "Desarrolladoras y fondos que financian edificios, loteamientos y proyectos de largo plazo."
-}, {
-  icon: "Zap",
-  name: "Industria, energía y servicios",
-  issues: ["Bonos", "Acciones"],
-  risk: "Medio",
-  text: "Empresas industriales, de logística, salud, educación y servicios que buscan financiamiento de mediano plazo."
-}, {
-  icon: "PieChart",
-  name: "Administradoras de fondos",
-  issues: ["Fondos mutuos", "Fondos de inversión"],
-  risk: "Bajo a alto",
-  text: "Las AFPISA reúnen el dinero de muchos inversores y lo invierten en una cartera diversificada según el reglamento de cada fondo."
-}];
-function Mapa() {
-  const [sel, setSel] = useState(0);
-  const s = SECTORS[sel];
+/* ===== PARTE 4 DE 6: Casas de Bolsa, instrumentos, prospecto y línea de tiempo ===== */
+/* ---------- 4. casas de bolsa ---------- */
+function Casas() {
+  const services = [["MessagesSquare", "Asesoría", "Te explican opciones según tu perfil y objetivo."], ["ArrowLeftRight", "Compra y venta", "Ejecutan tus órdenes en la BVA, en mercado primario y secundario."], ["Lock", "Custodia", "Registran tus títulos a tu nombre y te informan cobros y vencimientos."], ["Smartphone", "Apps digitales", "Varias permiten invertir y seguir tu cartera desde el celular."]];
+  const checklist = ["Está registrada en la Superintendencia de Valores del BCP y es miembro de la BVA.", "Te entrega por escrito el tarifario: corretaje, custodia y aranceles.", "Responde rápido y explica sin apuros ni presiones.", "Ofrece app o plataforma web para ver tu cartera y estados de cuenta.", "Tiene productos propios o vinculados, como fondos mutuos de su administradora.", "Publica información clara de sus emisiones y riesgos."];
+  const [checked, setChecked] = useState({});
+  const [q, setQ] = useState("");
+  const done = Object.values(checked).filter(Boolean).length;
+  const list = BROKERS.filter(b => b.name.toLowerCase().includes(q.toLowerCase()));
   return /*#__PURE__*/React.createElement(Section, {
-    id: "mapa",
-    eyebrow: "Mapa del mercado",
-    title: "\xBFQui\xE9nes emiten en la bolsa paraguaya?",
-    intro: "Distintos sectores de la econom\xEDa se financian en la bolsa. Eleg\xED uno para ver qu\xE9 tipo de t\xEDtulos suele emitir y cu\xE1l es su perfil de riesgo."
+    id: "casas",
+    alt: true,
+    eyebrow: "Intermediarios",
+    title: "Casas de Bolsa en Paraguay",
+    intro: "Una Casa de Bolsa (C.B.S.A.) es una sociedad an\xF3nima autorizada para comprar y vender t\xEDtulos en la bolsa por cuenta de sus clientes. Ganan dinero con comisiones de corretaje sobre cada operaci\xF3n y, en algunos casos, con cargos de custodia."
   }, /*#__PURE__*/React.createElement("div", {
-    className: "grid lg:grid-cols-[1fr_360px] gap-5 items-start"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3"
-  }, SECTORS.map((x, k) => /*#__PURE__*/React.createElement("button", {
-    key: x.name,
-    id: "sector-" + k,
-    onClick: () => setSel(k),
-    "aria-pressed": sel === k,
-    className: "text-left rounded-2xl border p-4 transition min-h-[120px] " + (sel === k ? "border-navy bg-navy text-navyfg" : "border-line bg-card hover:border-em/50 text-ink")
+    className: "grid sm:grid-cols-2 lg:grid-cols-4 gap-4"
+  }, services.map(([ic, t, d]) => /*#__PURE__*/React.createElement("div", {
+    key: t,
+    className: "rounded-2xl border border-line bg-bg p-5"
   }, /*#__PURE__*/React.createElement(Icon, {
-    name: x.icon,
-    className: "w-6 h-6 " + (sel === k ? "" : "text-em")
+    name: ic,
+    className: "w-6 h-6 text-em"
   }), /*#__PURE__*/React.createElement("p", {
-    className: "mt-3 font-semibold text-sm leading-snug"
-  }, x.name)))), /*#__PURE__*/React.createElement("article", {
-    key: sel,
-    className: "fade-in rounded-2xl border border-line bg-card p-6"
-  }, /*#__PURE__*/React.createElement("span", {
-    className: "grid place-items-center w-11 h-11 rounded-xl bg-emsoft text-em"
+    className: "mt-3 font-bold text-ink"
+  }, t), /*#__PURE__*/React.createElement("p", {
+    className: "mt-1 text-sm text-muted"
+  }, d)))), /*#__PURE__*/React.createElement("div", {
+    className: "mt-10 grid lg:grid-cols-[380px_1fr] gap-6 items-start"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "rounded-2xl border border-line bg-bg p-5 sm:p-6"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center justify-between gap-3"
+  }, /*#__PURE__*/React.createElement("h3", {
+    className: "text-lg font-bold text-ink"
+  }, "Checklist para elegir"), /*#__PURE__*/React.createElement("span", {
+    className: "num text-sm font-semibold text-em"
+  }, done, "/", checklist.length)), /*#__PURE__*/React.createElement("div", {
+    className: "mt-3 h-1.5 rounded-full bg-soft overflow-hidden"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "h-full bg-em transition-all",
+    style: {
+      width: done / checklist.length * 100 + "%"
+    }
+  })), /*#__PURE__*/React.createElement("ul", {
+    className: "mt-4 space-y-2"
+  }, checklist.map((c, k) => /*#__PURE__*/React.createElement("li", {
+    key: k
+  }, /*#__PURE__*/React.createElement("label", {
+    htmlFor: "chk-" + k,
+    className: "flex gap-3 cursor-pointer rounded-lg p-2 hover:bg-soft"
+  }, /*#__PURE__*/React.createElement("input", {
+    id: "chk-" + k,
+    type: "checkbox",
+    className: "mt-1 w-4 h-4 accent-[rgb(var(--em))] shrink-0",
+    checked: !!checked[k],
+    onChange: e => setChecked({
+      ...checked,
+      [k]: e.target.checked
+    })
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "text-sm " + (checked[k] ? "text-muted line-through" : "text-ink")
+  }, c))))), done === checklist.length && /*#__PURE__*/React.createElement("p", {
+    className: "mt-3 text-sm font-semibold text-em fade-in"
+  }, "Excelente: esa Casa de Bolsa cumple todos los criterios b\xE1sicos.")), /*#__PURE__*/React.createElement("div", {
+    className: "min-w-0"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex flex-wrap items-center gap-3 mb-4"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "relative flex-1 min-w-[200px]"
   }, /*#__PURE__*/React.createElement(Icon, {
-    name: s.icon
-  })), /*#__PURE__*/React.createElement("h3", {
-    className: "mt-3 text-xl font-bold text-ink"
-  }, s.name), /*#__PURE__*/React.createElement("p", {
-    className: "mt-2 text-sm text-muted"
-  }, s.text), /*#__PURE__*/React.createElement("p", {
-    className: "mt-4 text-xs font-semibold uppercase tracking-wider text-muted"
-  }, "Suele emitir"), /*#__PURE__*/React.createElement("div", {
-    className: "mt-2 flex flex-wrap gap-1.5"
-  }, s.issues.map(i => /*#__PURE__*/React.createElement(Pill, {
-    key: i,
-    className: "bg-soft text-ink"
-  }, i))), /*#__PURE__*/React.createElement("p", {
-    className: "mt-4 text-sm"
+    name: "Search",
+    className: "w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted"
+  }), /*#__PURE__*/React.createElement("input", {
+    id: "broker-search",
+    value: q,
+    onChange: e => setQ(e.target.value),
+    placeholder: "Buscar Casa de Bolsa",
+    className: "w-full rounded-lg border border-line bg-card pl-9 pr-3 py-2 text-sm text-ink placeholder:text-muted focus:border-em outline-none"
+  })), /*#__PURE__*/React.createElement("p", {
+    className: "text-sm text-muted num"
+  }, list.length, " de ", BROKERS.length, " habilitadas")), /*#__PURE__*/React.createElement("div", {
+    className: "grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-2"
+  }, list.map(b => /*#__PURE__*/React.createElement("div", {
+    key: b.name,
+    className: "flex items-center gap-3 rounded-xl border border-line bg-card px-3 py-2.5"
   }, /*#__PURE__*/React.createElement("span", {
+    className: "grid place-items-center w-9 h-9 shrink-0 rounded-lg bg-navy text-navyfg font-display font-bold text-xs"
+  }, b.name.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase()), /*#__PURE__*/React.createElement("div", {
+    className: "min-w-0"
+  }, /*#__PURE__*/React.createElement("p", {
+    className: "font-semibold text-ink leading-snug text-sm"
+  }, b.name), /*#__PURE__*/React.createElement("p", {
+    className: "text-xs text-muted"
+  }, "Casa de Bolsa S.A.")))), list.length === 0 && /*#__PURE__*/React.createElement("p", {
+    className: "text-sm text-muted sm:col-span-2 p-4"
+  }, "No hay resultados para \xAB", q, "\xBB. Prob\xE1 con otro nombre.")), /*#__PURE__*/React.createElement("div", {
+    className: "mt-4"
+  }, /*#__PURE__*/React.createElement(Notice, null, /*#__PURE__*/React.createElement("strong", null, "Lista de Casas de Bolsa habilitadas seg\xFAn el sitio de la BVA, consultado en noviembre de 2026."), " Es informativa y no constituye una recomendaci\xF3n. La lista puede cambiar. Verific\xE1 siempre la lista vigente en el sitio oficial del Banco Central del Paraguay (", /*#__PURE__*/React.createElement("a", {
+    className: "underline text-em",
+    href: "https://www.bcp.gov.py",
+    target: "_blank",
+    rel: "noopener"
+  }, "bcp.gov.py"), ") y de la Bolsa de Valores de Asunci\xF3n (", /*#__PURE__*/React.createElement("a", {
+    className: "underline text-em",
+    href: "https://www.bolsadevalores.com.py",
+    target: "_blank",
+    rel: "noopener"
+  }, "bolsadevalores.com.py"), ").")))));
+}
+
+/* ---------- 5. instrumentos ---------- */
+function Instrumentos() {
+  const [risk, setRisk] = useState("Todos");
+  const [liq, setLiq] = useState("Todas");
+  const [cur, setCur] = useState("Todas");
+  const [sel, setSel] = useState("fm");
+  const [compare, setCompare] = useState(["fm", "cda", "bc"]);
+  const filtered = INSTRUMENTS.filter(x => (risk === "Todos" || x.risk === risk) && (liq === "Todas" || x.liquidity === liq) && (cur === "Todas" || x.currencies.includes(cur)));
+  const active = INSTRUMENTS.find(x => x.id === sel);
+  const toggleCompare = id => setCompare(c => c.includes(id) ? c.filter(x => x !== id) : c.length >= 4 ? [...c.slice(1), id] : [...c, id]);
+  const cmp = INSTRUMENTS.filter(x => compare.includes(x.id));
+  const ratings = [["AAApy", "Máxima capacidad de pago. Riesgo muy bajo.", "bg-emsoft text-em"], ["AApy", "Muy alta capacidad de pago.", "bg-emsoft text-em"], ["Apy", "Alta capacidad, algo más sensible a cambios económicos.", "bg-ambersoft text-amber"], ["BBBpy", "Capacidad suficiente; último escalón del grado de inversión.", "bg-ambersoft text-amber"], ["BBpy o menor", "Especulativo: mayor riesgo de atrasos o impago.", "bg-dangersoft text-danger"]];
+  const Filter = ({
+    label,
+    value,
+    onChange,
+    options,
+    idBase
+  }) => /*#__PURE__*/React.createElement("div", {
+    className: "min-w-0"
+  }, /*#__PURE__*/React.createElement("p", {
+    className: "text-xs font-semibold uppercase tracking-wider text-muted mb-1.5"
+  }, label), /*#__PURE__*/React.createElement("div", {
+    className: "flex flex-wrap gap-1.5"
+  }, options.map(o => /*#__PURE__*/React.createElement("button", {
+    key: o,
+    id: idBase + "-" + o,
+    onClick: () => onChange(o),
+    "aria-pressed": value === o,
+    className: "px-3 py-1.5 rounded-full text-sm font-medium border transition " + (value === o ? "bg-navy text-navyfg border-navy" : "bg-card text-ink border-line hover:border-em")
+  }, o))));
+  return /*#__PURE__*/React.createElement(Section, {
+    id: "instrumentos",
+    eyebrow: "Instrumentos financieros",
+    title: "Qu\xE9 pod\xE9s comprar en la bolsa paraguaya",
+    intro: "Filtr\xE1 por riesgo, liquidez y moneda. Toc\xE1 una tarjeta para leer la explicaci\xF3n completa y marc\xE1 hasta cuatro para compararlas lado a lado."
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "rounded-2xl border border-line bg-card p-4 sm:p-5 grid md:grid-cols-3 gap-4"
+  }, /*#__PURE__*/React.createElement(Filter, {
+    idBase: "f-risk",
+    label: "Nivel de riesgo",
+    value: risk,
+    onChange: setRisk,
+    options: ["Todos", "Bajo", "Medio", "Alto"]
+  }), /*#__PURE__*/React.createElement(Filter, {
+    idBase: "f-liq",
+    label: "Liquidez",
+    value: liq,
+    onChange: setLiq,
+    options: ["Todas", "Alta", "Media", "Baja"]
+  }), /*#__PURE__*/React.createElement(Filter, {
+    idBase: "f-cur",
+    label: "Moneda",
+    value: cur,
+    onChange: setCur,
+    options: ["Todas", "PYG", "USD"]
+  })), /*#__PURE__*/React.createElement("p", {
+    className: "mt-3 text-sm text-muted num"
+  }, filtered.length, " de ", INSTRUMENTS.length, " instrumentos"), /*#__PURE__*/React.createElement("div", {
+    className: "mt-4 grid sm:grid-cols-2 lg:grid-cols-3 gap-4"
+  }, filtered.map(x => /*#__PURE__*/React.createElement("article", {
+    key: x.id,
+    className: "rounded-2xl border bg-card p-5 flex flex-col transition " + (sel === x.id ? "border-em ring-2 ring-em/20" : "border-line hover:border-em/50")
+  }, /*#__PURE__*/React.createElement("button", {
+    onClick: () => setSel(x.id),
+    className: "text-left flex-1"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-start justify-between gap-3"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "grid place-items-center w-10 h-10 rounded-xl bg-soft text-ink"
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: x.icon
+  })), /*#__PURE__*/React.createElement(Pill, {
+    className: RISK_STYLE[x.risk]
+  }, "Riesgo ", x.risk.toLowerCase())), /*#__PURE__*/React.createElement("p", {
+    className: "mt-3 text-xs font-semibold uppercase tracking-wider text-muted"
+  }, x.family), /*#__PURE__*/React.createElement("h3", {
+    className: "text-lg font-bold text-ink"
+  }, x.name), /*#__PURE__*/React.createElement("p", {
+    className: "mt-1 text-sm text-muted line-clamp-3"
+  }, x.summary), /*#__PURE__*/React.createElement("div", {
+    className: "mt-3 flex flex-wrap gap-1.5"
+  }, /*#__PURE__*/React.createElement(Pill, {
+    className: "bg-soft text-ink"
+  }, "Liquidez ", x.liquidity.toLowerCase()), x.currencies.map(c => /*#__PURE__*/React.createElement(Pill, {
+    key: c,
+    className: "bg-soft text-ink"
+  }, c)))), /*#__PURE__*/React.createElement("div", {
+    className: "mt-4 pt-3 border-t border-line flex items-center justify-between gap-2"
+  }, /*#__PURE__*/React.createElement("button", {
+    onClick: () => setSel(x.id),
+    className: "text-sm font-semibold text-em inline-flex items-center gap-1"
+  }, "Ver detalle ", /*#__PURE__*/React.createElement(Icon, {
+    name: "ChevronRight",
+    className: "w-4 h-4"
+  })), /*#__PURE__*/React.createElement("label", {
+    htmlFor: "cmp-" + x.id,
+    className: "inline-flex items-center gap-2 text-sm text-ink cursor-pointer"
+  }, /*#__PURE__*/React.createElement("input", {
+    id: "cmp-" + x.id,
+    type: "checkbox",
+    className: "w-4 h-4 accent-[rgb(var(--em))]",
+    checked: compare.includes(x.id),
+    onChange: () => toggleCompare(x.id)
+  }), " Comparar")))), filtered.length === 0 && /*#__PURE__*/React.createElement("div", {
+    className: "sm:col-span-2 lg:col-span-3 rounded-2xl border border-dashed border-line p-8 text-center text-muted"
+  }, "Ning\xFAn instrumento combina esos filtros. ", /*#__PURE__*/React.createElement("button", {
+    className: "text-em font-semibold underline",
+    onClick: () => {
+      setRisk("Todos");
+      setLiq("Todas");
+      setCur("Todas");
+    }
+  }, "Quitar filtros"))), active && /*#__PURE__*/React.createElement("article", {
+    key: active.id,
+    className: "fade-in mt-6 rounded-2xl border border-line bg-card p-6 sm:p-8 grid lg:grid-cols-[1fr_300px] gap-8"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "min-w-0"
+  }, /*#__PURE__*/React.createElement("p", {
+    className: "eyebrow"
+  }, active.family), /*#__PURE__*/React.createElement("h3", {
+    className: "mt-1 text-2xl font-bold text-ink"
+  }, active.name), /*#__PURE__*/React.createElement("p", {
+    className: "mt-3 text-ink"
+  }, active.summary), /*#__PURE__*/React.createElement("ul", {
+    className: "mt-5 space-y-3"
+  }, active.points.map(p => /*#__PURE__*/React.createElement("li", {
+    key: p,
+    className: "flex gap-3 text-ink text-sm"
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "CheckCircle2",
+    className: "w-5 h-5 text-em shrink-0"
+  }), /*#__PURE__*/React.createElement("span", null, p))))), /*#__PURE__*/React.createElement("dl", {
+    className: "rounded-xl bg-bg border border-line p-5 space-y-3 text-sm self-start"
+  }, [["Riesgo", active.risk], ["Liquidez", active.liquidity], ["Monedas", active.currencies.join(" / ")], ["Plazo típico", active.term], ["Monto mínimo", active.min], ["Tasa ref. PYG", active.ratePYG ? "≈ " + active.ratePYG.toLocaleString("es-PY") + " % anual" : "No aplica"], ["Tasa ref. USD", active.currencies.includes("USD") && active.rateUSD ? "≈ " + active.rateUSD.toLocaleString("es-PY") + " % anual" : "No aplica"]].map(([k, v]) => /*#__PURE__*/React.createElement("div", {
+    key: k,
+    className: "flex justify-between gap-4"
+  }, /*#__PURE__*/React.createElement("dt", {
     className: "text-muted"
-  }, "Riesgo t\xEDpico: "), /*#__PURE__*/React.createElement("span", {
-    className: "font-semibold text-ink"
-  }, s.risk)), /*#__PURE__*/React.createElement("p", {
-    className: "mt-4 text-xs text-muted"
-  }, "Las emisiones vigentes y sus emisores se publican en el sitio de la BVA. El riesgo real depende de cada emisor: revis\xE1 siempre su calificaci\xF3n."))));
+  }, k), /*#__PURE__*/React.createElement("dd", {
+    className: "text-ink font-semibold text-right num"
+  }, v))), /*#__PURE__*/React.createElement("p", {
+    className: "text-xs text-muted pt-2 border-t border-line"
+  }, "Valores orientativos. En acciones, la cifra es un rendimiento hist\xF3rico esperado, no una tasa."))), /*#__PURE__*/React.createElement("div", {
+    className: "mt-10"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-end justify-between gap-3 flex-wrap mb-3"
+  }, /*#__PURE__*/React.createElement("h3", {
+    className: "text-xl font-bold text-ink"
+  }, "Comparador"), /*#__PURE__*/React.createElement("p", {
+    className: "text-sm text-muted"
+  }, "Comparando ", /*#__PURE__*/React.createElement("span", {
+    className: "num"
+  }, cmp.length), " de 4 posibles")), cmp.length === 0 ? /*#__PURE__*/React.createElement("p", {
+    className: "rounded-2xl border border-dashed border-line p-6 text-center text-muted"
+  }, "Marc\xE1 \xABComparar\xBB en al menos una tarjeta.") : /*#__PURE__*/React.createElement("div", {
+    className: "overflow-x-auto rounded-2xl border border-line bg-card"
+  }, /*#__PURE__*/React.createElement("table", {
+    className: "w-full text-sm min-w-[560px]"
+  }, /*#__PURE__*/React.createElement("thead", null, /*#__PURE__*/React.createElement("tr", {
+    className: "bg-soft text-left"
+  }, /*#__PURE__*/React.createElement("th", {
+    className: "p-3 font-semibold text-muted w-36"
+  }, "Caracter\xEDstica"), cmp.map(x => /*#__PURE__*/React.createElement("th", {
+    key: x.id,
+    className: "p-3 font-bold text-ink"
+  }, x.name)))), /*#__PURE__*/React.createElement("tbody", {
+    className: "divide-y divide-line"
+  }, [["Riesgo", x => /*#__PURE__*/React.createElement(Pill, {
+    className: RISK_STYLE[x.risk]
+  }, x.risk)], ["Liquidez", x => x.liquidity], ["Monedas", x => x.currencies.join(" / ")], ["Plazo típico", x => x.term], ["Tasa ref. PYG", x => /*#__PURE__*/React.createElement("span", {
+    className: "num font-semibold text-em"
+  }, x.ratePYG ? x.ratePYG.toLocaleString("es-PY") + " %" : "—")], ["Tasa ref. USD", x => /*#__PURE__*/React.createElement("span", {
+    className: "num font-semibold text-em"
+  }, x.currencies.includes("USD") && x.rateUSD ? x.rateUSD.toLocaleString("es-PY") + " %" : "—")], ["Mínimo", x => x.min]].map(([k, f]) => /*#__PURE__*/React.createElement("tr", {
+    key: k
+  }, /*#__PURE__*/React.createElement("th", {
+    scope: "row",
+    className: "p-3 text-left font-medium text-muted align-top"
+  }, k), cmp.map(x => /*#__PURE__*/React.createElement("td", {
+    key: x.id,
+    className: "p-3 text-ink align-top"
+  }, f(x))))))))), /*#__PURE__*/React.createElement("div", {
+    className: "mt-10 rounded-2xl border border-line bg-card p-6"
+  }, /*#__PURE__*/React.createElement("h3", {
+    className: "text-xl font-bold text-ink"
+  }, "C\xF3mo leer una calificaci\xF3n de riesgo local"), /*#__PURE__*/React.createElement("p", {
+    className: "mt-2 text-sm text-muted prose-w"
+  }, "Las calificadoras autorizadas por la Superintendencia de Valores eval\xFAan a cada emisor. El sufijo \xABpy\xBB indica escala nacional paraguaya. Los signos + y \u2212 ordenan dentro de cada categor\xEDa, y la tendencia (fuerte, estable, sensible) anticipa cambios."), /*#__PURE__*/React.createElement("div", {
+    className: "mt-5 grid sm:grid-cols-2 lg:grid-cols-5 gap-3"
+  }, ratings.map(([r, d, c]) => /*#__PURE__*/React.createElement("div", {
+    key: r,
+    className: "rounded-xl border border-line p-4"
+  }, /*#__PURE__*/React.createElement(Pill, {
+    className: c + " text-sm"
+  }, r), /*#__PURE__*/React.createElement("p", {
+    className: "mt-2 text-sm text-ink"
+  }, d))))));
 }
 
 /* ---------- 7. cómo leer un prospecto ---------- */
@@ -2729,6 +2421,323 @@ function LineaTiempo() {
   })), /*#__PURE__*/React.createElement("p", {
     className: "mt-3 text-xs text-muted"
   }, "Ejemplo ilustrativo sin comisiones ni impuestos. Las fechas reales de pago figuran en el prospecto de cada emisi\xF3n.")));
+}
+
+/* ===== PARTE 5 DE 6: Simulador y calculadoras ===== */
+/* ---------- 6a. simulador ---------- */
+const SIM_PRESETS = ["fm", "cda", "bc", "bt", "fi", "ap", "ao"];
+function Simulador() {
+  const [cur, setCur] = useState("PYG");
+  const [inst, setInst] = useState("cda");
+  const [rate, setRate] = useState(7.5);
+  const [initial, setInitial] = useState(10000000);
+  const [monthly, setMonthly] = useState(500000);
+  const [term, setTerm] = useState(5);
+  const [unit, setUnit] = useState("años");
+  const [reinvest, setReinvest] = useState(true);
+  const defaults = {
+    PYG: {
+      initial: 10000000,
+      monthly: 500000
+    },
+    USD: {
+      initial: 2000,
+      monthly: 100
+    }
+  };
+  const changeCur = c => {
+    setCur(c);
+    setInitial(defaults[c].initial);
+    setMonthly(defaults[c].monthly);
+    const x = INSTRUMENTS.find(i => i.id === inst);
+    setRate(c === "PYG" ? x.ratePYG : x.rateUSD);
+  };
+  const changeInst = id => {
+    setInst(id);
+    const x = INSTRUMENTS.find(i => i.id === id);
+    setRate(cur === "PYG" ? x.ratePYG : x.rateUSD);
+  };
+  const months = Math.max(1, Math.min(600, Math.round(unit === "años" ? term * 12 : term)));
+  const sim = useMemo(() => {
+    const a = Math.max(0, Number(rate) || 0) / 100;
+    const rm = Math.pow(1 + a, 1 / 12) - 1;
+    let bal = Math.max(0, Number(initial) || 0),
+      contrib = bal,
+      paidOut = 0;
+    const m = Math.max(0, Number(monthly) || 0);
+    const step = months <= 36 ? 1 : months <= 120 ? 3 : 12;
+    const data = [{
+      label: "0",
+      Aportado: contrib,
+      Intereses: 0
+    }];
+    for (let k = 1; k <= months; k++) {
+      if (reinvest) {
+        bal = bal * (1 + rm) + m;
+      } else {
+        paidOut += bal * a / 12;
+        bal += m;
+      }
+      contrib += m;
+      if (k % step === 0 || k === months) {
+        const total = reinvest ? bal : bal + paidOut;
+        data.push({
+          label: months <= 36 ? "Mes " + k : (k / 12).toLocaleString("es-PY", {
+            maximumFractionDigits: 1
+          }) + " a",
+          Aportado: contrib,
+          Intereses: Math.max(0, total - contrib)
+        });
+      }
+    }
+    const total = reinvest ? bal : bal + paidOut;
+    return {
+      data,
+      total,
+      contrib,
+      interest: total - contrib
+    };
+  }, [rate, initial, monthly, months, reinvest]);
+  const field = "w-full rounded-lg border border-line bg-card px-3 py-2.5 text-ink num focus:border-em outline-none";
+  const step = cur === "PYG" ? 100000 : 50;
+  const {
+    ResponsiveContainer,
+    AreaChart,
+    Area,
+    XAxis,
+    YAxis,
+    Tooltip,
+    CartesianGrid
+  } = RC || {};
+  return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    className: "grid lg:grid-cols-[360px_1fr] gap-6 items-start"
+  }, /*#__PURE__*/React.createElement("form", {
+    className: "rounded-2xl border border-line bg-bg p-5 sm:p-6 space-y-5",
+    onSubmit: e => e.preventDefault()
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("p", {
+    className: "text-sm font-semibold text-ink mb-2"
+  }, "Moneda"), /*#__PURE__*/React.createElement(Segmented, {
+    idBase: "sim-cur",
+    label: "Moneda",
+    value: cur,
+    onChange: changeCur,
+    options: [["PYG", "Guaraníes (PYG)"], ["USD", "Dólares (USD)"]]
+  })), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("label", {
+    htmlFor: "sim-inst",
+    className: "text-sm font-semibold text-ink block mb-2"
+  }, "Instrumento"), /*#__PURE__*/React.createElement("select", {
+    id: "sim-inst",
+    value: inst,
+    onChange: e => changeInst(e.target.value),
+    className: field
+  }, SIM_PRESETS.map(id => {
+    const x = INSTRUMENTS.find(i => i.id === id);
+    return /*#__PURE__*/React.createElement("option", {
+      key: id,
+      value: id
+    }, x.name);
+  }))), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("label", {
+    htmlFor: "sim-rate",
+    className: "text-sm font-semibold text-ink flex justify-between mb-2"
+  }, "Tasa anual estimada ", /*#__PURE__*/React.createElement("span", {
+    className: "text-em num"
+  }, Number(rate).toLocaleString("es-PY"), " %")), /*#__PURE__*/React.createElement("div", {
+    className: "flex gap-3 items-center"
+  }, /*#__PURE__*/React.createElement("input", {
+    id: "sim-rate-range",
+    type: "range",
+    min: "0",
+    max: "20",
+    step: "0.1",
+    value: rate,
+    onChange: e => setRate(e.target.value),
+    className: "flex-1",
+    "aria-label": "Tasa anual"
+  }), /*#__PURE__*/React.createElement("input", {
+    id: "sim-rate",
+    type: "number",
+    min: "0",
+    max: "50",
+    step: "0.1",
+    value: rate,
+    onChange: e => setRate(e.target.value),
+    className: field + " w-24"
+  }))), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("label", {
+    htmlFor: "sim-initial",
+    className: "text-sm font-semibold text-ink block mb-2"
+  }, "Monto inicial (", cur === "PYG" ? "Gs." : "US$", ")"), /*#__PURE__*/React.createElement("input", {
+    id: "sim-initial",
+    type: "number",
+    min: "0",
+    step: step,
+    value: initial,
+    onChange: e => setInitial(e.target.value),
+    className: field
+  }), /*#__PURE__*/React.createElement("p", {
+    className: "mt-1 text-xs text-muted num"
+  }, fmtMoney(Number(initial) || 0, cur))), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("label", {
+    htmlFor: "sim-monthly",
+    className: "text-sm font-semibold text-ink block mb-2"
+  }, "Aporte mensual (", cur === "PYG" ? "Gs." : "US$", ")"), /*#__PURE__*/React.createElement("input", {
+    id: "sim-monthly",
+    type: "number",
+    min: "0",
+    step: step / 2,
+    value: monthly,
+    onChange: e => setMonthly(e.target.value),
+    className: field
+  }), /*#__PURE__*/React.createElement("p", {
+    className: "mt-1 text-xs text-muted num"
+  }, fmtMoney(Number(monthly) || 0, cur))), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("label", {
+    htmlFor: "sim-term",
+    className: "text-sm font-semibold text-ink block mb-2"
+  }, "Plazo"), /*#__PURE__*/React.createElement("div", {
+    className: "flex gap-2"
+  }, /*#__PURE__*/React.createElement("input", {
+    id: "sim-term",
+    type: "number",
+    min: "1",
+    max: unit === "años" ? 50 : 600,
+    value: term,
+    onChange: e => setTerm(e.target.value),
+    className: field + " flex-1"
+  }), /*#__PURE__*/React.createElement(Segmented, {
+    idBase: "sim-unit",
+    label: "Unidad de plazo",
+    value: unit,
+    onChange: u => {
+      setUnit(u);
+      setTerm(u === "meses" ? Math.round((Number(term) || 1) * 12) : Math.max(1, Math.round((Number(term) || 12) / 12)));
+    },
+    options: [["meses", "Meses"], ["años", "Años"]]
+  }))), /*#__PURE__*/React.createElement("label", {
+    htmlFor: "sim-reinvest",
+    className: "flex items-start gap-3 cursor-pointer"
+  }, /*#__PURE__*/React.createElement("input", {
+    id: "sim-reinvest",
+    type: "checkbox",
+    checked: reinvest,
+    onChange: e => setReinvest(e.target.checked),
+    className: "mt-1 w-4 h-4 accent-[rgb(var(--em))]"
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "text-sm text-ink"
+  }, "Reinvertir intereses (inter\xE9s compuesto)", /*#__PURE__*/React.createElement("span", {
+    className: "block text-xs text-muted"
+  }, "Si lo desmarc\xE1s, los intereses se cobran como cupones y no generan nuevos intereses.")))), /*#__PURE__*/React.createElement("div", {
+    className: "min-w-0 space-y-4"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "grid sm:grid-cols-3 gap-3"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "rounded-2xl bg-navy text-navyfg p-5"
+  }, /*#__PURE__*/React.createElement("p", {
+    className: "text-xs uppercase tracking-wider opacity-70"
+  }, "Capital final"), /*#__PURE__*/React.createElement("p", {
+    className: "mt-1 num font-display text-2xl font-bold break-words"
+  }, fmtMoney(sim.total, cur))), /*#__PURE__*/React.createElement("div", {
+    className: "rounded-2xl border border-line bg-bg p-5"
+  }, /*#__PURE__*/React.createElement("p", {
+    className: "text-xs uppercase tracking-wider text-muted"
+  }, "Total aportado"), /*#__PURE__*/React.createElement("p", {
+    className: "mt-1 num font-display text-xl font-bold text-ink break-words"
+  }, fmtMoney(sim.contrib, cur))), /*#__PURE__*/React.createElement("div", {
+    className: "rounded-2xl border border-em/30 bg-emsoft p-5"
+  }, /*#__PURE__*/React.createElement("p", {
+    className: "text-xs uppercase tracking-wider text-em"
+  }, "Intereses ganados"), /*#__PURE__*/React.createElement("p", {
+    className: "mt-1 num font-display text-xl font-bold text-em break-words"
+  }, "+ ", fmtMoney(sim.interest, cur)))), /*#__PURE__*/React.createElement("div", {
+    className: "rounded-2xl border border-line bg-bg p-4 sm:p-5"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center justify-between gap-3 flex-wrap mb-3"
+  }, /*#__PURE__*/React.createElement("p", {
+    className: "font-semibold text-ink"
+  }, "Crecimiento en ", /*#__PURE__*/React.createElement("span", {
+    className: "num"
+  }, months), " meses"), /*#__PURE__*/React.createElement("div", {
+    className: "flex gap-4 text-xs text-muted"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "flex items-center gap-1.5"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "w-3 h-3 rounded-sm",
+    style: {
+      background: "rgb(var(--navy))",
+      opacity: .55
+    }
+  }), "Aportado"), /*#__PURE__*/React.createElement("span", {
+    className: "flex items-center gap-1.5"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "w-3 h-3 rounded-sm bg-em"
+  }), "Intereses"))), /*#__PURE__*/React.createElement("div", {
+    className: "h-72"
+  }, ResponsiveContainer ? /*#__PURE__*/React.createElement(ResponsiveContainer, {
+    width: "100%",
+    height: "100%"
+  }, /*#__PURE__*/React.createElement(AreaChart, {
+    data: sim.data,
+    margin: {
+      top: 8,
+      right: 8,
+      left: 0,
+      bottom: 0
+    }
+  }, /*#__PURE__*/React.createElement("defs", null, /*#__PURE__*/React.createElement("linearGradient", {
+    id: "gEm",
+    x1: "0",
+    y1: "0",
+    x2: "0",
+    y2: "1"
+  }, /*#__PURE__*/React.createElement("stop", {
+    offset: "0%",
+    stopColor: "rgb(var(--em))",
+    stopOpacity: 0.55
+  }), /*#__PURE__*/React.createElement("stop", {
+    offset: "100%",
+    stopColor: "rgb(var(--em))",
+    stopOpacity: 0.15
+  }))), /*#__PURE__*/React.createElement(CartesianGrid, {
+    strokeDasharray: "3 3",
+    vertical: false
+  }), /*#__PURE__*/React.createElement(XAxis, {
+    dataKey: "label",
+    tickLine: false,
+    axisLine: false,
+    minTickGap: 24
+  }), /*#__PURE__*/React.createElement(YAxis, {
+    tickLine: false,
+    axisLine: false,
+    width: 84,
+    tickFormatter: v => fmtShort(v, cur)
+  }), /*#__PURE__*/React.createElement(Tooltip, {
+    formatter: (v, n) => [fmtMoney(v, cur), n],
+    contentStyle: {
+      background: "rgb(var(--card))",
+      border: "1px solid rgb(var(--line))",
+      borderRadius: 12,
+      color: "rgb(var(--ink))"
+    },
+    labelStyle: {
+      color: "rgb(var(--muted))"
+    }
+  }), /*#__PURE__*/React.createElement(Area, {
+    type: "monotone",
+    dataKey: "Aportado",
+    stackId: "1",
+    stroke: "rgb(var(--navy))",
+    fill: "rgb(var(--navy))",
+    fillOpacity: 0.35,
+    strokeWidth: 2
+  }), /*#__PURE__*/React.createElement(Area, {
+    type: "monotone",
+    dataKey: "Intereses",
+    stackId: "1",
+    stroke: "rgb(var(--em))",
+    fill: "url(#gEm)",
+    strokeWidth: 2
+  }))) : /*#__PURE__*/React.createElement("p", {
+    className: "text-sm text-muted"
+  }, "El gr\xE1fico no pudo cargarse."))), /*#__PURE__*/React.createElement(Notice, null, "Simulaci\xF3n educativa con tasa constante y capitalizaci\xF3n mensual equivalente. No incluye comisiones, impuestos ni variaciones de precio. Las tasas reales dependen del emisor, el plazo y el momento del mercado."), /*#__PURE__*/React.createElement(ShareButtons, {
+    text: "Simulé invertir " + fmtMoney(toNum(initial), cur) + " + " + fmtMoney(toNum(monthly), cur) + " por mes durante " + months + " meses al " + rate + " % anual: llegaría a " + fmtMoney(sim.total, cur) + "."
+  }))));
 }
 
 /* ---------- 2. meta de ahorro ---------- */
@@ -3289,6 +3298,266 @@ function Herramientas() {
   }, titles[tab][1]), tab === "sim" && /*#__PURE__*/React.createElement(Simulador, null), tab === "meta" && /*#__PURE__*/React.createElement(CalcMeta, null), tab === "bono" && /*#__PURE__*/React.createElement(CalcBono, null), tab === "moneda" && /*#__PURE__*/React.createElement(CalcMoneda, null), tab === "costo" && /*#__PURE__*/React.createElement(CalcCosto, null)));
 }
 
+/* ===== PARTE 6 DE 6: Perfil, aprender, quiz, glosario, fuentes oficiales y App ===== */
+/* ---------- 6b. perfil ---------- */
+const QUESTIONS = [{
+  q: "¿Cuál es tu objetivo principal al invertir?",
+  a: [["Proteger mis ahorros de la inflación", 1], ["Hacer crecer mi dinero con algo de riesgo", 2], ["Maximizar la ganancia a largo plazo", 3]]
+}, {
+  q: "¿En cuánto tiempo vas a necesitar este dinero?",
+  a: [["En menos de 1 año", 1], ["Entre 1 y 3 años", 2], ["En más de 3 años", 3]]
+}, {
+  q: "Si tu inversión baja un 15 % en un año, ¿qué hacés?",
+  a: [["Retiro todo para no perder más", 1], ["Espero a que se recupere", 2], ["Aprovecho para invertir más", 3]]
+}, {
+  q: "¿Cuánta experiencia tenés invirtiendo?",
+  a: [["Ninguna, solo caja de ahorro o plazo fijo", 1], ["Algo: fondos mutuos o CDA", 2], ["Bastante: bonos, acciones u otros", 3]]
+}, {
+  q: "¿Qué parte de tus ahorros vas a invertir?",
+  a: [["La mayor parte de lo que tengo", 1], ["Una parte, tengo un colchón aparte", 2], ["Un excedente que no voy a necesitar", 3]]
+}];
+const PROFILES = {
+  Conservador: {
+    color: "text-em",
+    desc: "Priorizás la seguridad y la liquidez por sobre la rentabilidad. Te conviene una cartera de renta fija de emisores bien calificados y plazos cortos a medianos.",
+    alloc: [["Fondo mutuo", 40], ["CDA", 35], ["Bonos AAApy/AApy y del Tesoro", 25], ["Acciones", 0]]
+  },
+  Moderado: {
+    color: "text-amber",
+    desc: "Buscás un equilibrio entre seguridad y crecimiento. Aceptás alguna variación a cambio de mejores tasas en plazos medianos.",
+    alloc: [["Fondo mutuo", 20], ["CDA", 25], ["Bonos corporativos y del Tesoro", 40], ["Acciones preferidas", 15]]
+  },
+  Dinámico: {
+    color: "text-danger",
+    desc: "Tenés horizonte largo y tolerás caídas temporales. Podés sumar más bonos de mayor tasa y una porción relevante de acciones.",
+    alloc: [["Fondo mutuo", 10], ["CDA", 10], ["Bonos corporativos", 45], ["Acciones y fondos de inversión", 35]]
+  }
+};
+const PIE_COLORS = ["rgb(var(--em))", "rgb(var(--navy))", "rgb(var(--amber))", "rgb(var(--muted))"];
+function Perfil() {
+  const [answers, setAnswers] = useState({});
+  const [idx, setIdx] = useState(0);
+  const finished = Object.keys(answers).length === QUESTIONS.length && idx >= QUESTIONS.length;
+  const score = Object.values(answers).reduce((s, v) => s + v, 0);
+  const profile = score <= 8 ? "Conservador" : score <= 11 ? "Moderado" : "Dinámico";
+  const P = PROFILES[profile];
+  const pick = v => {
+    setAnswers({
+      ...answers,
+      [idx]: v
+    });
+    setIdx(idx + 1);
+  };
+  const reset = () => {
+    setAnswers({});
+    setIdx(0);
+  };
+  const {
+    ResponsiveContainer,
+    PieChart,
+    Pie,
+    Cell,
+    Tooltip
+  } = RC || {};
+  const pieData = P.alloc.filter(([, v]) => v > 0).map(([name, value]) => ({
+    name,
+    value
+  }));
+  return /*#__PURE__*/React.createElement(Section, {
+    id: "perfil",
+    eyebrow: "Test",
+    title: "Test r\xE1pido de perfil de inversionista",
+    intro: "Cinco preguntas, menos de un minuto. Al final te mostramos tu perfil y una distribuci\xF3n de cartera de ejemplo con instrumentos paraguayos."
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "rounded-2xl border border-line bg-card p-6 sm:p-8 max-w-4xl"
+  }, !finished ? /*#__PURE__*/React.createElement("div", {
+    key: idx,
+    className: "fade-in"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center justify-between gap-3"
+  }, /*#__PURE__*/React.createElement("p", {
+    className: "text-sm font-semibold text-em num"
+  }, "Pregunta ", idx + 1, " de ", QUESTIONS.length), idx > 0 && /*#__PURE__*/React.createElement("button", {
+    onClick: () => setIdx(idx - 1),
+    className: "text-sm text-muted hover:text-ink inline-flex items-center gap-1"
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "ArrowLeft",
+    className: "w-4 h-4"
+  }), " Volver")), /*#__PURE__*/React.createElement("div", {
+    className: "mt-3 h-1.5 rounded-full bg-soft overflow-hidden"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "h-full bg-em transition-all",
+    style: {
+      width: idx / QUESTIONS.length * 100 + "%"
+    }
+  })), /*#__PURE__*/React.createElement("h3", {
+    className: "mt-6 text-2xl font-bold text-ink"
+  }, QUESTIONS[idx].q), /*#__PURE__*/React.createElement("div", {
+    className: "mt-5 grid gap-3"
+  }, QUESTIONS[idx].a.map(([t, v]) => /*#__PURE__*/React.createElement("button", {
+    key: t,
+    id: "q" + idx + "-" + v,
+    onClick: () => pick(v),
+    className: "text-left rounded-xl border px-4 py-3.5 font-medium transition flex items-center justify-between gap-3 " + (answers[idx] === v ? "border-em bg-emsoft text-ink" : "border-line text-ink hover:border-em hover:bg-soft")
+  }, t, /*#__PURE__*/React.createElement(Icon, {
+    name: "ChevronRight",
+    className: "w-4 h-4 text-muted shrink-0"
+  }))))) : /*#__PURE__*/React.createElement("div", {
+    className: "fade-in grid md:grid-cols-[1fr_280px] gap-8 items-center"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "min-w-0"
+  }, /*#__PURE__*/React.createElement("p", {
+    className: "text-sm font-semibold text-muted"
+  }, "Tu perfil es"), /*#__PURE__*/React.createElement("h3", {
+    className: "text-4xl font-extrabold " + P.color
+  }, profile), /*#__PURE__*/React.createElement("p", {
+    className: "mt-1 text-xs text-muted num"
+  }, "Puntaje: ", score, " de 15"), /*#__PURE__*/React.createElement("p", {
+    className: "mt-4 text-ink"
+  }, P.desc), /*#__PURE__*/React.createElement("ul", {
+    className: "mt-5 space-y-2"
+  }, P.alloc.map(([n, v], k) => /*#__PURE__*/React.createElement("li", {
+    key: n,
+    className: "flex items-center gap-3 text-sm"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "w-3 h-3 rounded-sm shrink-0",
+    style: {
+      background: PIE_COLORS[k]
+    }
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "flex-1 text-ink"
+  }, n), /*#__PURE__*/React.createElement("span", {
+    className: "num font-bold text-ink"
+  }, v, " %")))), /*#__PURE__*/React.createElement("div", {
+    className: "mt-6 flex flex-wrap gap-3"
+  }, /*#__PURE__*/React.createElement("button", {
+    onClick: reset,
+    className: "inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-line font-semibold text-ink hover:bg-soft"
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "RotateCcw",
+    className: "w-4 h-4"
+  }), " Repetir test"), /*#__PURE__*/React.createElement("button", {
+    onClick: () => scrollTo("simulador"),
+    className: "inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-em text-white font-semibold hover:brightness-110"
+  }, "Simular con esta idea ", /*#__PURE__*/React.createElement(Icon, {
+    name: "ArrowRight",
+    className: "w-4 h-4"
+  }))), /*#__PURE__*/React.createElement("div", {
+    className: "mt-4"
+  }, /*#__PURE__*/React.createElement(ShareButtons, {
+    text: "Hice el test de perfil de inversionista y soy " + profile + ". ¿Qué perfil tenés vos?"
+  }))), /*#__PURE__*/React.createElement("div", {
+    className: "h-64"
+  }, ResponsiveContainer && /*#__PURE__*/React.createElement(ResponsiveContainer, {
+    width: "100%",
+    height: "100%"
+  }, /*#__PURE__*/React.createElement(PieChart, null, /*#__PURE__*/React.createElement(Pie, {
+    data: pieData,
+    dataKey: "value",
+    nameKey: "name",
+    innerRadius: "55%",
+    outerRadius: "90%",
+    paddingAngle: 2,
+    stroke: "rgb(var(--card))",
+    strokeWidth: 2
+  }, pieData.map(d => /*#__PURE__*/React.createElement(Cell, {
+    key: d.name,
+    fill: PIE_COLORS[P.alloc.findIndex(([n]) => n === d.name)]
+  }))), /*#__PURE__*/React.createElement(Tooltip, {
+    formatter: (v, n) => [v + " %", n],
+    contentStyle: {
+      background: "rgb(var(--card))",
+      border: "1px solid rgb(var(--line))",
+      borderRadius: 12
+    },
+    itemStyle: {
+      color: "rgb(var(--ink))"
+    }
+  })))), /*#__PURE__*/React.createElement("div", {
+    className: "md:col-span-2"
+  }, /*#__PURE__*/React.createElement(Notice, null, "Distribuci\xF3n de ejemplo con fines educativos. No es una recomendaci\xF3n personalizada: tu Casa de Bolsa debe evaluar tu perfil formalmente antes de ofrecerte productos.")))));
+}
+
+/* ---------- 7. glosario + faq ---------- */
+const highlight = (text, q) => {
+  if (!q) return text;
+  const i = text.toLowerCase().indexOf(q.toLowerCase());
+  if (i < 0) return text;
+  return /*#__PURE__*/React.createElement(React.Fragment, null, text.slice(0, i), /*#__PURE__*/React.createElement("mark", {
+    className: "bg-ambersoft text-ink rounded px-0.5"
+  }, text.slice(i, i + q.length)), text.slice(i + q.length));
+};
+const norm = s => s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
+function GlosarioFAQ() {
+  const [q, setQ] = useState("");
+  const [open, setOpen] = useState(0);
+  const items = GLOSSARY.filter(([t, d]) => norm(t + " " + d).includes(norm(q.trim())));
+  return /*#__PURE__*/React.createElement(Section, {
+    id: "glosario",
+    alt: true,
+    eyebrow: "Aprend\xE9 el idioma",
+    title: "Glosario burs\xE1til y preguntas frecuentes"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "grid lg:grid-cols-2 gap-10 items-start"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "min-w-0"
+  }, /*#__PURE__*/React.createElement("h3", {
+    className: "text-xl font-bold text-ink"
+  }, "Glosario"), /*#__PURE__*/React.createElement("div", {
+    className: "relative mt-4"
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "Search",
+    className: "w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted"
+  }), /*#__PURE__*/React.createElement("input", {
+    id: "glossary-search",
+    value: q,
+    onChange: e => setQ(e.target.value),
+    placeholder: "Busc\xE1 un t\xE9rmino, por ejemplo \xABcup\xF3n\xBB",
+    className: "w-full rounded-xl border border-line bg-bg pl-9 pr-9 py-3 text-ink placeholder:text-muted focus:border-em outline-none"
+  }), q && /*#__PURE__*/React.createElement("button", {
+    "aria-label": "Borrar b\xFAsqueda",
+    onClick: () => setQ(""),
+    className: "absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded text-muted hover:text-ink"
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "X",
+    className: "w-4 h-4"
+  }))), /*#__PURE__*/React.createElement("p", {
+    className: "mt-2 text-xs text-muted num"
+  }, items.length, " ", items.length === 1 ? "término" : "términos"), /*#__PURE__*/React.createElement("dl", {
+    className: "mt-3 space-y-2 max-h-[560px] overflow-y-auto pr-1"
+  }, items.map(([t, d]) => /*#__PURE__*/React.createElement("div", {
+    key: t,
+    className: "rounded-xl border border-line bg-bg p-4"
+  }, /*#__PURE__*/React.createElement("dt", {
+    className: "font-bold text-ink"
+  }, highlight(t, q.trim())), /*#__PURE__*/React.createElement("dd", {
+    className: "mt-1 text-sm text-muted"
+  }, highlight(d, q.trim())))), items.length === 0 && /*#__PURE__*/React.createElement("p", {
+    className: "rounded-xl border border-dashed border-line p-6 text-center text-muted text-sm"
+  }, "No encontramos \xAB", q, "\xBB. Prob\xE1 con otra palabra."))), /*#__PURE__*/React.createElement("div", {
+    className: "min-w-0"
+  }, /*#__PURE__*/React.createElement("h3", {
+    className: "text-xl font-bold text-ink"
+  }, "Preguntas frecuentes"), /*#__PURE__*/React.createElement("div", {
+    className: "mt-4 space-y-2"
+  }, FAQ.map(([qq, a], k) => /*#__PURE__*/React.createElement("div", {
+    key: k,
+    className: "rounded-xl border bg-bg transition " + (open === k ? "border-em/50" : "border-line")
+  }, /*#__PURE__*/React.createElement("h4", null, /*#__PURE__*/React.createElement("button", {
+    id: "faq-" + k,
+    "aria-expanded": open === k,
+    "aria-controls": "faq-p-" + k,
+    onClick: () => setOpen(open === k ? -1 : k),
+    className: "w-full flex items-center justify-between gap-3 text-left p-4 font-semibold text-ink"
+  }, qq, /*#__PURE__*/React.createElement(Icon, {
+    name: "ChevronDown",
+    className: "w-5 h-5 shrink-0 text-muted transition-transform " + (open === k ? "rotate-180 text-em" : "")
+  }))), open === k && /*#__PURE__*/React.createElement("div", {
+    id: "faq-p-" + k,
+    className: "fade-in px-4 pb-4 text-sm text-muted"
+  }, a)))))));
+}
+
 /* ---------- 11. ruta de aprendizaje + 12. mini-cursos ---------- */
 const ROUTE = [{
   level: "Principiante",
@@ -3759,7 +4028,70 @@ function DatosOficiales() {
   }, url.replace("https://", "")))))));
 }
 function App() {
-  return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(Nav, null), /*#__PURE__*/React.createElement("main", null, /*#__PURE__*/React.createElement(Hero, null), /*#__PURE__*/React.createElement(Beneficios, null), /*#__PURE__*/React.createElement(DondeInvertir, null), /*#__PURE__*/React.createElement(Ecosistema, null), /*#__PURE__*/React.createElement(Mapa, null), /*#__PURE__*/React.createElement(Casos, null), /*#__PURE__*/React.createElement(Stepper, null), /*#__PURE__*/React.createElement(ChecklistPre, null), /*#__PURE__*/React.createElement(Casas, null), /*#__PURE__*/React.createElement(Instrumentos, null), /*#__PURE__*/React.createElement(Prospecto, null), /*#__PURE__*/React.createElement(LineaTiempo, null), /*#__PURE__*/React.createElement(Herramientas, null), /*#__PURE__*/React.createElement(Perfil, null), /*#__PURE__*/React.createElement(Aprender, null), /*#__PURE__*/React.createElement(Quiz, null), /*#__PURE__*/React.createElement(GlosarioFAQ, null), /*#__PURE__*/React.createElement(DatosOficiales, null)), /*#__PURE__*/React.createElement(Footer, null));
+  const [view, setView] = useState(readHash);
+  useEffect(() => {
+    const onHash = () => setView(readHash());
+    window.addEventListener("hashchange", onHash);
+    return () => window.removeEventListener("hashchange", onHash);
+  }, []);
+  useEffect(() => {
+    window.scrollTo({
+      top: 0
+    });
+  }, [view]);
+  currentView = view;
+  const v = VIEWS.find(x => x.id === view);
+  const pages = {
+    invertir: [/*#__PURE__*/React.createElement(DondeInvertir, {
+      key: "d"
+    }), /*#__PURE__*/React.createElement(Casos, {
+      key: "c"
+    }), /*#__PURE__*/React.createElement(Instrumentos, {
+      key: "i"
+    }), /*#__PURE__*/React.createElement(Casas, {
+      key: "cb"
+    })],
+    mercado: [/*#__PURE__*/React.createElement(Ecosistema, {
+      key: "e"
+    }), /*#__PURE__*/React.createElement(Mapa, {
+      key: "m"
+    }), /*#__PURE__*/React.createElement(Prospecto, {
+      key: "p"
+    }), /*#__PURE__*/React.createElement(LineaTiempo, {
+      key: "l"
+    })],
+    empezar: [/*#__PURE__*/React.createElement(Stepper, {
+      key: "s"
+    }), /*#__PURE__*/React.createElement(ChecklistPre, {
+      key: "ch"
+    }), /*#__PURE__*/React.createElement(Perfil, {
+      key: "pf"
+    })],
+    herramientas: [/*#__PURE__*/React.createElement(Herramientas, {
+      key: "h"
+    })],
+    aprender: [/*#__PURE__*/React.createElement(Aprender, {
+      key: "a"
+    }), /*#__PURE__*/React.createElement(Quiz, {
+      key: "q"
+    }), /*#__PURE__*/React.createElement(GlosarioFAQ, {
+      key: "g"
+    }), /*#__PURE__*/React.createElement(DatosOficiales, {
+      key: "o"
+    })]
+  };
+  return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(Nav, {
+    view: view
+  }), view === "inicio" ? /*#__PURE__*/React.createElement("main", {
+    key: "inicio"
+  }, /*#__PURE__*/React.createElement(Hero, null), /*#__PURE__*/React.createElement(Beneficios, null), /*#__PURE__*/React.createElement(Explorar, null)) : /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(ViewHeader, {
+    v: v
+  }), /*#__PURE__*/React.createElement("main", {
+    key: view,
+    className: "fade-in"
+  }, pages[view])), /*#__PURE__*/React.createElement(ViewPager, {
+    view: view
+  }), /*#__PURE__*/React.createElement(Footer, null));
 }
 ReactDOM.createRoot(document.getElementById("root")).render( /*#__PURE__*/React.createElement(App, null));
 })();
