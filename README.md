@@ -4,13 +4,24 @@ Guía educativa e interactiva para aprender a invertir en la Bolsa de Valores de
 
 ## Contenido
 
-- Cómo funciona el mercado: BVA, Superintendencia de Valores (BCP), Casas de Bolsa, emisores e inversionistas. Mercado primario y secundario.
-- Guía paso a paso para empezar a invertir.
-- Casas de Bolsa: servicios, checklist para elegir y directorio informativo.
-- Instrumentos financieros (fondos, CDA, bonos, acciones, reportos, futuros) con filtros y comparador.
-- Simulador de inversión en PYG y USD con gráfico de crecimiento.
-- Test de perfil de inversionista con cartera de ejemplo.
-- Glosario con buscador y preguntas frecuentes.
+**Dónde invertir y por qué**
+- Beneficios de invertir en la bolsa y calculadora "caja de ahorro vs. invertir" frente a la inflación.
+- ¿Dónde invierto según mi objetivo? (fondo de emergencia, meta a 1–3 años, ingreso mensual, largo plazo, protección frente al dólar).
+- Casos de ejemplo con carteras y resultados ilustrativos.
+
+**Cómo funciona el mercado**
+- Ecosistema: BVA, Superintendencia de Valores (BCP), Casas de Bolsa, CAVAPY, emisores e inversionistas. Mercado primario y secundario.
+- Mapa del mercado: qué sectores emiten y qué títulos.
+- Guía paso a paso y checklist antes de invertir.
+- Las 24 Casas de Bolsa habilitadas según la BVA (noviembre de 2026), con buscador.
+- Instrumentos financieros con filtros y comparador, cómo leer un prospecto y línea de tiempo de una inversión.
+
+**Calculadoras**
+- Simulador con aportes mensuales, meta de ahorro, bono y calendario de cupones, ingreso mensual, PYG vs. USD y costo real (comisiones e impuestos).
+
+**Aprender**
+- Test de perfil de inversionista, ruta de aprendizaje con progreso guardado, mini-cursos, quiz de 10 preguntas, glosario y preguntas frecuentes.
+- Enlaces a fuentes oficiales y opción de compartir resultados por WhatsApp.
 
 ## Archivos
 
