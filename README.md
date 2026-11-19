@@ -4,24 +4,16 @@ Guía educativa e interactiva para aprender a invertir en la Bolsa de Valores de
 
 ## Contenido
 
-**Dónde invertir y por qué**
-- Beneficios de invertir en la bolsa y calculadora "caja de ahorro vs. invertir" frente a la inflación.
-- ¿Dónde invierto según mi objetivo? (fondo de emergencia, meta a 1–3 años, ingreso mensual, largo plazo, protección frente al dólar).
-- Casos de ejemplo con carteras y resultados ilustrativos.
+La guía está ordenada en seis secciones, cada una con su propio enlace (`#invertir`, `#mercado`, etc.):
 
-**Cómo funciona el mercado**
-- Ecosistema: BVA, Superintendencia de Valores (BCP), Casas de Bolsa, CAVAPY, emisores e inversionistas. Mercado primario y secundario.
-- Mapa del mercado: qué sectores emiten y qué títulos.
-- Guía paso a paso y checklist antes de invertir.
-- Las 24 Casas de Bolsa habilitadas según la BVA (noviembre de 2026), con buscador.
-- Instrumentos financieros con filtros y comparador, cómo leer un prospecto y línea de tiempo de una inversión.
-
-**Calculadoras**
-- Simulador con aportes mensuales, meta de ahorro, bono y calendario de cupones, ingreso mensual, PYG vs. USD y costo real (comisiones e impuestos).
-
-**Aprender**
-- Test de perfil de inversionista, ruta de aprendizaje con progreso guardado, mini-cursos, quiz de 10 preguntas, glosario y preguntas frecuentes.
-- Enlaces a fuentes oficiales y opción de compartir resultados por WhatsApp.
+| Sección | Qué incluye |
+|---|---|
+| **Inicio** | Portada con pizarra de tasas, beneficios, caja de ahorro vs. invertir y mapa de la guía |
+| **Dónde invertir** | Según tu objetivo, casos de ejemplo, instrumentos, fondos por dentro, los 6 riesgos, estrategias de cartera y las 24 Casas de Bolsa habilitadas |
+| **El mercado** | Ecosistema, mapa de sectores, cómo se negocia (libro de órdenes), precio de un bono (TIR e intereses corridos), prospecto y línea de tiempo |
+| **Empezar** | Mitos y realidades, paso a paso, señales de estafa, checklist y test de perfil |
+| **Calculadoras** | Simulador, meta de ahorro, bono y cupones, PYG vs. USD y costo real |
+| **Aprender** | Ruta en 4 niveles, mini-cursos, nivel experto (analizar emisores, derechos, impuestos, mercado en cifras), quiz, glosario y fuentes oficiales |
 
 ## Archivos
 

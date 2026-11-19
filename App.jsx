@@ -31,20 +31,20 @@ const scrollTo = (id) => {
 const VIEWS = [
   { id: "inicio", label: "Inicio", icon: "Home", title: "Inicio", desc: "", sections: [["beneficios", "Beneficios"], ["explorar", "Mapa de la guía"]] },
   { id: "invertir", label: "Dónde invertir", icon: "Target", title: "Dónde invertir",
-    desc: "Qué instrumento conviene según tu objetivo, cómo invierten otras personas, qué podés comprar en la bolsa y dónde hacerlo.",
-    sections: [["donde", "Según tu objetivo"], ["casos", "Casos de ejemplo"], ["instrumentos", "Instrumentos"], ["casas", "Casas de Bolsa"]] },
+    desc: "Qué instrumento conviene según tu objetivo, qué podés comprar, cómo funcionan los fondos, qué riesgos hay, cómo armar tu cartera y dónde invertir.",
+    sections: [["donde", "Según tu objetivo"], ["casos", "Casos de ejemplo"], ["instrumentos", "Instrumentos"], ["fondos", "Fondos por dentro"], ["riesgos", "Riesgos"], ["estrategias", "Estrategias"], ["casas", "Casas de Bolsa"]] },
   { id: "mercado", label: "El mercado", icon: "Landmark", title: "Cómo funciona el mercado",
-    desc: "Quiénes participan en la bolsa paraguaya, qué sectores emiten títulos y cómo se lee una emisión de principio a fin.",
-    sections: [["ecosistema", "Cómo funciona"], ["mapa", "Mapa del mercado"], ["prospecto", "Leer un prospecto"], ["linea", "Línea de tiempo"]] },
+    desc: "Quiénes participan, qué sectores emiten, cómo se negocia, cómo se mueve el precio de un bono y cómo se lee una emisión de principio a fin.",
+    sections: [["ecosistema", "Cómo funciona"], ["mapa", "Mapa del mercado"], ["negociacion", "Cómo se negocia"], ["precios", "Precio de un bono"], ["prospecto", "Leer un prospecto"], ["linea", "Línea de tiempo"]] },
   { id: "empezar", label: "Empezar", icon: "Rocket", title: "Empezá a invertir",
-    desc: "Los pasos para abrir tu cuenta y hacer tu primera inversión, el checklist previo y el test para conocer tu perfil.",
-    sections: [["guia", "Paso a paso"], ["checklist", "Checklist"], ["perfil", "Tu perfil"]] },
+    desc: "Derribá los mitos, seguí los pasos para tu primera inversión, aprendé a detectar estafas, completá el checklist y conocé tu perfil.",
+    sections: [["mitos", "Mitos y realidades"], ["guia", "Paso a paso"], ["estafas", "Señales de estafa"], ["checklist", "Checklist"], ["perfil", "Tu perfil"]] },
   { id: "herramientas", label: "Calculadoras", icon: "Calculator", title: "Calculadoras",
     desc: "Simulá tu inversión, calculá cuánto ahorrar para una meta, armá el calendario de cupones de un bono y compará monedas y costos.",
     sections: [["simulador", "Calculadoras"]] },
   { id: "aprender", label: "Aprender", icon: "GraduationCap", title: "Aprender",
-    desc: "Tu ruta de aprendizaje, mini-cursos, un quiz para ponerte a prueba, el glosario y las fuentes oficiales.",
-    sections: [["aprender", "Ruta y mini-cursos"], ["quiz", "Quiz"], ["glosario", "Glosario y FAQ"], ["oficial", "Fuentes oficiales"]] },
+    desc: "Tu ruta de aprendizaje, mini-cursos, temas de nivel experto, un quiz para ponerte a prueba, el glosario y las fuentes oficiales.",
+    sections: [["aprender", "Ruta y mini-cursos"], ["experto", "Nivel experto"], ["quiz", "Quiz"], ["glosario", "Glosario y FAQ"], ["oficial", "Fuentes oficiales"]] },
 ];
 const VIEW_IDS = VIEWS.map((v) => v.id);
 const SECTION_VIEW = {};
@@ -141,6 +141,14 @@ const GLOSSARY = [
   ["Reporto", "Venta de un título con el compromiso de recomprarlo en una fecha y precio pactados. Funciona como un préstamo de corto plazo garantizado por el título."],
   ["Prospecto", "Documento oficial de una emisión con todas sus condiciones: tasa, plazo, garantías, calendario de pagos y riesgos."],
   ["Valor nominal", "El monto que figura en el título y sobre el cual se calculan los intereses. El precio de mercado puede ser mayor o menor."],
+  ["Rendimiento al vencimiento (TIR)", "La tasa que realmente ganás si comprás un bono a su precio de hoy y lo mantenés hasta el final. Si lo comprás bajo la par, la TIR es mayor que la tasa del cupón."],
+  ["A la par / bajo la par / sobre la par", "Un bono a la par cuesta el 100 % de su valor nominal; bajo la par, menos (con descuento); sobre la par, más (con prima)."],
+  ["Intereses corridos", "Los intereses que un bono acumuló desde el último cupón. Si comprás entre dos fechas de pago, se los pagás al vendedor."],
+  ["Orden con precio límite", "Orden de compra o venta en la que fijás el precio máximo que pagás o el mínimo que aceptás."],
+  ["Spread", "Diferencia entre la mejor oferta de venta y la mejor oferta de compra de un título. Cuanto menor es, más líquido es el título."],
+  ["Valor cuota", "Valor de cada cuota de un fondo: su patrimonio dividido por la cantidad de cuotas. Se publica todos los días."],
+  ["Hecho relevante", "Información que un emisor debe comunicar al mercado porque puede afectar el valor de sus títulos."],
+  ["Escalera de vencimientos", "Estrategia de repartir la inversión en títulos que vencen en años distintos para tener liquidez periódica."],
   ["Custodia", "Servicio de guarda y registro de tus títulos. En Paraguay la realiza la Caja de Valores del Paraguay (CAVAPY) y se refleja en tu cuenta comitente."],
 ];
 
@@ -1947,9 +1955,10 @@ function GlosarioFAQ() {
 
 /* ---------- 11. ruta de aprendizaje + 12. mini-cursos ---------- */
 const ROUTE = [
-  { level: "Principiante", icon: "Sprout", items: [["ecosistema", "Cómo funciona la bolsa"], ["beneficios", "Beneficios de invertir"], ["guia", "Paso a paso para empezar"], ["glosario", "Glosario básico"]] },
-  { level: "Intermedio", icon: "TrendingUp", items: [["donde", "Dónde invertir según tu objetivo"], ["instrumentos", "Instrumentos financieros"], ["casas", "Cómo elegir una Casa de Bolsa"], ["simulador", "Calculadoras"]] },
-  { level: "Avanzado", icon: "GraduationCap", items: [["prospecto", "Cómo leer un prospecto"], ["linea", "Ciclo de vida de una inversión"], ["mapa", "Mapa del mercado"], ["quiz", "Quiz final"]] },
+  { level: "Principiante", icon: "Sprout", items: [["beneficios", "Beneficios de invertir"], ["mitos", "Mitos y realidades"], ["ecosistema", "Cómo funciona la bolsa"], ["guia", "Paso a paso para empezar"], ["glosario", "Glosario básico"]] },
+  { level: "Intermedio", icon: "TrendingUp", items: [["donde", "Dónde invertir según tu objetivo"], ["instrumentos", "Instrumentos financieros"], ["fondos", "Fondos por dentro"], ["casas", "Cómo elegir una Casa de Bolsa"], ["estafas", "Señales de estafa"]] },
+  { level: "Avanzado", icon: "LineChart", items: [["riesgos", "Los 6 riesgos"], ["estrategias", "Estrategias de cartera"], ["prospecto", "Cómo leer un prospecto"], ["linea", "Ciclo de vida de una inversión"], ["simulador", "Calculadoras"]] },
+  { level: "Experto", icon: "GraduationCap", items: [["negociacion", "Cómo se negocia"], ["precios", "Precio de un bono"], ["mapa", "Mapa del mercado"], ["experto", "Emisores, derechos e impuestos"], ["quiz", "Quiz final"]] },
 ];
 
 function MiniCursos() {
@@ -2084,7 +2093,7 @@ function Aprender() {
           <p className="num text-sm font-semibold text-em">{n} de {all.length} temas · {Math.round((n / all.length) * 100)} %</p>
         </div>
         <div className="mt-3 h-2.5 rounded-full bg-soft overflow-hidden"><div className="h-full bg-em rounded-full transition-all duration-500" style={{ width: (n / all.length) * 100 + "%" }} /></div>
-        <div className="mt-6 grid md:grid-cols-3 gap-4">
+        <div className="mt-6 grid md:grid-cols-2 xl:grid-cols-4 gap-4">
           {ROUTE.map((l, li) => {
             const ld = l.items.filter(([id]) => done[id]).length;
             return (
@@ -2232,6 +2241,705 @@ function DatosOficiales() {
   );
 }
 
+/* =====================================================================
+   SECCIONES NUEVAS (v4): mitos, estafas, negociación, precios de bonos,
+   riesgos, estrategias, fondos y nivel experto.
+   ===================================================================== */
+const TabBar = ({ idBase, tabs, value, onChange, label }) => (
+  <div className="overflow-x-auto -mx-1 px-1 pb-1">
+    <div role="tablist" aria-label={label} className="inline-flex gap-2 min-w-max">
+      {tabs.map(([id, l, ic]) => (
+        <button key={id} id={idBase + "-" + id} role="tab" aria-selected={value === id} onClick={() => onChange(id)}
+          className={"inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold border transition " + (value === id ? "bg-navy text-navyfg border-navy" : "bg-card text-ink border-line hover:border-em")}>
+          {ic && <Icon name={ic} className="w-4 h-4" />} {l}
+        </button>
+      ))}
+    </div>
+  </div>
+);
+const Bullet = ({ children, icon = "Check", tone = "text-em" }) => (
+  <li className="flex gap-2.5 text-sm text-ink"><Icon name={icon} className={"w-4 h-4 shrink-0 mt-0.5 " + tone} /><span>{children}</span></li>
+);
+
+/* ---------- 1a. mitos vs realidad ---------- */
+const MYTHS = [
+  ["La bolsa es solo para ricos", "Con un fondo mutuo podés empezar con montos accesibles y sumar aportes cada mes."],
+  ["Invertir en la bolsa es como apostar", "En la renta fija conocés la tasa y las fechas de pago desde el inicio. Invertir con información y diversificación no tiene nada que ver con el azar."],
+  ["Si invierto, no puedo sacar mi plata", "Los fondos mutuos se rescatan en pocos días, y los bonos y CDA se pueden vender en el mercado secundario."],
+  ["Tengo que ser experto en finanzas", "Tu Casa de Bolsa te asesora, y con lo básico de esta guía ya podés tomar decisiones informadas."],
+  ["Es lo mismo que un plazo fijo del banco", "Hay muchos más emisores, plazos e instrumentos, a menudo con mejores tasas, y podés vender antes del vencimiento."],
+  ["Si la tasa es más alta, siempre conviene", "Una tasa más alta suele indicar más riesgo. Mirá la calificación del emisor y el plazo, no solo el número."],
+];
+function Mitos() {
+  const [open, setOpen] = useState({});
+  const all = Object.values(open).filter(Boolean).length === MYTHS.length;
+  return (
+    <Section id="mitos" eyebrow="Antes de empezar" title="Mitos y realidades de la bolsa"
+      intro="Muchas personas no invierten por ideas equivocadas. Tocá cada mito para ver la realidad.">
+      <div className="flex justify-end mb-3">
+        <button onClick={() => setOpen(all ? {} : Object.fromEntries(MYTHS.map((_, k) => [k, true])))} className="text-sm font-semibold text-em hover:underline">
+          {all ? "Ocultar todas" : "Ver todas las realidades"}
+        </button>
+      </div>
+      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {MYTHS.map(([m, r], k) => (
+          <button key={k} id={"mito-" + k} onClick={() => setOpen((o) => ({ ...o, [k]: !o[k] }))} aria-expanded={!!open[k]}
+            className={"text-left rounded-2xl border p-5 min-h-[170px] flex flex-col transition " + (open[k] ? "border-em bg-emsoft" : "border-line bg-card hover:border-em/50")}>
+            <Pill className={open[k] ? "bg-em text-white self-start" : "bg-dangersoft text-danger self-start"}>{open[k] ? "Realidad" : "Mito"}</Pill>
+            <p className={"mt-3 font-bold " + (open[k] ? "text-muted line-through text-sm" : "text-ink text-lg")}>«{m}»</p>
+            {open[k] ? <p className="fade-in mt-2 text-ink">{r}</p> : <p className="mt-auto pt-3 text-sm text-em font-semibold inline-flex items-center gap-1">Ver la realidad <Icon name="ArrowRight" className="w-4 h-4" /></p>}
+          </button>
+        ))}
+      </div>
+    </Section>
+  );
+}
+
+/* ---------- 1b. señales de estafa ---------- */
+const SCAM_SIGNS = [
+  ["BadgePercent", "Rendimientos garantizados muy altos", "Por ejemplo, 3 % o 5 % mensual \"sin riesgo\". Ninguna inversión legítima garantiza eso."],
+  ["Timer", "Presión y urgencia", "\"Solo por hoy\", \"quedan pocos cupos\". Te apuran para que no verifiques."],
+  ["UserX", "Transferir a una cuenta personal", "Las Casas de Bolsa reciben dinero en cuentas a nombre de la entidad, nunca de una persona."],
+  ["SearchX", "No figura en los registros oficiales", "Si no está en la lista del BCP o de la BVA, no puede ofrecerte valores."],
+  ["Users", "Ganás más si sumás gente", "Pagar por reclutar personas es la marca de un esquema piramidal."],
+  ["FileX", "Sin contrato ni prospecto", "Todo producto regulado tiene documentación con sus condiciones y riesgos."],
+  ["MessageCircle", "Contacto de desconocidos por redes", "Mensajes no solicitados por WhatsApp, Instagram o Facebook con \"oportunidades únicas\"."],
+  ["KeyRound", "Te piden claves o datos bancarios", "Nadie legítimo te pide tu PIN, contraseña o código de verificación."],
+];
+const SCAM_CASES = [
+  ["Un \"asesor\" te escribe por Instagram: ofrece 4 % mensual garantizado y te pide transferir hoy a su cuenta personal.", true, "Rendimiento garantizado altísimo, urgencia, contacto por redes y cuenta personal: cuatro señales de estafa juntas."],
+  ["Una Casa de Bolsa que figura en la lista de la BVA te ofrece un bono AApy al 9 % anual, te envía el prospecto y te pide transferir a la cuenta de la entidad.", false, "Entidad habilitada, tasa acorde al mercado, documentación y cuenta institucional: es lo esperable de una operación legítima. Igual leé el prospecto."],
+  ["Te invitan a un \"club de inversión\" donde cobrás comisiones por cada persona que sumás.", true, "Ganar por reclutar gente, y no por una inversión real, es un esquema piramidal."],
+  ["Un fondo mutuo publica su valor cuota diario y su reglamento, y aclara que la rentabilidad pasada no garantiza la futura.", false, "Transparencia y advertencias de riesgo son propias de un producto regulado."],
+];
+function Estafas() {
+  const [ans, setAns] = useState({});
+  return (
+    <Section id="estafas" eyebrow="Protegé tu dinero" title="Señales de estafa"
+      intro="Las estafas financieras se disfrazan de inversiones. Aprendé a reconocerlas antes de transferir un solo guaraní.">
+      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
+        {SCAM_SIGNS.map(([ic, t, d]) => (
+          <div key={t} className="rounded-2xl border border-line bg-card p-4">
+            <span className="grid place-items-center w-10 h-10 rounded-xl bg-dangersoft text-danger"><Icon name={ic} className="w-5 h-5" /></span>
+            <p className="mt-3 font-bold text-ink text-sm">{t}</p>
+            <p className="mt-1 text-sm text-muted">{d}</p>
+          </div>
+        ))}
+      </div>
+      <div className="mt-8 grid lg:grid-cols-[1.4fr_1fr] gap-5 items-start">
+        <div className="rounded-2xl border border-line bg-card p-5 sm:p-6">
+          <h3 className="text-xl font-bold text-ink">¿Estafa o inversión legítima?</h3>
+          <p className="mt-1 text-sm text-muted">Leé cada caso y elegí. Te decimos por qué.</p>
+          <ol className="mt-4 space-y-3">
+            {SCAM_CASES.map(([txt, scam, why], k) => {
+              const a = ans[k];
+              return (
+                <li key={k} className="rounded-xl border border-line bg-bg p-4">
+                  <p className="text-sm text-ink"><span className="font-mono text-muted mr-1">{k + 1}.</span>{txt}</p>
+                  {a === undefined ? (
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      <button id={"scam-" + k + "-si"} onClick={() => setAns((a0) => ({ ...a0, [k]: true }))} className="px-3 py-1.5 rounded-lg border border-danger/40 text-danger text-sm font-semibold hover:bg-dangersoft">Es estafa</button>
+                      <button id={"scam-" + k + "-no"} onClick={() => setAns((a0) => ({ ...a0, [k]: false }))} className="px-3 py-1.5 rounded-lg border border-em/40 text-em text-sm font-semibold hover:bg-emsoft">Parece legítimo</button>
+                    </div>
+                  ) : (
+                    <div className={"fade-in mt-3 rounded-lg p-3 text-sm " + (a === scam ? "bg-emsoft" : "bg-dangersoft")}>
+                      <p className={"font-bold " + (a === scam ? "text-em" : "text-danger")}>{a === scam ? "¡Bien!" : "Ojo:"} {scam ? "es una estafa." : "es una operación legítima."}</p>
+                      <p className="mt-1 text-ink">{why}</p>
+                    </div>
+                  )}
+                </li>
+              );
+            })}
+          </ol>
+        </div>
+        <aside className="board-bg rounded-2xl bg-navy text-navyfg p-6">
+          <p className="font-mono text-xs uppercase tracking-widest text-up">Qué hacer</p>
+          <ol className="mt-4 space-y-4">
+            {[["Verificá", "Buscá la entidad en la lista del BCP y de la BVA (sección Fuentes oficiales)."], ["No transfieras", "Nunca envíes dinero a cuentas personales ni compartas claves."], ["Pedí todo por escrito", "Contrato, prospecto, tarifario y datos de la entidad."], ["Denunciá", "Si sospechás una estafa, informá a la Superintendencia de Valores del BCP y a la Policía Nacional."]].map(([t, d], k) => (
+              <li key={t} className="flex gap-3"><span className="grid place-items-center w-7 h-7 shrink-0 rounded-full bg-em text-white font-mono text-sm">{k + 1}</span><div><p className="font-bold">{t}</p><p className="text-sm opacity-80">{d}</p></div></li>
+            ))}
+          </ol>
+        </aside>
+      </div>
+    </Section>
+  );
+}
+
+/* ---------- 3. cómo se negocia ---------- */
+const ORDER_FLOW = [
+  ["Smartphone", "Das la orden", "Le indicás a tu Casa de Bolsa qué querés comprar o vender, cuánto y a qué precio, por app, correo o con tu asesor."],
+  ["Building2", "La Casa de Bolsa la ingresa", "Tu orden entra al sistema de negociación electrónico de la BVA, donde se ven todas las ofertas de compra y venta."],
+  ["Handshake", "Se calza la operación", "Cuando una oferta de compra coincide en precio con una de venta, la operación se concreta."],
+  ["Repeat", "Compensación y liquidación", "La Caja de Valores del Paraguay (CAVAPY) se encarga de que el comprador pague y el vendedor entregue los títulos."],
+  ["Wallet", "Títulos en tu cuenta", "Los valores quedan registrados a tu nombre y los ves en el estado de cuenta de tu Casa de Bolsa."],
+];
+const BOOK = { bids: [[99.8, 120], [99.6, 300], [99.4, 150]], asks: [[100.1, 80], [100.3, 200], [100.5, 250]] };
+function Negociacion() {
+  const [step, setStep] = useState(0);
+  const maxQ = 300;
+  return (
+    <Section id="negociacion" eyebrow="Mercado secundario" title="Cómo se negocia en la bolsa"
+      intro="Qué pasa desde que das una orden hasta que el título queda a tu nombre, y cómo se leen las ofertas de compra y venta.">
+      <div className="rounded-2xl border border-line bg-card p-5 sm:p-6">
+        <ol className="grid grid-cols-5 gap-2">
+          {ORDER_FLOW.map(([ic, t], k) => (
+            <li key={t}>
+              <button id={"flow-" + k} onClick={() => setStep(k)} aria-current={step === k ? "step" : undefined}
+                className={"w-full rounded-xl border p-2 sm:p-3 text-left transition " + (step === k ? "border-em bg-emsoft" : "border-line hover:border-em/50")}>
+                <span className={"grid place-items-center w-9 h-9 rounded-lg " + (step >= k ? "bg-navy text-up" : "bg-soft text-muted")}><Icon name={ic} className="w-4 h-4" /></span>
+                <span className="hidden sm:block mt-2 text-xs font-semibold text-ink leading-snug">{t}</span>
+              </button>
+            </li>
+          ))}
+        </ol>
+        <div key={step} className="fade-in mt-4 rounded-xl bg-bg border border-line p-4">
+          <p className="font-mono text-xs text-em">PASO {step + 1} DE {ORDER_FLOW.length}</p>
+          <p className="mt-1 font-bold text-ink">{ORDER_FLOW[step][1]}</p>
+          <p className="mt-1 text-sm text-muted">{ORDER_FLOW[step][2]}</p>
+        </div>
+      </div>
+
+      <div className="mt-6 grid lg:grid-cols-[1fr_1.1fr] gap-5 items-start">
+        <div className="space-y-4 min-w-0">
+          <div className="rounded-2xl border border-line bg-card p-5">
+            <h3 className="font-bold text-ink text-lg">Tipos de orden</h3>
+            <div className="mt-3 grid sm:grid-cols-2 gap-3">
+              <div className="rounded-xl bg-bg border border-line p-4"><p className="font-semibold text-ink">A precio de mercado</p><p className="mt-1 text-sm text-muted">Comprás o vendés al mejor precio disponible en ese momento. Es rápida, pero no controlás el precio exacto.</p></div>
+              <div className="rounded-xl bg-bg border border-line p-4"><p className="font-semibold text-ink">Con precio límite</p><p className="mt-1 text-sm text-muted">Fijás el precio máximo al que comprás o el mínimo al que vendés. Controlás el precio, pero puede no ejecutarse.</p></div>
+            </div>
+          </div>
+          <div className="rounded-2xl border border-line bg-card p-5">
+            <h3 className="font-bold text-ink text-lg">Liquidación y custodia</h3>
+            <p className="mt-2 text-sm text-muted">La CAVAPY compensa y liquida las operaciones: verifica que el dinero y los títulos cambien de manos. El plazo de liquidación de cada operación te lo informa tu Casa de Bolsa.</p>
+            <p className="mt-3 text-sm text-muted">La BVA y la CAVAPY están modernizando su infraestructura con proveedores internacionales (Nasdaq para la negociación y Montran para la liquidación), con el objetivo de operar más rápido y conectar el mercado con el exterior.</p>
+          </div>
+        </div>
+        <div className="rounded-2xl border border-line bg-card overflow-hidden min-w-0">
+          <div className="bg-navy text-navyfg px-5 py-3 flex items-center justify-between gap-3">
+            <div><p className="font-mono text-[11px] uppercase tracking-widest opacity-70">Libro de órdenes</p><p className="font-display font-bold">Bono EJEMPLO S.A. · Serie 1 · PYG</p></div>
+            <Pill className="bg-gold text-navy">Ficticio</Pill>
+          </div>
+          <div className="grid grid-cols-2 font-mono text-sm">
+            <div className="border-r border-line">
+              <p className="px-4 py-2 text-[11px] uppercase tracking-wider text-em bg-emsoft">Compra (puntas compradoras)</p>
+              {BOOK.bids.map(([p, q]) => (
+                <div key={p} className="relative px-4 py-2 flex justify-between border-t border-line">
+                  <span className="absolute inset-y-0 right-0 bg-em/10" style={{ width: (q / maxQ) * 100 + "%" }} aria-hidden="true" />
+                  <span className="relative text-muted">{q}</span><span className="relative font-semibold text-em">{p.toLocaleString("es-PY", { minimumFractionDigits: 2 })}</span>
+                </div>
+              ))}
+            </div>
+            <div>
+              <p className="px-4 py-2 text-[11px] uppercase tracking-wider text-danger bg-dangersoft">Venta (puntas vendedoras)</p>
+              {BOOK.asks.map(([p, q]) => (
+                <div key={p} className="relative px-4 py-2 flex justify-between border-t border-line">
+                  <span className="absolute inset-y-0 left-0 bg-danger/10" style={{ width: (q / maxQ) * 100 + "%" }} aria-hidden="true" />
+                  <span className="relative font-semibold text-danger">{p.toLocaleString("es-PY", { minimumFractionDigits: 2 })}</span><span className="relative text-muted">{q}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="border-t border-line p-4 text-sm text-ink space-y-1.5">
+            <p><span className="font-semibold">Mejor compra:</span> <span className="font-mono">99,80 %</span> · <span className="font-semibold">Mejor venta:</span> <span className="font-mono">100,10 %</span></p>
+            <p><span className="font-semibold">Diferencial (spread):</span> <span className="font-mono">0,30 %</span>. Cuanto más chico, más líquido es el título.</p>
+            <p className="text-xs text-muted">Precios en % del valor nominal; cantidades en títulos. Si querés comprar ya, pagás 100,10 %; si querés vender ya, recibís 99,80 %.</p>
+          </div>
+        </div>
+      </div>
+    </Section>
+  );
+}
+
+/* ---------- 2. precio de un bono ---------- */
+const bondPrice = (N, cpn, f, years, ytm) => {
+  const n = Math.max(1, Math.round(years * f)); const c = (N * cpn) / 100 / f; const y = ytm / 100 / f;
+  let p = 0; for (let k = 1; k <= n; k++) p += c / Math.pow(1 + y, k);
+  return p + N / Math.pow(1 + y, n);
+};
+function Precios() {
+  const [N, setN] = useState(10000000);
+  const [cpn, setCpn] = useState(9);
+  const [f, setF] = useState(2);
+  const [years, setYears] = useState(4);
+  const [ytm, setYtm] = useState(10);
+  const [days, setDays] = useState(60);
+  const price = bondPrice(toNum(N), toNum(cpn), f, Math.max(0.5, toNum(years)), toNum(ytm));
+  const pctPar = toNum(N) > 0 ? (price / toNum(N)) * 100 : 0;
+  const state = pctPar < 99.95 ? ["Bajo la par", "bg-ambersoft text-amber", "La tasa del mercado es mayor que el cupón: el bono se vende con descuento."] : pctPar > 100.05 ? ["Sobre la par", "bg-emsoft text-em", "La tasa del mercado es menor que el cupón: el bono vale más que su valor nominal."] : ["A la par", "bg-soft text-ink", "La tasa del mercado es igual al cupón: el bono vale su valor nominal."];
+  const maxDays = Math.round(365 / f);
+  const accrued = (toNum(N) * toNum(cpn)) / 100 * (Math.min(toNum(days), maxDays) / 365);
+  const curve = Array.from({ length: 27 }, (_, k) => { const r = 3 + k * 0.5; return { r, p: (bondPrice(100, toNum(cpn), f, Math.max(0.5, toNum(years)), r)) }; });
+  const { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, ReferenceLine, ReferenceDot } = RC || {};
+  return (
+    <Section id="precios" eyebrow="Mercado secundario" title="Cómo se mueve el precio de un bono"
+      intro="Si vendés un bono antes del vencimiento, su precio depende de las tasas del mercado en ese momento. Mové la tasa y mirá qué pasa.">
+      <div className="grid md:grid-cols-3 gap-3">
+        {[["TrendingUp", "Suben las tasas → baja el precio", "Si el mercado paga más que tu bono, nadie pagará el 100 % por él."], ["TrendingDown", "Bajan las tasas → sube el precio", "Si tu bono paga más que el mercado, otros pagarán más del 100 % por él."], ["Flag", "Al vencimiento, siempre 100 %", "Si lo mantenés hasta el final, cobrás el capital completo sin importar el precio intermedio."]].map(([ic, t, d]) => (
+          <div key={t} className="rounded-2xl border border-line bg-card p-4"><Icon name={ic} className="w-5 h-5 text-em" /><p className="mt-2 font-bold text-ink text-sm">{t}</p><p className="mt-1 text-sm text-muted">{d}</p></div>
+        ))}
+      </div>
+      <div className="mt-5 rounded-2xl border border-line bg-card p-5 sm:p-7">
+        <h3 className="text-xl font-bold text-ink">Calculadora de precio de un bono</h3>
+        <div className="mt-5 grid lg:grid-cols-[320px_1fr] gap-6">
+          <div className="grid gap-4 content-start">
+            <NumField id="pr-n" label="Valor nominal (Gs.)" value={N} onChange={setN} cur="PYG" step={1000000} />
+            <div className="grid grid-cols-2 gap-3">
+              <NumField id="pr-cpn" label="Tasa del cupón" value={cpn} onChange={setCpn} suffix="%" step={0.1} />
+              <NumField id="pr-years" label="Años restantes" value={years} onChange={setYears} suffix="años" min={0.5} max={30} step={0.5} />
+            </div>
+            <div>
+              <label htmlFor="pr-f" className="text-sm font-semibold text-ink block mb-1.5">Pago de cupones</label>
+              <select id="pr-f" value={f} onChange={(e) => setF(Number(e.target.value))} className={FIELD}>
+                <option value={12}>Mensual</option><option value={4}>Trimestral</option><option value={2}>Semestral</option><option value={1}>Anual</option>
+              </select>
+            </div>
+            <div>
+              <label htmlFor="pr-ytm" className="flex justify-between text-sm font-semibold text-ink">Tasa del mercado hoy (TIR) <span className="font-mono text-em">{pct(ytm)}</span></label>
+              <input id="pr-ytm" type="range" min="3" max="16" step="0.25" value={ytm} onChange={(e) => setYtm(e.target.value)} className="w-full mt-2" />
+            </div>
+          </div>
+          <div className="min-w-0 space-y-4">
+            <div className="grid sm:grid-cols-3 gap-3">
+              <Stat tone="navy" label="Precio del bono" value={fmtMoney(price, "PYG")} sub={pct(pctPar, 2) + " del nominal"} />
+              <div className="rounded-2xl p-4 sm:p-5 border border-line bg-bg min-w-0">
+                <p className="text-xs uppercase tracking-wider text-muted">Situación</p>
+                <Pill className={"mt-2 " + state[1]}>{state[0]}</Pill>
+                <p className="mt-2 text-xs text-muted">{state[2]}</p>
+              </div>
+              <Stat tone={price >= toNum(N) ? "em" : "danger"} label={price >= toNum(N) ? "Ganancia si vendés hoy" : "Pérdida si vendés hoy"} value={fmtMoney(Math.abs(price - toNum(N)), "PYG")} sub="Frente al valor nominal" />
+            </div>
+            <div className="h-56 rounded-xl border border-line bg-bg p-3">
+              {ResponsiveContainer && (
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={curve} margin={{ top: 8, right: 12, left: 0, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                    <XAxis dataKey="r" type="number" domain={[3, 16]} tickLine={false} axisLine={false} tickFormatter={(v) => v + " %"} />
+                    <YAxis tickLine={false} axisLine={false} width={48} tickFormatter={(v) => Math.round(v) + "%"} domain={["auto", "auto"]} />
+                    <Tooltip formatter={(v) => [pct(v, 2) + " del nominal", "Precio"]} labelFormatter={(l) => "Tasa de mercado " + pct(l)} contentStyle={TOOLTIP_STYLE} />
+                    <ReferenceLine y={100} stroke="rgb(var(--muted))" strokeDasharray="4 4" />
+                    <Line type="monotone" dataKey="p" stroke="rgb(var(--em))" strokeWidth={3} dot={false} />
+                    <ReferenceDot x={toNum(ytm)} y={pctPar} r={6} fill="rgb(var(--navy))" stroke="rgb(var(--card))" strokeWidth={2} />
+                  </LineChart>
+                </ResponsiveContainer>
+              )}
+            </div>
+            <p className="text-xs text-muted">Curva precio-tasa de este bono. La línea punteada marca el 100 % (a la par).</p>
+          </div>
+        </div>
+        <div className="mt-6 rounded-xl border border-line bg-bg p-5 grid md:grid-cols-[1fr_1fr] gap-5 items-center">
+          <div>
+            <h4 className="font-bold text-ink flex items-center gap-2"><Icon name="CalendarClock" className="w-5 h-5 text-em" /> Intereses corridos</h4>
+            <p className="mt-1 text-sm text-muted">Si comprás un bono entre dos fechas de pago, le pagás al vendedor los intereses que ya acumuló desde el último cupón. Después vos cobrás el cupón completo.</p>
+            <div className="mt-3 max-w-xs"><NumField id="pr-days" label={"Días desde el último cupón (máx. " + maxDays + ")"} value={days} onChange={setDays} min={0} max={maxDays} step={1} /></div>
+          </div>
+          <div className="grid gap-3">
+            <Stat label="Intereses corridos" value={fmtMoney(accrued, "PYG")} />
+            <Stat tone="navy" label="Pagás en total (precio + corridos)" value={fmtMoney(price + accrued, "PYG")} />
+          </div>
+        </div>
+      </div>
+    </Section>
+  );
+}
+
+/* ---------- 4. riesgos ---------- */
+const RISKS = [
+  ["ShieldAlert", "Crédito", "Que el emisor no pague los intereses o el capital a tiempo.", "Una empresa con problemas financieros se atrasa en el pago de un cupón.", "Revisá la calificación (preferí AApy o superior), diversificá y no pongas más del 20 % en un solo emisor.", "Bonos, CDA, acciones preferidas"],
+  ["Droplets", "Liquidez", "Que no encuentres comprador rápido si querés vender antes del vencimiento.", "Necesitás el dinero de un bono a 5 años y no aparece comprador al precio que esperás.", "Usá fondos mutuos para el dinero que podrías necesitar y hacé coincidir plazos con tus metas.", "Acciones, fondos de inversión, bonos largos"],
+  ["Percent", "Tasa de interés", "Que suban las tasas del mercado y baje el precio de tus bonos.", "Compraste un bono al 8 % y el mercado pasa a pagar 10 %: si vendés antes, tu bono vale menos.", "Mantenelo hasta el vencimiento o armá una escalera de vencimientos.", "Bonos de largo plazo"],
+  ["ArrowLeftRight", "Cambiario", "Que el tipo de cambio se mueva en contra de la moneda en que vas a gastar.", "Ahorrás en guaraníes para pagar algo en dólares y el dólar sube.", "Invertí en la moneda de tus gastos futuros. Las empresas pueden usar futuros de divisas.", "Inversiones en otra moneda"],
+  ["TrendingDown", "Inflación", "Que tu rendimiento quede por debajo de la inflación.", "Un depósito al 3 % con inflación de 4 % te hace perder poder de compra.", "Buscá un rendimiento real positivo: compará con la calculadora de ahorro vs. invertir.", "Caja de ahorro e instrumentos de baja tasa"],
+  ["PieChart", "Concentración", "Tener demasiado en un solo emisor, sector o moneda.", "Todo tu dinero en bonos del agro en un año de sequía.", "Diversificá por emisor, sector, plazo y moneda.", "Cualquier cartera"],
+];
+function Riesgos() {
+  const [sel, setSel] = useState(0);
+  const r = RISKS[sel];
+  return (
+    <Section id="riesgos" eyebrow="Conocé los riesgos" title="Los 6 riesgos de invertir y cómo cubrirte"
+      intro="Toda inversión tiene riesgos. Conocerlos te permite elegir mejor y protegerte. Elegí uno para ver un ejemplo y cómo cubrirte.">
+      <div className="grid lg:grid-cols-[1fr_1.1fr] gap-5 items-start">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+          {RISKS.map(([ic, t, d], k) => (
+            <button key={t} id={"riesgo-" + k} onClick={() => setSel(k)} aria-pressed={sel === k}
+              className={"text-left rounded-2xl border p-4 transition " + (sel === k ? "border-navy bg-navy text-navyfg" : "border-line bg-card text-ink hover:border-em/50")}>
+              <Icon name={ic} className={"w-6 h-6 " + (sel === k ? "text-up" : "text-amber")} />
+              <p className="mt-2 font-bold text-sm">Riesgo de {t.toLowerCase()}</p>
+              <p className={"mt-1 text-xs " + (sel === k ? "opacity-80" : "text-muted")}>{d}</p>
+            </button>
+          ))}
+        </div>
+        <article key={sel} className="fade-in rounded-2xl border border-line bg-card p-6">
+          <p className="eyebrow">Riesgo de {r[1].toLowerCase()}</p>
+          <h3 className="mt-1 text-2xl font-bold text-ink">{r[2]}</h3>
+          <div className="mt-5 grid gap-3">
+            <div className="rounded-xl bg-ambersoft border border-amber/30 p-4"><p className="text-xs font-semibold uppercase tracking-wider text-amber">Ejemplo</p><p className="mt-1 text-sm text-ink">{r[3]}</p></div>
+            <div className="rounded-xl bg-emsoft border border-em/30 p-4"><p className="text-xs font-semibold uppercase tracking-wider text-em">Cómo cubrirte</p><p className="mt-1 text-sm text-ink">{r[4]}</p></div>
+            <p className="text-sm"><span className="text-muted">Afecta más a: </span><span className="font-semibold text-ink">{r[5]}</span></p>
+          </div>
+        </article>
+      </div>
+    </Section>
+  );
+}
+
+/* ---------- 5. estrategias ---------- */
+function Estrategias() {
+  const [tab, setTab] = useState("escalera");
+  const [amount, setAmount] = useState(50000000);
+  const [steps, setSteps] = useState(5);
+  const [base, setBase] = useState(7);
+  const [prem, setPrem] = useState(0.5);
+  const [target, setTarget] = useState(70);
+  const [fixed, setFixed] = useState(28000000);
+  const [variable, setVariable] = useState(22000000);
+  const ladder = Array.from({ length: steps }, (_, k) => { const r = toNum(base) + k * toNum(prem); const a = toNum(amount) / steps; return { k: k + 1, a, r, i: (a * r) / 100 }; });
+  const ladderRate = ladder.reduce((s, x) => s + x.r, 0) / steps;
+  const total = toNum(fixed) + toNum(variable);
+  const curFixed = total > 0 ? (toNum(fixed) / total) * 100 : 0;
+  const move = (total * toNum(target)) / 100 - toNum(fixed);
+  const vcs = [1000, 950, 900, 980, 1050, 1100];
+  const dca = vcs.map((vc, k) => ({ m: k + 1, vc, q: 500000 / vc }));
+  const units = dca.reduce((s, x) => s + x.q, 0);
+  const avgCost = (500000 * vcs.length) / units;
+  const avgPrice = vcs.reduce((s, v) => s + v, 0) / vcs.length;
+  return (
+    <Section id="estrategias" eyebrow="Armá tu cartera" title="Estrategias para invertir mejor"
+      intro="Cuatro estrategias simples que usan los inversores profesionales y que podés aplicar desde el primer día.">
+      <TabBar idBase="estr" label="Estrategias" value={tab} onChange={setTab} tabs={[["escalera", "Escalera de vencimientos", "Layers"], ["diversificar", "Diversificación", "PieChart"], ["rebalanceo", "Rebalanceo", "Scale"], ["aportes", "Aportes periódicos", "CalendarClock"]]} />
+      <div key={tab} className="fade-in mt-5 rounded-2xl border border-line bg-card p-5 sm:p-7">
+        {tab === "escalera" && (
+          <div className="grid lg:grid-cols-[320px_1fr] gap-6">
+            <div className="space-y-4">
+              <p className="text-ink">Dividís tu dinero en partes iguales con vencimientos escalonados. Cada año vence una parte: si la necesitás, la usás; si no, la reinvertís al plazo más largo. Así tenés liquidez periódica y aprovechás las tasas de largo plazo.</p>
+              <NumField id="esc-amount" label="Monto total (Gs.)" value={amount} onChange={setAmount} cur="PYG" step={1000000} />
+              <div className="grid grid-cols-3 gap-3">
+                <div><label htmlFor="esc-steps" className="text-sm font-semibold text-ink block mb-1.5">Peldaños</label>
+                  <select id="esc-steps" value={steps} onChange={(e) => setSteps(Number(e.target.value))} className={FIELD}>{[3, 4, 5].map((n) => <option key={n} value={n}>{n}</option>)}</select></div>
+                <NumField id="esc-base" label="Tasa 1 año" value={base} onChange={setBase} suffix="%" step={0.1} />
+                <NumField id="esc-prem" label="+ por año" value={prem} onChange={setPrem} suffix="%" step={0.1} />
+              </div>
+            </div>
+            <div className="min-w-0 space-y-3">
+              {ladder.map((x) => (
+                <div key={x.k} className="flex items-center gap-3">
+                  <span className="font-mono text-xs text-muted w-14 shrink-0">Año {x.k}</span>
+                  <div className="flex-1 h-9 rounded-lg bg-soft overflow-hidden"><div className="h-full rounded-lg bg-navy text-navyfg flex items-center px-3 text-xs font-mono whitespace-nowrap" style={{ width: (35 + (x.k / steps) * 65) + "%" }}>{fmtMoney(x.a, "PYG")} · {pct(x.r)}</div></div>
+                </div>
+              ))}
+              <div className="grid sm:grid-cols-2 gap-3 pt-2">
+                <Stat tone="em" label="Tasa promedio de la escalera" value={pct(ladderRate, 2)} />
+                <Stat label="Intereses por año" value={fmtMoney(ladder.reduce((s, x) => s + x.i, 0), "PYG")} />
+              </div>
+            </div>
+          </div>
+        )}
+        {tab === "diversificar" && (
+          <div className="grid md:grid-cols-2 gap-6">
+            <div>
+              <p className="text-ink">No pongas todos los huevos en la misma canasta. Repartí tu dinero en cuatro dimensiones para que un problema puntual no afecte a toda tu cartera.</p>
+              <ul className="mt-4 space-y-3">
+                <Bullet><strong>Por emisor:</strong> ningún emisor debería superar el 15 % a 20 % de tu cartera.</Bullet>
+                <Bullet><strong>Por sector:</strong> combiná bancos, Estado, agro, comercio y servicios.</Bullet>
+                <Bullet><strong>Por plazo:</strong> mezclá vencimientos cortos, medianos y largos.</Bullet>
+                <Bullet><strong>Por moneda:</strong> guaraníes y dólares según tus gastos futuros.</Bullet>
+              </ul>
+            </div>
+            <div className="rounded-xl bg-bg border border-line p-5">
+              <p className="text-sm font-semibold text-ink">Ejemplo de cartera diversificada</p>
+              {[["Bonos del Tesoro (Estado)", 25], ["CDA de 2 bancos", 25], ["Bonos corporativos de 3 sectores", 30], ["Fondo mutuo", 15], ["Acciones preferidas", 5]].map(([n, w]) => (
+                <div key={n} className="mt-3"><div className="flex justify-between text-sm"><span className="text-ink">{n}</span><span className="font-mono text-muted">{w} %</span></div><div className="mt-1 h-2 rounded-full bg-soft"><div className="h-full rounded-full bg-em" style={{ width: w * 2.5 + "%" }} /></div></div>
+              ))}
+              <p className="mt-4 text-xs text-muted">Ejemplo educativo, no es una recomendación.</p>
+            </div>
+          </div>
+        )}
+        {tab === "rebalanceo" && (
+          <div className="grid lg:grid-cols-[320px_1fr] gap-6">
+            <div className="space-y-4">
+              <p className="text-ink">Con el tiempo, lo que más sube ocupa más lugar en tu cartera y cambia tu nivel de riesgo. Una vez al año volvé a tu distribución objetivo.</p>
+              <NumField id="reb-target" label="Objetivo en renta fija" value={target} onChange={setTarget} suffix="%" min={0} max={100} step={5} />
+              <NumField id="reb-fixed" label="Tenés hoy en renta fija (Gs.)" value={fixed} onChange={setFixed} cur="PYG" step={1000000} />
+              <NumField id="reb-var" label="Tenés hoy en renta variable (Gs.)" value={variable} onChange={setVariable} cur="PYG" step={1000000} />
+            </div>
+            <div className="min-w-0 space-y-4">
+              <div>
+                <p className="text-sm text-muted mb-1">Hoy</p>
+                <div className="flex h-8 rounded-lg overflow-hidden font-mono text-xs"><div className="bg-navy text-navyfg grid place-items-center" style={{ width: curFixed + "%" }}>{Math.round(curFixed)} %</div><div className="bg-amber text-white grid place-items-center flex-1">{Math.round(100 - curFixed)} %</div></div>
+                <p className="text-sm text-muted mt-3 mb-1">Objetivo</p>
+                <div className="flex h-8 rounded-lg overflow-hidden font-mono text-xs"><div className="bg-navy text-navyfg grid place-items-center" style={{ width: toNum(target) + "%" }}>{toNum(target)} %</div><div className="bg-amber text-white grid place-items-center flex-1">{100 - toNum(target)} %</div></div>
+                <div className="flex gap-4 mt-2 text-xs text-muted"><span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-sm bg-navy" />Renta fija</span><span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-sm bg-amber" />Renta variable</span></div>
+              </div>
+              <div className="rounded-2xl bg-navy text-navyfg p-5">
+                <p className="font-mono text-xs uppercase tracking-widest opacity-70">Para rebalancear</p>
+                {Math.abs(move) < 1 ? <p className="mt-1 text-lg font-semibold">Tu cartera ya está en su objetivo.</p> : (
+                  <p className="mt-1 text-lg">Pasá <span className="font-mono font-semibold text-up">{fmtMoney(Math.abs(move), "PYG")}</span> de {move > 0 ? "renta variable a renta fija" : "renta fija a renta variable"}.</p>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+        {tab === "aportes" && (
+          <div className="grid lg:grid-cols-[1fr_1.2fr] gap-6">
+            <div>
+              <p className="text-ink">Invertir un monto fijo cada mes, sin intentar adivinar el mejor momento, se llama <strong>promediar el costo</strong>. Cuando el precio baja comprás más cuotas, y cuando sube, menos. Al final tu costo promedio queda por debajo del precio promedio.</p>
+              <div className="mt-4 grid grid-cols-2 gap-3">
+                <Stat tone="em" label="Tu costo promedio" value={"Gs. " + Math.round(avgCost).toLocaleString("es-PY")} sub="por cuota" />
+                <Stat label="Precio promedio" value={"Gs. " + Math.round(avgPrice).toLocaleString("es-PY")} sub="por cuota" />
+              </div>
+            </div>
+            <div className="overflow-x-auto rounded-xl border border-line">
+              <table className="w-full text-sm min-w-[360px]">
+                <thead className="bg-soft text-left text-muted"><tr><th className="p-2.5">Mes</th><th className="p-2.5 text-right">Aporte</th><th className="p-2.5 text-right">Valor cuota</th><th className="p-2.5 text-right">Cuotas</th></tr></thead>
+                <tbody className="divide-y divide-line font-mono">
+                  {dca.map((x) => <tr key={x.m}><td className="p-2.5 text-muted">{x.m}</td><td className="p-2.5 text-right text-ink">Gs. 500.000</td><td className="p-2.5 text-right text-ink">{x.vc.toLocaleString("es-PY")}</td><td className="p-2.5 text-right text-em">{x.q.toLocaleString("es-PY", { maximumFractionDigits: 1 })}</td></tr>)}
+                  <tr className="bg-emsoft font-semibold"><td className="p-2.5 text-ink">Total</td><td className="p-2.5 text-right text-ink">Gs. 3.000.000</td><td className="p-2.5" /><td className="p-2.5 text-right text-em">{units.toLocaleString("es-PY", { maximumFractionDigits: 1 })}</td></tr>
+                </tbody>
+              </table>
+              <p className="p-3 text-xs text-muted">Valores cuota ficticios para ilustrar el mecanismo.</p>
+            </div>
+          </div>
+        )}
+      </div>
+    </Section>
+  );
+}
+
+/* ---------- 7. fondos en profundidad ---------- */
+function Fondos() {
+  const [amount, setAmount] = useState(5000000);
+  const [vc0, setVc0] = useState(12500);
+  const [vc1, setVc1] = useState(13100);
+  const [days, setDays] = useState(180);
+  const units = toNum(vc0) > 0 ? toNum(amount) / toNum(vc0) : 0;
+  const now = units * toNum(vc1);
+  const r = toNum(vc0) > 0 ? toNum(vc1) / toNum(vc0) - 1 : 0;
+  const annual = toNum(days) > 0 ? (Math.pow(1 + r, 365 / toNum(days)) - 1) * 100 : 0;
+  return (
+    <Section id="fondos" eyebrow="Fondos en profundidad" title="Cómo funciona un fondo por dentro"
+      intro="Antes de elegir un fondo, entendé cómo se calcula su valor, cuánto cobra y cómo comparar su rendimiento.">
+      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
+        {[["Coins", "Valor cuota", "Es el patrimonio del fondo dividido por la cantidad de cuotas. Se publica todos los días y refleja cuánto vale cada cuota."], ["Receipt", "Comisión de administración", "Porcentaje anual que cobra la administradora. Ya está descontado del valor cuota, por eso el rendimiento publicado es neto."], ["ScrollText", "Reglamento interno", "Define en qué invierte el fondo, sus límites, plazos de rescate, comisiones y riesgos. Leelo antes de entrar."], ["LineChart", "Rentabilidad histórica", "Muestra cómo le fue al fondo. Es útil para comparar, pero no garantiza resultados futuros."]].map(([ic, t, d]) => (
+          <div key={t} className="rounded-2xl border border-line bg-card p-4"><span className="grid place-items-center w-10 h-10 rounded-xl bg-emsoft text-em"><Icon name={ic} className="w-5 h-5" /></span><p className="mt-3 font-bold text-ink">{t}</p><p className="mt-1 text-sm text-muted">{d}</p></div>
+        ))}
+      </div>
+      <div className="mt-5 rounded-2xl border border-line bg-card p-5 sm:p-7 grid lg:grid-cols-[320px_1fr] gap-6">
+        <div className="space-y-4">
+          <h3 className="text-xl font-bold text-ink">Calculá el rendimiento de tu fondo</h3>
+          <NumField id="fd-amount" label="Monto invertido (Gs.)" value={amount} onChange={setAmount} cur="PYG" step={100000} />
+          <div className="grid grid-cols-2 gap-3">
+            <NumField id="fd-vc0" label="Valor cuota al entrar" value={vc0} onChange={setVc0} step={1} />
+            <NumField id="fd-vc1" label="Valor cuota hoy" value={vc1} onChange={setVc1} step={1} />
+          </div>
+          <NumField id="fd-days" label="Días transcurridos" value={days} onChange={setDays} min={1} step={1} />
+        </div>
+        <div className="min-w-0 space-y-4">
+          <div className="grid sm:grid-cols-2 gap-3">
+            <Stat label="Cuotas que compraste" value={units.toLocaleString("es-PY", { maximumFractionDigits: 2 })} />
+            <Stat tone="navy" label="Tu inversión vale hoy" value={fmtMoney(now, "PYG")} />
+            <Stat tone={r >= 0 ? "em" : "danger"} label="Rendimiento del período" value={(r >= 0 ? "+" : "") + pct(r * 100, 2)} sub={fmtMoney(now - toNum(amount), "PYG")} />
+            <Stat tone={annual >= 0 ? "em" : "danger"} label="Equivale por año" value={(annual >= 0 ? "+" : "") + pct(annual, 2)} sub="Rendimiento anualizado" />
+          </div>
+          <div className="rounded-xl bg-bg border border-line p-4">
+            <p className="font-semibold text-ink text-sm">Para comparar fondos, mirá:</p>
+            <ul className="mt-2 grid sm:grid-cols-2 gap-2">
+              <Bullet>Rendimiento anualizado del mismo período.</Bullet><Bullet>Moneda y tipo de activos en que invierte.</Bullet>
+              <Bullet>Plazo de rescate (24, 48 o 72 horas).</Bullet><Bullet>Comisiones y monto mínimo.</Bullet>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </Section>
+  );
+}
+
+/* ---------- 6, 8, 9, 10. nivel experto ---------- */
+function Indicador({ label, value, fmt, good, warn, higherIsBetter = true, note }) {
+  const ok = higherIsBetter ? value >= good : value <= good;
+  const mid = higherIsBetter ? value >= warn : value <= warn;
+  const tone = !isFinite(value) ? ["—", "bg-soft text-muted"] : ok ? ["Sólido", "bg-emsoft text-em"] : mid ? ["Atención", "bg-ambersoft text-amber"] : ["Débil", "bg-dangersoft text-danger"];
+  return (
+    <div className="rounded-xl border border-line bg-bg p-4 min-w-0">
+      <div className="flex items-center justify-between gap-2"><p className="text-sm font-semibold text-ink">{label}</p><Pill className={tone[1]}>{tone[0]}</Pill></div>
+      <p className="mt-1 font-mono text-2xl font-semibold text-ink">{isFinite(value) ? fmt(value) : "—"}</p>
+      <p className="mt-1 text-xs text-muted">{note}</p>
+    </div>
+  );
+}
+
+function ExpEmisor() {
+  const [d, setD] = useState({ ac: 180000, pc: 120000, pt: 300000, pat: 200000, un: 26000, ebitda: 60000, gf: 15000 });
+  const [px, setPx] = useState(1200000);
+  const [div, setDiv] = useState(84000);
+  const [upa, setUpa] = useState(150000);
+  const set = (k) => (v) => setD({ ...d, [k]: v });
+  const n = (k) => toNum(d[k]);
+  return (
+    <div className="space-y-6">
+      <p className="text-ink prose-w">Antes de comprar un bono o una acción, mirá la salud financiera del emisor. Estos cuatro indicadores se calculan con su balance y su estado de resultados, que se publican junto con el prospecto y en los informes de las calificadoras.</p>
+      <div className="grid lg:grid-cols-[320px_1fr] gap-6">
+        <div className="grid grid-cols-2 gap-3 content-start">
+          <p className="col-span-2 text-xs text-muted">Empresa de ejemplo, en millones de guaraníes:</p>
+          <NumField id="em-ac" label="Activo corriente" value={d.ac} onChange={set("ac")} step={1000} />
+          <NumField id="em-pc" label="Pasivo corriente" value={d.pc} onChange={set("pc")} step={1000} />
+          <NumField id="em-pt" label="Pasivo total" value={d.pt} onChange={set("pt")} step={1000} />
+          <NumField id="em-pat" label="Patrimonio" value={d.pat} onChange={set("pat")} step={1000} />
+          <NumField id="em-un" label="Utilidad neta" value={d.un} onChange={set("un")} step={1000} min={-1e12} />
+          <NumField id="em-ebitda" label="EBITDA" value={d.ebitda} onChange={set("ebitda")} step={1000} min={-1e12} />
+          <div className="col-span-2"><NumField id="em-gf" label="Gastos financieros (intereses)" value={d.gf} onChange={set("gf")} step={1000} /></div>
+        </div>
+        <div className="grid sm:grid-cols-2 gap-3 content-start">
+          <Indicador label="Liquidez corriente" value={n("ac") / n("pc")} fmt={(v) => v.toLocaleString("es-PY", { maximumFractionDigits: 2 }) + "x"} good={1.2} warn={1} note="Activo corriente ÷ pasivo corriente. Mide si puede pagar sus deudas de corto plazo." />
+          <Indicador label="Endeudamiento" value={n("pt") / n("pat")} fmt={(v) => v.toLocaleString("es-PY", { maximumFractionDigits: 2 }) + "x"} good={2} warn={3} higherIsBetter={false} note="Pasivo total ÷ patrimonio. Cuánto debe por cada guaraní propio." />
+          <Indicador label="Rentabilidad (ROE)" value={(n("un") / n("pat")) * 100} fmt={(v) => pct(v)} good={10} warn={5} note="Utilidad neta ÷ patrimonio. Cuánto gana con el capital de sus dueños." />
+          <Indicador label="Cobertura de intereses" value={n("ebitda") / n("gf")} fmt={(v) => v.toLocaleString("es-PY", { maximumFractionDigits: 1 }) + "x"} good={3} warn={1.5} note="EBITDA ÷ gastos financieros. Cuántas veces cubre los intereses que paga." />
+          <p className="sm:col-span-2 text-xs text-muted">Referencias orientativas para empresas no financieras. Los bancos y financieras se analizan con otros indicadores (morosidad, solvencia, liquidez regulatoria).</p>
+        </div>
+      </div>
+      <div className="grid md:grid-cols-2 gap-5">
+        <div className="rounded-xl border border-line bg-bg p-5">
+          <h4 className="font-bold text-ink flex items-center gap-2"><Icon name="Bell" className="w-5 h-5 text-em" /> Hechos relevantes</h4>
+          <p className="mt-2 text-sm text-muted">Son los hechos que un emisor está obligado a comunicar porque pueden afectar el valor de sus títulos: cambios de calificación, pagos, cambios de directorio, juicios importantes o nuevas emisiones. Se publican en el sitio de la BVA. Revisalos de vez en cuando si tenés títulos de ese emisor.</p>
+        </div>
+        <div className="rounded-xl border border-line bg-bg p-5">
+          <h4 className="font-bold text-ink flex items-center gap-2"><Icon name="TrendingUp" className="w-5 h-5 text-em" /> Para acciones</h4>
+          <div className="mt-3 grid grid-cols-3 gap-3">
+            <NumField id="ac-px" label="Precio (Gs.)" value={px} onChange={setPx} step={1000} />
+            <NumField id="ac-div" label="Dividendo anual" value={div} onChange={setDiv} step={1000} />
+            <NumField id="ac-upa" label="Utilidad por acción" value={upa} onChange={setUpa} step={1000} />
+          </div>
+          <div className="mt-3 grid grid-cols-2 gap-3">
+            <Stat tone="em" label="Rendimiento por dividendo" value={toNum(px) > 0 ? pct((toNum(div) / toNum(px)) * 100, 2) : "—"} sub="Dividendo ÷ precio" />
+            <Stat label="Precio / utilidad" value={toNum(upa) > 0 ? (toNum(px) / toNum(upa)).toLocaleString("es-PY", { maximumFractionDigits: 1 }) + " veces" : "—"} sub="Años de utilidades que pagás" />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ExpDerechos() {
+  return (
+    <div className="grid lg:grid-cols-2 gap-6">
+      <div>
+        <p className="text-ink">El mercado de valores paraguayo se rige por la <strong>Ley N.º 5.810/2017 de Mercado de Valores</strong> y por las normas de la Superintendencia de Valores del BCP. Como inversor tenés estos derechos:</p>
+        <ul className="mt-4 space-y-3">
+          <Bullet icon="ShieldCheck">Recibir información clara y completa: prospecto, riesgos, condiciones y calificación antes de invertir.</Bullet>
+          <Bullet icon="ShieldCheck">Conocer de antemano todas las comisiones y costos.</Bullet>
+          <Bullet icon="ShieldCheck">Que tus órdenes se ejecuten según tus instrucciones y en tu mejor interés.</Bullet>
+          <Bullet icon="ShieldCheck">Recibir comprobantes de cada operación y estados de cuenta periódicos.</Bullet>
+          <Bullet icon="ShieldCheck">Que tus títulos y tu dinero estén separados del patrimonio de la Casa de Bolsa.</Bullet>
+          <Bullet icon="ShieldCheck">Que se ofrezcan productos acordes a tu perfil de inversionista.</Bullet>
+          <Bullet icon="ShieldCheck">Confidencialidad de tus datos y operaciones.</Bullet>
+        </ul>
+      </div>
+      <div className="board-bg rounded-2xl bg-navy text-navyfg p-6">
+        <p className="font-mono text-xs uppercase tracking-widest text-up">Cómo hacer un reclamo</p>
+        <ol className="mt-4 space-y-4">
+          {[["Reuní la documentación", "Comprobantes, estados de cuenta, correos y contratos relacionados con el problema."], ["Reclamá por escrito a tu Casa de Bolsa", "Describí el problema, adjuntá la documentación y pedí una respuesta formal con fecha."], ["Si no hay solución, acudí al regulador", "Presentá tu denuncia ante la Superintendencia de Valores del Banco Central del Paraguay."], ["Guardá constancia de todo", "Números de nota, fechas y nombres de quienes te atendieron."]].map(([t, dd], k) => (
+            <li key={t} className="flex gap-3"><span className="grid place-items-center w-7 h-7 shrink-0 rounded-full bg-em text-white font-mono text-sm">{k + 1}</span><div><p className="font-bold">{t}</p><p className="text-sm opacity-80">{dd}</p></div></li>
+          ))}
+        </ol>
+      </div>
+    </div>
+  );
+}
+
+function ExpImpuestos() {
+  const rows = [
+    ["Intereses de un bono", "Cupones por Gs. 900.000 en el año", "IRP – rentas de capital, 8 %, salvo que aplique una exención", "Gs. 72.000"],
+    ["Dividendos de acciones", "Dividendo de Gs. 1.000.000", "Retención de IDU del 8 % para residentes (15 % para no residentes)", "Gs. 80.000 retenidos"],
+    ["Ganancia por vender un título", "Compraste a Gs. 10.000.000 y vendiste a Gs. 10.500.000", "IRP – ganancias de capital, 8 % sobre la ganancia neta", "Gs. 40.000"],
+    ["Rescate de un fondo mutuo", "Ganancia de Gs. 300.000 al rescatar", "Depende del tratamiento del fondo y de tu situación", "Consultá a la administradora"],
+  ];
+  return (
+    <div className="space-y-5">
+      <p className="text-ink prose-w">En Paraguay, las rentas de las inversiones de personas físicas se rigen por la Ley N.º 6.380/2019. En general están alcanzadas por el Impuesto a la Renta Personal (IRP) sobre rentas y ganancias de capital, a una tasa del 8 %, y los dividendos tienen su propio impuesto (IDU). Hay exenciones para algunos instrumentos.</p>
+      <div className="overflow-x-auto rounded-xl border border-line">
+        <table className="w-full text-sm min-w-[640px]">
+          <thead className="bg-soft text-left text-muted"><tr><th className="p-3">Situación</th><th className="p-3">Ejemplo</th><th className="p-3">Tratamiento general</th><th className="p-3 text-right">Impuesto estimado</th></tr></thead>
+          <tbody className="divide-y divide-line">
+            {rows.map(([a, b, c, dd]) => <tr key={a}><td className="p-3 font-semibold text-ink">{a}</td><td className="p-3 text-ink">{b}</td><td className="p-3 text-muted">{c}</td><td className="p-3 text-right font-mono text-ink">{dd}</td></tr>)}
+          </tbody>
+        </table>
+      </div>
+      <Notice>Información general con fines educativos. Las exenciones, los mínimos y las formas de declarar cambian y dependen de tu situación. Confirmá tu caso con un contador o en la DNIT antes de invertir.</Notice>
+    </div>
+  );
+}
+
+function ExpPanorama() {
+  const vol = [["Julio", 6.34], ["Agosto", 4.24], ["Septiembre", 5.19]];
+  const { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, LabelList } = RC || {};
+  const compare = [
+    ["Supervisión", "Superintendencia de Valores del BCP", "Regulador del país del mercado (por ejemplo, la SEC en EE. UU.)"],
+    ["Moneda", "Guaraníes y dólares", "Mayormente dólares"],
+    ["Instrumentos", "Bonos, CDA, fondos y algunas acciones", "Miles de acciones, ETF y bonos"],
+    ["Liquidez", "Menor: puede costar vender rápido", "Muy alta en los mercados grandes"],
+    ["Rendimiento de renta fija", "Tasas locales más altas", "Tasas en USD generalmente más bajas"],
+    ["Riesgos extra", "Concentración en pocos emisores", "Tipo de cambio, impuestos de otro país, transferencias al exterior"],
+  ];
+  return (
+    <div className="space-y-6">
+      <div className="grid lg:grid-cols-[1fr_1.2fr] gap-6 items-start">
+        <div className="space-y-3">
+          <p className="text-ink">Según el informe mensual de la BVA de <strong>septiembre de 2026</strong>:</p>
+          <div className="grid grid-cols-2 gap-3">
+            <Stat tone="navy" label="Volumen del mes" value="Gs. 5,19 billones" sub="+22,4 % frente a agosto" />
+            <Stat label="En guaraníes" value="71 %" sub="29 % en dólares" />
+            <Stat tone="em" label="Renta fija en PYG" value="8,45 %" sub="Tasa promedio · plazo 5,7 años" />
+            <Stat tone="em" label="Renta fija en USD" value="6 %" sub="Tasa promedio · plazo 7,2 años" />
+          </div>
+          <p className="text-xs text-muted">Fuente: informe mensual de la BVA citado por InfoNegocios (6/10/2026). Para datos actualizados, consultá «Datos de mercado» en el sitio de la BVA.</p>
+        </div>
+        <div className="rounded-xl border border-line bg-bg p-4">
+          <p className="text-sm font-semibold text-ink">Volumen negociado en la BVA, 2026 (billones de Gs.)</p>
+          <div className="h-56 mt-2">
+            {ResponsiveContainer && (
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={vol.map(([m, v]) => ({ m, v }))} margin={{ top: 20, right: 8, left: 0, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                  <XAxis dataKey="m" tickLine={false} axisLine={false} />
+                  <YAxis tickLine={false} axisLine={false} width={32} />
+                  <Tooltip formatter={(v) => ["Gs. " + v.toLocaleString("es-PY") + " billones", "Volumen"]} contentStyle={TOOLTIP_STYLE} cursor={{ fill: "rgb(var(--soft))" }} />
+                  <Bar dataKey="v" fill="rgb(var(--navy))" radius={[6, 6, 0, 0]}><LabelList dataKey="v" position="top" formatter={(v) => v.toLocaleString("es-PY")} style={{ fill: "rgb(var(--ink))", fontSize: 12 }} /></Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            )}
+          </div>
+        </div>
+      </div>
+      <div>
+        <h4 className="text-lg font-bold text-ink">Mercado local vs. invertir en el exterior</h4>
+        <div className="mt-3 overflow-x-auto rounded-xl border border-line">
+          <table className="w-full text-sm min-w-[600px]">
+            <thead className="bg-soft text-left text-muted"><tr><th className="p-3 w-40"></th><th className="p-3">Bolsa paraguaya</th><th className="p-3">Mercados del exterior</th></tr></thead>
+            <tbody className="divide-y divide-line">{compare.map(([a, b, c]) => <tr key={a}><th scope="row" className="p-3 text-left font-semibold text-ink">{a}</th><td className="p-3 text-ink">{b}</td><td className="p-3 text-ink">{c}</td></tr>)}</tbody>
+          </table>
+        </div>
+        <p className="mt-2 text-xs text-muted">Algunas Casas de Bolsa locales ofrecen acceso a mercados del exterior. Preguntá por costos, custodia y tratamiento impositivo antes de invertir afuera.</p>
+      </div>
+    </div>
+  );
+}
+
+function Experto() {
+  const [tab, setTab] = useState("emisor");
+  const titles = { emisor: "Analizar a un emisor", derechos: "Tus derechos como inversor", impuestos: "Impuestos con ejemplos", panorama: "El mercado en cifras y el exterior" };
+  return (
+    <Section id="experto" eyebrow="Nivel experto" title="Para entender el mercado a fondo"
+      intro="Cuatro temas para dar el salto: leer los números de una empresa, conocer tus derechos, calcular impuestos y ver el mercado en perspectiva.">
+      <TabBar idBase="exp" label="Temas avanzados" value={tab} onChange={setTab} tabs={[["emisor", "Analizar un emisor", "Search"], ["derechos", "Tus derechos", "ShieldCheck"], ["impuestos", "Impuestos", "Receipt"], ["panorama", "Mercado en cifras", "BarChart3"]]} />
+      <div key={tab} className="fade-in mt-5 rounded-2xl border border-line bg-card p-5 sm:p-7">
+        <h3 className="text-2xl font-bold text-ink mb-5">{titles[tab]}</h3>
+        {tab === "emisor" && <ExpEmisor />}
+        {tab === "derechos" && <ExpDerechos />}
+        {tab === "impuestos" && <ExpImpuestos />}
+        {tab === "panorama" && <ExpPanorama />}
+      </div>
+    </Section>
+  );
+}
+
 function App() {
   const [view, setView] = useState(readHash);
   useEffect(() => {
@@ -2243,11 +2951,11 @@ function App() {
   currentView = view;
   const v = VIEWS.find((x) => x.id === view);
   const pages = {
-    invertir: [<DondeInvertir key="d" />, <Casos key="c" />, <Instrumentos key="i" />, <Casas key="cb" />],
-    mercado: [<Ecosistema key="e" />, <Mapa key="m" />, <Prospecto key="p" />, <LineaTiempo key="l" />],
-    empezar: [<Stepper key="s" />, <ChecklistPre key="ch" />, <Perfil key="pf" />],
+    invertir: [<DondeInvertir key="d" />, <Casos key="c" />, <Instrumentos key="i" />, <Fondos key="f" />, <Riesgos key="r" />, <Estrategias key="es" />, <Casas key="cb" />],
+    mercado: [<Ecosistema key="e" />, <Mapa key="m" />, <Negociacion key="n" />, <Precios key="pr" />, <Prospecto key="p" />, <LineaTiempo key="l" />],
+    empezar: [<Mitos key="mi" />, <Stepper key="s" />, <Estafas key="es" />, <ChecklistPre key="ch" />, <Perfil key="pf" />],
     herramientas: [<Herramientas key="h" />],
-    aprender: [<Aprender key="a" />, <Quiz key="q" />, <GlosarioFAQ key="g" />, <DatosOficiales key="o" />],
+    aprender: [<Aprender key="a" />, <Experto key="x" />, <Quiz key="q" />, <GlosarioFAQ key="g" />, <DatosOficiales key="o" />],
   };
   return (
     <>

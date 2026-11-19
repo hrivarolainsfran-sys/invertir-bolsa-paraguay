@@ -173,22 +173,22 @@ const VIEWS = [{
   label: "Dónde invertir",
   icon: "Target",
   title: "Dónde invertir",
-  desc: "Qué instrumento conviene según tu objetivo, cómo invierten otras personas, qué podés comprar en la bolsa y dónde hacerlo.",
-  sections: [["donde", "Según tu objetivo"], ["casos", "Casos de ejemplo"], ["instrumentos", "Instrumentos"], ["casas", "Casas de Bolsa"]]
+  desc: "Qué instrumento conviene según tu objetivo, qué podés comprar, cómo funcionan los fondos, qué riesgos hay, cómo armar tu cartera y dónde invertir.",
+  sections: [["donde", "Según tu objetivo"], ["casos", "Casos de ejemplo"], ["instrumentos", "Instrumentos"], ["fondos", "Fondos por dentro"], ["riesgos", "Riesgos"], ["estrategias", "Estrategias"], ["casas", "Casas de Bolsa"]]
 }, {
   id: "mercado",
   label: "El mercado",
   icon: "Landmark",
   title: "Cómo funciona el mercado",
-  desc: "Quiénes participan en la bolsa paraguaya, qué sectores emiten títulos y cómo se lee una emisión de principio a fin.",
-  sections: [["ecosistema", "Cómo funciona"], ["mapa", "Mapa del mercado"], ["prospecto", "Leer un prospecto"], ["linea", "Línea de tiempo"]]
+  desc: "Quiénes participan, qué sectores emiten, cómo se negocia, cómo se mueve el precio de un bono y cómo se lee una emisión de principio a fin.",
+  sections: [["ecosistema", "Cómo funciona"], ["mapa", "Mapa del mercado"], ["negociacion", "Cómo se negocia"], ["precios", "Precio de un bono"], ["prospecto", "Leer un prospecto"], ["linea", "Línea de tiempo"]]
 }, {
   id: "empezar",
   label: "Empezar",
   icon: "Rocket",
   title: "Empezá a invertir",
-  desc: "Los pasos para abrir tu cuenta y hacer tu primera inversión, el checklist previo y el test para conocer tu perfil.",
-  sections: [["guia", "Paso a paso"], ["checklist", "Checklist"], ["perfil", "Tu perfil"]]
+  desc: "Derribá los mitos, seguí los pasos para tu primera inversión, aprendé a detectar estafas, completá el checklist y conocé tu perfil.",
+  sections: [["mitos", "Mitos y realidades"], ["guia", "Paso a paso"], ["estafas", "Señales de estafa"], ["checklist", "Checklist"], ["perfil", "Tu perfil"]]
 }, {
   id: "herramientas",
   label: "Calculadoras",
@@ -201,8 +201,8 @@ const VIEWS = [{
   label: "Aprender",
   icon: "GraduationCap",
   title: "Aprender",
-  desc: "Tu ruta de aprendizaje, mini-cursos, un quiz para ponerte a prueba, el glosario y las fuentes oficiales.",
-  sections: [["aprender", "Ruta y mini-cursos"], ["quiz", "Quiz"], ["glosario", "Glosario y FAQ"], ["oficial", "Fuentes oficiales"]]
+  desc: "Tu ruta de aprendizaje, mini-cursos, temas de nivel experto, un quiz para ponerte a prueba, el glosario y las fuentes oficiales.",
+  sections: [["aprender", "Ruta y mini-cursos"], ["experto", "Nivel experto"], ["quiz", "Quiz"], ["glosario", "Glosario y FAQ"], ["oficial", "Fuentes oficiales"]]
 }];
 const VIEW_IDS = VIEWS.map(v => v.id);
 const SECTION_VIEW = {};
@@ -366,7 +366,7 @@ const RISK_STYLE = {
 const BROKERS = ["ACWM", "ASU Capital", "Atlas", "Avalon", "Basa Capital", "BNB Invest", "Cadiem", "Capital Markets", "FAIS", "Familiar", "GLT", "Green Capital", "Index", "Inversur", "Investor", "Itaú Invest", "Millenia Capital", "One Asset", "Puente", "Solar", "Sudameris Securities", "Tanto Capital", "ueno", "Valores"].map(name => ({
   name
 }));
-const GLOSSARY = [["Renta fija", "Inversión en la que conocés de antemano la tasa y el calendario de pagos, como un CDA o un bono. El riesgo está en que el emisor no pueda pagar."], ["Renta variable", "Inversión cuyo resultado no se conoce de antemano, como las acciones. Depende de cómo le vaya a la empresa y del precio en el mercado."], ["Cupón", "Cada pago periódico de intereses de un bono. Un bono de Gs. 10.000.000 al 9 % con cupón semestral paga Gs. 450.000 cada seis meses."], ["Calificación de riesgo", "Nota que otorga una calificadora autorizada (por ejemplo AAApy, AApy, Apy, BBBpy) sobre la capacidad de un emisor de pagar sus deudas. El sufijo «py» indica que es una escala local paraguaya."], ["Cuenta comitente", "La cuenta que abrís en una Casa de Bolsa a tu nombre. Ahí quedan registrados tus títulos y el dinero de tus operaciones."], ["Liquidez", "Facilidad y rapidez con la que podés convertir una inversión en efectivo sin perder valor. Un fondo mutuo tiene alta liquidez; una acción local poco negociada, baja."], ["Mercado secundario", "Donde los inversores compran y venden entre sí títulos que ya fueron emitidos. Te permite salir de una inversión antes del vencimiento si hay comprador."], ["Mercado primario", "Donde un emisor coloca títulos nuevos por primera vez. El dinero que pagás va directamente al emisor."], ["ISIN", "Código internacional de 12 caracteres que identifica de forma única a cada título valor. Los títulos paraguayos comienzan con «PY»."], ["Dividendo", "Parte de las utilidades de una empresa que se reparte entre sus accionistas, por decisión de la asamblea."], ["Reporto", "Venta de un título con el compromiso de recomprarlo en una fecha y precio pactados. Funciona como un préstamo de corto plazo garantizado por el título."], ["Prospecto", "Documento oficial de una emisión con todas sus condiciones: tasa, plazo, garantías, calendario de pagos y riesgos."], ["Valor nominal", "El monto que figura en el título y sobre el cual se calculan los intereses. El precio de mercado puede ser mayor o menor."], ["Custodia", "Servicio de guarda y registro de tus títulos. En Paraguay la realiza la Caja de Valores del Paraguay (CAVAPY) y se refleja en tu cuenta comitente."]];
+const GLOSSARY = [["Renta fija", "Inversión en la que conocés de antemano la tasa y el calendario de pagos, como un CDA o un bono. El riesgo está en que el emisor no pueda pagar."], ["Renta variable", "Inversión cuyo resultado no se conoce de antemano, como las acciones. Depende de cómo le vaya a la empresa y del precio en el mercado."], ["Cupón", "Cada pago periódico de intereses de un bono. Un bono de Gs. 10.000.000 al 9 % con cupón semestral paga Gs. 450.000 cada seis meses."], ["Calificación de riesgo", "Nota que otorga una calificadora autorizada (por ejemplo AAApy, AApy, Apy, BBBpy) sobre la capacidad de un emisor de pagar sus deudas. El sufijo «py» indica que es una escala local paraguaya."], ["Cuenta comitente", "La cuenta que abrís en una Casa de Bolsa a tu nombre. Ahí quedan registrados tus títulos y el dinero de tus operaciones."], ["Liquidez", "Facilidad y rapidez con la que podés convertir una inversión en efectivo sin perder valor. Un fondo mutuo tiene alta liquidez; una acción local poco negociada, baja."], ["Mercado secundario", "Donde los inversores compran y venden entre sí títulos que ya fueron emitidos. Te permite salir de una inversión antes del vencimiento si hay comprador."], ["Mercado primario", "Donde un emisor coloca títulos nuevos por primera vez. El dinero que pagás va directamente al emisor."], ["ISIN", "Código internacional de 12 caracteres que identifica de forma única a cada título valor. Los títulos paraguayos comienzan con «PY»."], ["Dividendo", "Parte de las utilidades de una empresa que se reparte entre sus accionistas, por decisión de la asamblea."], ["Reporto", "Venta de un título con el compromiso de recomprarlo en una fecha y precio pactados. Funciona como un préstamo de corto plazo garantizado por el título."], ["Prospecto", "Documento oficial de una emisión con todas sus condiciones: tasa, plazo, garantías, calendario de pagos y riesgos."], ["Valor nominal", "El monto que figura en el título y sobre el cual se calculan los intereses. El precio de mercado puede ser mayor o menor."], ["Rendimiento al vencimiento (TIR)", "La tasa que realmente ganás si comprás un bono a su precio de hoy y lo mantenés hasta el final. Si lo comprás bajo la par, la TIR es mayor que la tasa del cupón."], ["A la par / bajo la par / sobre la par", "Un bono a la par cuesta el 100 % de su valor nominal; bajo la par, menos (con descuento); sobre la par, más (con prima)."], ["Intereses corridos", "Los intereses que un bono acumuló desde el último cupón. Si comprás entre dos fechas de pago, se los pagás al vendedor."], ["Orden con precio límite", "Orden de compra o venta en la que fijás el precio máximo que pagás o el mínimo que aceptás."], ["Spread", "Diferencia entre la mejor oferta de venta y la mejor oferta de compra de un título. Cuanto menor es, más líquido es el título."], ["Valor cuota", "Valor de cada cuota de un fondo: su patrimonio dividido por la cantidad de cuotas. Se publica todos los días."], ["Hecho relevante", "Información que un emisor debe comunicar al mercado porque puede afectar el valor de sus títulos."], ["Escalera de vencimientos", "Estrategia de repartir la inversión en títulos que vencen en años distintos para tener liquidez periódica."], ["Custodia", "Servicio de guarda y registro de tus títulos. En Paraguay la realiza la Caja de Valores del Paraguay (CAVAPY) y se refleja en tu cuenta comitente."]];
 const FAQ = [["¿Desde cuánto dinero puedo invertir?", "Con los fondos mutuos podés empezar con montos pequeños, en muchos casos desde Gs. 100.000 o US$ 100. Para comprar bonos o CDA en bolsa el mínimo suele ser el valor nominal de un título, a menudo Gs. 1.000.000 o US$ 1.000. Cada Casa de Bolsa y cada emisión fija sus propios mínimos."], ["¿Es seguro invertir en la bolsa?", "El mercado está regulado por la Superintendencia de Valores del BCP, las Casas de Bolsa deben estar autorizadas y tus títulos quedan registrados a tu nombre. Eso no elimina el riesgo de inversión: un emisor puede atrasarse en sus pagos o una acción puede bajar de precio. Diversificá, revisá calificaciones y operá solo con entidades habilitadas."], ["¿Qué impuestos pagan las inversiones?", "En Paraguay, las rentas de capital de las personas físicas (intereses, dividendos, ganancias por venta de títulos) están alcanzadas, en general, por el Impuesto a la Renta Personal (IRP) en la categoría de rentas y ganancias de capital, con una tasa del 8 %. La ley prevé exenciones y tratamientos especiales según el instrumento, y para los dividendos existen retenciones específicas. Las reglas cambian: confirmá tu caso con un contador o en la DNIT."], ["¿Puedo retirar mi dinero antes del vencimiento?", "Depende del instrumento. En un fondo mutuo rescatás tus cuotas cuando quieras. Un bono o un CDA comprado en bolsa podés venderlo en el mercado secundario a través de tu Casa de Bolsa, pero el precio dependerá de las tasas del momento y de que aparezca un comprador. Las cuotas de un fondo de inversión no son rescatables."], ["¿Se puede invertir desde el interior del país o el exterior?", "Sí. Muchas Casas de Bolsa permiten abrir la cuenta de forma remota, enviar documentos en formato digital, operar por app o con un asesor por teléfono y transferir fondos vía SIPAP desde cualquier banco del país. Los paraguayos residentes en el exterior y los extranjeros también pueden invertir, cumpliendo requisitos adicionales de identificación y origen de fondos."], ["¿Cuánto cobra una Casa de Bolsa?", "Cobran una comisión de corretaje por cada operación, que suele ser un porcentaje pequeño del monto negociado, más los aranceles de la bolsa. Algunas cobran por custodia. Pedí siempre el tarifario completo antes de abrir la cuenta."]];
 
 /* ---------- componentes base ---------- */
@@ -3562,15 +3562,19 @@ function GlosarioFAQ() {
 const ROUTE = [{
   level: "Principiante",
   icon: "Sprout",
-  items: [["ecosistema", "Cómo funciona la bolsa"], ["beneficios", "Beneficios de invertir"], ["guia", "Paso a paso para empezar"], ["glosario", "Glosario básico"]]
+  items: [["beneficios", "Beneficios de invertir"], ["mitos", "Mitos y realidades"], ["ecosistema", "Cómo funciona la bolsa"], ["guia", "Paso a paso para empezar"], ["glosario", "Glosario básico"]]
 }, {
   level: "Intermedio",
   icon: "TrendingUp",
-  items: [["donde", "Dónde invertir según tu objetivo"], ["instrumentos", "Instrumentos financieros"], ["casas", "Cómo elegir una Casa de Bolsa"], ["simulador", "Calculadoras"]]
+  items: [["donde", "Dónde invertir según tu objetivo"], ["instrumentos", "Instrumentos financieros"], ["fondos", "Fondos por dentro"], ["casas", "Cómo elegir una Casa de Bolsa"], ["estafas", "Señales de estafa"]]
 }, {
   level: "Avanzado",
+  icon: "LineChart",
+  items: [["riesgos", "Los 6 riesgos"], ["estrategias", "Estrategias de cartera"], ["prospecto", "Cómo leer un prospecto"], ["linea", "Ciclo de vida de una inversión"], ["simulador", "Calculadoras"]]
+}, {
+  level: "Experto",
   icon: "GraduationCap",
-  items: [["prospecto", "Cómo leer un prospecto"], ["linea", "Ciclo de vida de una inversión"], ["mapa", "Mapa del mercado"], ["quiz", "Quiz final"]]
+  items: [["negociacion", "Cómo se negocia"], ["precios", "Precio de un bono"], ["mapa", "Mapa del mercado"], ["experto", "Emisores, derechos e impuestos"], ["quiz", "Quiz final"]]
 }];
 function MiniCursos() {
   const [c, setC] = useState(0);
@@ -3832,7 +3836,7 @@ function Aprender() {
       width: n / all.length * 100 + "%"
     }
   })), /*#__PURE__*/React.createElement("div", {
-    className: "mt-6 grid md:grid-cols-3 gap-4"
+    className: "mt-6 grid md:grid-cols-2 xl:grid-cols-4 gap-4"
   }, ROUTE.map((l, li) => {
     const ld = l.items.filter(([id]) => done[id]).length;
     return /*#__PURE__*/React.createElement("div", {
@@ -4027,6 +4031,1371 @@ function DatosOficiales() {
     className: "mt-2 text-xs text-em break-all"
   }, url.replace("https://", "")))))));
 }
+
+/* =====================================================================
+   SECCIONES NUEVAS (v4): mitos, estafas, negociación, precios de bonos,
+   riesgos, estrategias, fondos y nivel experto.
+   ===================================================================== */
+const TabBar = ({
+  idBase,
+  tabs,
+  value,
+  onChange,
+  label
+}) => /*#__PURE__*/React.createElement("div", {
+  className: "overflow-x-auto -mx-1 px-1 pb-1"
+}, /*#__PURE__*/React.createElement("div", {
+  role: "tablist",
+  "aria-label": label,
+  className: "inline-flex gap-2 min-w-max"
+}, tabs.map(([id, l, ic]) => /*#__PURE__*/React.createElement("button", {
+  key: id,
+  id: idBase + "-" + id,
+  role: "tab",
+  "aria-selected": value === id,
+  onClick: () => onChange(id),
+  className: "inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold border transition " + (value === id ? "bg-navy text-navyfg border-navy" : "bg-card text-ink border-line hover:border-em")
+}, ic && /*#__PURE__*/React.createElement(Icon, {
+  name: ic,
+  className: "w-4 h-4"
+}), " ", l))));
+const Bullet = ({
+  children,
+  icon = "Check",
+  tone = "text-em"
+}) => /*#__PURE__*/React.createElement("li", {
+  className: "flex gap-2.5 text-sm text-ink"
+}, /*#__PURE__*/React.createElement(Icon, {
+  name: icon,
+  className: "w-4 h-4 shrink-0 mt-0.5 " + tone
+}), /*#__PURE__*/React.createElement("span", null, children));
+
+/* ---------- 1a. mitos vs realidad ---------- */
+const MYTHS = [["La bolsa es solo para ricos", "Con un fondo mutuo podés empezar con montos accesibles y sumar aportes cada mes."], ["Invertir en la bolsa es como apostar", "En la renta fija conocés la tasa y las fechas de pago desde el inicio. Invertir con información y diversificación no tiene nada que ver con el azar."], ["Si invierto, no puedo sacar mi plata", "Los fondos mutuos se rescatan en pocos días, y los bonos y CDA se pueden vender en el mercado secundario."], ["Tengo que ser experto en finanzas", "Tu Casa de Bolsa te asesora, y con lo básico de esta guía ya podés tomar decisiones informadas."], ["Es lo mismo que un plazo fijo del banco", "Hay muchos más emisores, plazos e instrumentos, a menudo con mejores tasas, y podés vender antes del vencimiento."], ["Si la tasa es más alta, siempre conviene", "Una tasa más alta suele indicar más riesgo. Mirá la calificación del emisor y el plazo, no solo el número."]];
+function Mitos() {
+  const [open, setOpen] = useState({});
+  const all = Object.values(open).filter(Boolean).length === MYTHS.length;
+  return /*#__PURE__*/React.createElement(Section, {
+    id: "mitos",
+    eyebrow: "Antes de empezar",
+    title: "Mitos y realidades de la bolsa",
+    intro: "Muchas personas no invierten por ideas equivocadas. Toc\xE1 cada mito para ver la realidad."
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex justify-end mb-3"
+  }, /*#__PURE__*/React.createElement("button", {
+    onClick: () => setOpen(all ? {} : Object.fromEntries(MYTHS.map((_, k) => [k, true]))),
+    className: "text-sm font-semibold text-em hover:underline"
+  }, all ? "Ocultar todas" : "Ver todas las realidades")), /*#__PURE__*/React.createElement("div", {
+    className: "grid sm:grid-cols-2 lg:grid-cols-3 gap-4"
+  }, MYTHS.map(([m, r], k) => /*#__PURE__*/React.createElement("button", {
+    key: k,
+    id: "mito-" + k,
+    onClick: () => setOpen(o => ({
+      ...o,
+      [k]: !o[k]
+    })),
+    "aria-expanded": !!open[k],
+    className: "text-left rounded-2xl border p-5 min-h-[170px] flex flex-col transition " + (open[k] ? "border-em bg-emsoft" : "border-line bg-card hover:border-em/50")
+  }, /*#__PURE__*/React.createElement(Pill, {
+    className: open[k] ? "bg-em text-white self-start" : "bg-dangersoft text-danger self-start"
+  }, open[k] ? "Realidad" : "Mito"), /*#__PURE__*/React.createElement("p", {
+    className: "mt-3 font-bold " + (open[k] ? "text-muted line-through text-sm" : "text-ink text-lg")
+  }, "\xAB", m, "\xBB"), open[k] ? /*#__PURE__*/React.createElement("p", {
+    className: "fade-in mt-2 text-ink"
+  }, r) : /*#__PURE__*/React.createElement("p", {
+    className: "mt-auto pt-3 text-sm text-em font-semibold inline-flex items-center gap-1"
+  }, "Ver la realidad ", /*#__PURE__*/React.createElement(Icon, {
+    name: "ArrowRight",
+    className: "w-4 h-4"
+  }))))));
+}
+
+/* ---------- 1b. señales de estafa ---------- */
+const SCAM_SIGNS = [["BadgePercent", "Rendimientos garantizados muy altos", "Por ejemplo, 3 % o 5 % mensual \"sin riesgo\". Ninguna inversión legítima garantiza eso."], ["Timer", "Presión y urgencia", "\"Solo por hoy\", \"quedan pocos cupos\". Te apuran para que no verifiques."], ["UserX", "Transferir a una cuenta personal", "Las Casas de Bolsa reciben dinero en cuentas a nombre de la entidad, nunca de una persona."], ["SearchX", "No figura en los registros oficiales", "Si no está en la lista del BCP o de la BVA, no puede ofrecerte valores."], ["Users", "Ganás más si sumás gente", "Pagar por reclutar personas es la marca de un esquema piramidal."], ["FileX", "Sin contrato ni prospecto", "Todo producto regulado tiene documentación con sus condiciones y riesgos."], ["MessageCircle", "Contacto de desconocidos por redes", "Mensajes no solicitados por WhatsApp, Instagram o Facebook con \"oportunidades únicas\"."], ["KeyRound", "Te piden claves o datos bancarios", "Nadie legítimo te pide tu PIN, contraseña o código de verificación."]];
+const SCAM_CASES = [["Un \"asesor\" te escribe por Instagram: ofrece 4 % mensual garantizado y te pide transferir hoy a su cuenta personal.", true, "Rendimiento garantizado altísimo, urgencia, contacto por redes y cuenta personal: cuatro señales de estafa juntas."], ["Una Casa de Bolsa que figura en la lista de la BVA te ofrece un bono AApy al 9 % anual, te envía el prospecto y te pide transferir a la cuenta de la entidad.", false, "Entidad habilitada, tasa acorde al mercado, documentación y cuenta institucional: es lo esperable de una operación legítima. Igual leé el prospecto."], ["Te invitan a un \"club de inversión\" donde cobrás comisiones por cada persona que sumás.", true, "Ganar por reclutar gente, y no por una inversión real, es un esquema piramidal."], ["Un fondo mutuo publica su valor cuota diario y su reglamento, y aclara que la rentabilidad pasada no garantiza la futura.", false, "Transparencia y advertencias de riesgo son propias de un producto regulado."]];
+function Estafas() {
+  const [ans, setAns] = useState({});
+  return /*#__PURE__*/React.createElement(Section, {
+    id: "estafas",
+    eyebrow: "Proteg\xE9 tu dinero",
+    title: "Se\xF1ales de estafa",
+    intro: "Las estafas financieras se disfrazan de inversiones. Aprend\xE9 a reconocerlas antes de transferir un solo guaran\xED."
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "grid sm:grid-cols-2 lg:grid-cols-4 gap-3"
+  }, SCAM_SIGNS.map(([ic, t, d]) => /*#__PURE__*/React.createElement("div", {
+    key: t,
+    className: "rounded-2xl border border-line bg-card p-4"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "grid place-items-center w-10 h-10 rounded-xl bg-dangersoft text-danger"
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: ic,
+    className: "w-5 h-5"
+  })), /*#__PURE__*/React.createElement("p", {
+    className: "mt-3 font-bold text-ink text-sm"
+  }, t), /*#__PURE__*/React.createElement("p", {
+    className: "mt-1 text-sm text-muted"
+  }, d)))), /*#__PURE__*/React.createElement("div", {
+    className: "mt-8 grid lg:grid-cols-[1.4fr_1fr] gap-5 items-start"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "rounded-2xl border border-line bg-card p-5 sm:p-6"
+  }, /*#__PURE__*/React.createElement("h3", {
+    className: "text-xl font-bold text-ink"
+  }, "\xBFEstafa o inversi\xF3n leg\xEDtima?"), /*#__PURE__*/React.createElement("p", {
+    className: "mt-1 text-sm text-muted"
+  }, "Le\xE9 cada caso y eleg\xED. Te decimos por qu\xE9."), /*#__PURE__*/React.createElement("ol", {
+    className: "mt-4 space-y-3"
+  }, SCAM_CASES.map(([txt, scam, why], k) => {
+    const a = ans[k];
+    return /*#__PURE__*/React.createElement("li", {
+      key: k,
+      className: "rounded-xl border border-line bg-bg p-4"
+    }, /*#__PURE__*/React.createElement("p", {
+      className: "text-sm text-ink"
+    }, /*#__PURE__*/React.createElement("span", {
+      className: "font-mono text-muted mr-1"
+    }, k + 1, "."), txt), a === undefined ? /*#__PURE__*/React.createElement("div", {
+      className: "mt-3 flex flex-wrap gap-2"
+    }, /*#__PURE__*/React.createElement("button", {
+      id: "scam-" + k + "-si",
+      onClick: () => setAns(a0 => ({
+        ...a0,
+        [k]: true
+      })),
+      className: "px-3 py-1.5 rounded-lg border border-danger/40 text-danger text-sm font-semibold hover:bg-dangersoft"
+    }, "Es estafa"), /*#__PURE__*/React.createElement("button", {
+      id: "scam-" + k + "-no",
+      onClick: () => setAns(a0 => ({
+        ...a0,
+        [k]: false
+      })),
+      className: "px-3 py-1.5 rounded-lg border border-em/40 text-em text-sm font-semibold hover:bg-emsoft"
+    }, "Parece leg\xEDtimo")) : /*#__PURE__*/React.createElement("div", {
+      className: "fade-in mt-3 rounded-lg p-3 text-sm " + (a === scam ? "bg-emsoft" : "bg-dangersoft")
+    }, /*#__PURE__*/React.createElement("p", {
+      className: "font-bold " + (a === scam ? "text-em" : "text-danger")
+    }, a === scam ? "¡Bien!" : "Ojo:", " ", scam ? "es una estafa." : "es una operación legítima."), /*#__PURE__*/React.createElement("p", {
+      className: "mt-1 text-ink"
+    }, why)));
+  }))), /*#__PURE__*/React.createElement("aside", {
+    className: "board-bg rounded-2xl bg-navy text-navyfg p-6"
+  }, /*#__PURE__*/React.createElement("p", {
+    className: "font-mono text-xs uppercase tracking-widest text-up"
+  }, "Qu\xE9 hacer"), /*#__PURE__*/React.createElement("ol", {
+    className: "mt-4 space-y-4"
+  }, [["Verificá", "Buscá la entidad en la lista del BCP y de la BVA (sección Fuentes oficiales)."], ["No transfieras", "Nunca envíes dinero a cuentas personales ni compartas claves."], ["Pedí todo por escrito", "Contrato, prospecto, tarifario y datos de la entidad."], ["Denunciá", "Si sospechás una estafa, informá a la Superintendencia de Valores del BCP y a la Policía Nacional."]].map(([t, d], k) => /*#__PURE__*/React.createElement("li", {
+    key: t,
+    className: "flex gap-3"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "grid place-items-center w-7 h-7 shrink-0 rounded-full bg-em text-white font-mono text-sm"
+  }, k + 1), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("p", {
+    className: "font-bold"
+  }, t), /*#__PURE__*/React.createElement("p", {
+    className: "text-sm opacity-80"
+  }, d))))))));
+}
+
+/* ---------- 3. cómo se negocia ---------- */
+const ORDER_FLOW = [["Smartphone", "Das la orden", "Le indicás a tu Casa de Bolsa qué querés comprar o vender, cuánto y a qué precio, por app, correo o con tu asesor."], ["Building2", "La Casa de Bolsa la ingresa", "Tu orden entra al sistema de negociación electrónico de la BVA, donde se ven todas las ofertas de compra y venta."], ["Handshake", "Se calza la operación", "Cuando una oferta de compra coincide en precio con una de venta, la operación se concreta."], ["Repeat", "Compensación y liquidación", "La Caja de Valores del Paraguay (CAVAPY) se encarga de que el comprador pague y el vendedor entregue los títulos."], ["Wallet", "Títulos en tu cuenta", "Los valores quedan registrados a tu nombre y los ves en el estado de cuenta de tu Casa de Bolsa."]];
+const BOOK = {
+  bids: [[99.8, 120], [99.6, 300], [99.4, 150]],
+  asks: [[100.1, 80], [100.3, 200], [100.5, 250]]
+};
+function Negociacion() {
+  const [step, setStep] = useState(0);
+  const maxQ = 300;
+  return /*#__PURE__*/React.createElement(Section, {
+    id: "negociacion",
+    eyebrow: "Mercado secundario",
+    title: "C\xF3mo se negocia en la bolsa",
+    intro: "Qu\xE9 pasa desde que das una orden hasta que el t\xEDtulo queda a tu nombre, y c\xF3mo se leen las ofertas de compra y venta."
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "rounded-2xl border border-line bg-card p-5 sm:p-6"
+  }, /*#__PURE__*/React.createElement("ol", {
+    className: "grid grid-cols-5 gap-2"
+  }, ORDER_FLOW.map(([ic, t], k) => /*#__PURE__*/React.createElement("li", {
+    key: t
+  }, /*#__PURE__*/React.createElement("button", {
+    id: "flow-" + k,
+    onClick: () => setStep(k),
+    "aria-current": step === k ? "step" : undefined,
+    className: "w-full rounded-xl border p-2 sm:p-3 text-left transition " + (step === k ? "border-em bg-emsoft" : "border-line hover:border-em/50")
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "grid place-items-center w-9 h-9 rounded-lg " + (step >= k ? "bg-navy text-up" : "bg-soft text-muted")
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: ic,
+    className: "w-4 h-4"
+  })), /*#__PURE__*/React.createElement("span", {
+    className: "hidden sm:block mt-2 text-xs font-semibold text-ink leading-snug"
+  }, t))))), /*#__PURE__*/React.createElement("div", {
+    key: step,
+    className: "fade-in mt-4 rounded-xl bg-bg border border-line p-4"
+  }, /*#__PURE__*/React.createElement("p", {
+    className: "font-mono text-xs text-em"
+  }, "PASO ", step + 1, " DE ", ORDER_FLOW.length), /*#__PURE__*/React.createElement("p", {
+    className: "mt-1 font-bold text-ink"
+  }, ORDER_FLOW[step][1]), /*#__PURE__*/React.createElement("p", {
+    className: "mt-1 text-sm text-muted"
+  }, ORDER_FLOW[step][2]))), /*#__PURE__*/React.createElement("div", {
+    className: "mt-6 grid lg:grid-cols-[1fr_1.1fr] gap-5 items-start"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "space-y-4 min-w-0"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "rounded-2xl border border-line bg-card p-5"
+  }, /*#__PURE__*/React.createElement("h3", {
+    className: "font-bold text-ink text-lg"
+  }, "Tipos de orden"), /*#__PURE__*/React.createElement("div", {
+    className: "mt-3 grid sm:grid-cols-2 gap-3"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "rounded-xl bg-bg border border-line p-4"
+  }, /*#__PURE__*/React.createElement("p", {
+    className: "font-semibold text-ink"
+  }, "A precio de mercado"), /*#__PURE__*/React.createElement("p", {
+    className: "mt-1 text-sm text-muted"
+  }, "Compr\xE1s o vend\xE9s al mejor precio disponible en ese momento. Es r\xE1pida, pero no control\xE1s el precio exacto.")), /*#__PURE__*/React.createElement("div", {
+    className: "rounded-xl bg-bg border border-line p-4"
+  }, /*#__PURE__*/React.createElement("p", {
+    className: "font-semibold text-ink"
+  }, "Con precio l\xEDmite"), /*#__PURE__*/React.createElement("p", {
+    className: "mt-1 text-sm text-muted"
+  }, "Fij\xE1s el precio m\xE1ximo al que compr\xE1s o el m\xEDnimo al que vend\xE9s. Control\xE1s el precio, pero puede no ejecutarse.")))), /*#__PURE__*/React.createElement("div", {
+    className: "rounded-2xl border border-line bg-card p-5"
+  }, /*#__PURE__*/React.createElement("h3", {
+    className: "font-bold text-ink text-lg"
+  }, "Liquidaci\xF3n y custodia"), /*#__PURE__*/React.createElement("p", {
+    className: "mt-2 text-sm text-muted"
+  }, "La CAVAPY compensa y liquida las operaciones: verifica que el dinero y los t\xEDtulos cambien de manos. El plazo de liquidaci\xF3n de cada operaci\xF3n te lo informa tu Casa de Bolsa."), /*#__PURE__*/React.createElement("p", {
+    className: "mt-3 text-sm text-muted"
+  }, "La BVA y la CAVAPY est\xE1n modernizando su infraestructura con proveedores internacionales (Nasdaq para la negociaci\xF3n y Montran para la liquidaci\xF3n), con el objetivo de operar m\xE1s r\xE1pido y conectar el mercado con el exterior."))), /*#__PURE__*/React.createElement("div", {
+    className: "rounded-2xl border border-line bg-card overflow-hidden min-w-0"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "bg-navy text-navyfg px-5 py-3 flex items-center justify-between gap-3"
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("p", {
+    className: "font-mono text-[11px] uppercase tracking-widest opacity-70"
+  }, "Libro de \xF3rdenes"), /*#__PURE__*/React.createElement("p", {
+    className: "font-display font-bold"
+  }, "Bono EJEMPLO S.A. \xB7 Serie 1 \xB7 PYG")), /*#__PURE__*/React.createElement(Pill, {
+    className: "bg-gold text-navy"
+  }, "Ficticio")), /*#__PURE__*/React.createElement("div", {
+    className: "grid grid-cols-2 font-mono text-sm"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "border-r border-line"
+  }, /*#__PURE__*/React.createElement("p", {
+    className: "px-4 py-2 text-[11px] uppercase tracking-wider text-em bg-emsoft"
+  }, "Compra (puntas compradoras)"), BOOK.bids.map(([p, q]) => /*#__PURE__*/React.createElement("div", {
+    key: p,
+    className: "relative px-4 py-2 flex justify-between border-t border-line"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "absolute inset-y-0 right-0 bg-em/10",
+    style: {
+      width: q / maxQ * 100 + "%"
+    },
+    "aria-hidden": "true"
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "relative text-muted"
+  }, q), /*#__PURE__*/React.createElement("span", {
+    className: "relative font-semibold text-em"
+  }, p.toLocaleString("es-PY", {
+    minimumFractionDigits: 2
+  }))))), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("p", {
+    className: "px-4 py-2 text-[11px] uppercase tracking-wider text-danger bg-dangersoft"
+  }, "Venta (puntas vendedoras)"), BOOK.asks.map(([p, q]) => /*#__PURE__*/React.createElement("div", {
+    key: p,
+    className: "relative px-4 py-2 flex justify-between border-t border-line"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "absolute inset-y-0 left-0 bg-danger/10",
+    style: {
+      width: q / maxQ * 100 + "%"
+    },
+    "aria-hidden": "true"
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "relative font-semibold text-danger"
+  }, p.toLocaleString("es-PY", {
+    minimumFractionDigits: 2
+  })), /*#__PURE__*/React.createElement("span", {
+    className: "relative text-muted"
+  }, q))))), /*#__PURE__*/React.createElement("div", {
+    className: "border-t border-line p-4 text-sm text-ink space-y-1.5"
+  }, /*#__PURE__*/React.createElement("p", null, /*#__PURE__*/React.createElement("span", {
+    className: "font-semibold"
+  }, "Mejor compra:"), " ", /*#__PURE__*/React.createElement("span", {
+    className: "font-mono"
+  }, "99,80 %"), " \xB7 ", /*#__PURE__*/React.createElement("span", {
+    className: "font-semibold"
+  }, "Mejor venta:"), " ", /*#__PURE__*/React.createElement("span", {
+    className: "font-mono"
+  }, "100,10 %")), /*#__PURE__*/React.createElement("p", null, /*#__PURE__*/React.createElement("span", {
+    className: "font-semibold"
+  }, "Diferencial (spread):"), " ", /*#__PURE__*/React.createElement("span", {
+    className: "font-mono"
+  }, "0,30 %"), ". Cuanto m\xE1s chico, m\xE1s l\xEDquido es el t\xEDtulo."), /*#__PURE__*/React.createElement("p", {
+    className: "text-xs text-muted"
+  }, "Precios en % del valor nominal; cantidades en t\xEDtulos. Si quer\xE9s comprar ya, pag\xE1s 100,10 %; si quer\xE9s vender ya, recib\xEDs 99,80 %.")))));
+}
+
+/* ---------- 2. precio de un bono ---------- */
+const bondPrice = (N, cpn, f, years, ytm) => {
+  const n = Math.max(1, Math.round(years * f));
+  const c = N * cpn / 100 / f;
+  const y = ytm / 100 / f;
+  let p = 0;
+  for (let k = 1; k <= n; k++) p += c / Math.pow(1 + y, k);
+  return p + N / Math.pow(1 + y, n);
+};
+function Precios() {
+  const [N, setN] = useState(10000000);
+  const [cpn, setCpn] = useState(9);
+  const [f, setF] = useState(2);
+  const [years, setYears] = useState(4);
+  const [ytm, setYtm] = useState(10);
+  const [days, setDays] = useState(60);
+  const price = bondPrice(toNum(N), toNum(cpn), f, Math.max(0.5, toNum(years)), toNum(ytm));
+  const pctPar = toNum(N) > 0 ? price / toNum(N) * 100 : 0;
+  const state = pctPar < 99.95 ? ["Bajo la par", "bg-ambersoft text-amber", "La tasa del mercado es mayor que el cupón: el bono se vende con descuento."] : pctPar > 100.05 ? ["Sobre la par", "bg-emsoft text-em", "La tasa del mercado es menor que el cupón: el bono vale más que su valor nominal."] : ["A la par", "bg-soft text-ink", "La tasa del mercado es igual al cupón: el bono vale su valor nominal."];
+  const maxDays = Math.round(365 / f);
+  const accrued = toNum(N) * toNum(cpn) / 100 * (Math.min(toNum(days), maxDays) / 365);
+  const curve = Array.from({
+    length: 27
+  }, (_, k) => {
+    const r = 3 + k * 0.5;
+    return {
+      r,
+      p: bondPrice(100, toNum(cpn), f, Math.max(0.5, toNum(years)), r)
+    };
+  });
+  const {
+    ResponsiveContainer,
+    LineChart,
+    Line,
+    XAxis,
+    YAxis,
+    Tooltip,
+    CartesianGrid,
+    ReferenceLine,
+    ReferenceDot
+  } = RC || {};
+  return /*#__PURE__*/React.createElement(Section, {
+    id: "precios",
+    eyebrow: "Mercado secundario",
+    title: "C\xF3mo se mueve el precio de un bono",
+    intro: "Si vend\xE9s un bono antes del vencimiento, su precio depende de las tasas del mercado en ese momento. Mov\xE9 la tasa y mir\xE1 qu\xE9 pasa."
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "grid md:grid-cols-3 gap-3"
+  }, [["TrendingUp", "Suben las tasas → baja el precio", "Si el mercado paga más que tu bono, nadie pagará el 100 % por él."], ["TrendingDown", "Bajan las tasas → sube el precio", "Si tu bono paga más que el mercado, otros pagarán más del 100 % por él."], ["Flag", "Al vencimiento, siempre 100 %", "Si lo mantenés hasta el final, cobrás el capital completo sin importar el precio intermedio."]].map(([ic, t, d]) => /*#__PURE__*/React.createElement("div", {
+    key: t,
+    className: "rounded-2xl border border-line bg-card p-4"
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: ic,
+    className: "w-5 h-5 text-em"
+  }), /*#__PURE__*/React.createElement("p", {
+    className: "mt-2 font-bold text-ink text-sm"
+  }, t), /*#__PURE__*/React.createElement("p", {
+    className: "mt-1 text-sm text-muted"
+  }, d)))), /*#__PURE__*/React.createElement("div", {
+    className: "mt-5 rounded-2xl border border-line bg-card p-5 sm:p-7"
+  }, /*#__PURE__*/React.createElement("h3", {
+    className: "text-xl font-bold text-ink"
+  }, "Calculadora de precio de un bono"), /*#__PURE__*/React.createElement("div", {
+    className: "mt-5 grid lg:grid-cols-[320px_1fr] gap-6"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "grid gap-4 content-start"
+  }, /*#__PURE__*/React.createElement(NumField, {
+    id: "pr-n",
+    label: "Valor nominal (Gs.)",
+    value: N,
+    onChange: setN,
+    cur: "PYG",
+    step: 1000000
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "grid grid-cols-2 gap-3"
+  }, /*#__PURE__*/React.createElement(NumField, {
+    id: "pr-cpn",
+    label: "Tasa del cup\xF3n",
+    value: cpn,
+    onChange: setCpn,
+    suffix: "%",
+    step: 0.1
+  }), /*#__PURE__*/React.createElement(NumField, {
+    id: "pr-years",
+    label: "A\xF1os restantes",
+    value: years,
+    onChange: setYears,
+    suffix: "a\xF1os",
+    min: 0.5,
+    max: 30,
+    step: 0.5
+  })), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("label", {
+    htmlFor: "pr-f",
+    className: "text-sm font-semibold text-ink block mb-1.5"
+  }, "Pago de cupones"), /*#__PURE__*/React.createElement("select", {
+    id: "pr-f",
+    value: f,
+    onChange: e => setF(Number(e.target.value)),
+    className: FIELD
+  }, /*#__PURE__*/React.createElement("option", {
+    value: 12
+  }, "Mensual"), /*#__PURE__*/React.createElement("option", {
+    value: 4
+  }, "Trimestral"), /*#__PURE__*/React.createElement("option", {
+    value: 2
+  }, "Semestral"), /*#__PURE__*/React.createElement("option", {
+    value: 1
+  }, "Anual"))), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("label", {
+    htmlFor: "pr-ytm",
+    className: "flex justify-between text-sm font-semibold text-ink"
+  }, "Tasa del mercado hoy (TIR) ", /*#__PURE__*/React.createElement("span", {
+    className: "font-mono text-em"
+  }, pct(ytm))), /*#__PURE__*/React.createElement("input", {
+    id: "pr-ytm",
+    type: "range",
+    min: "3",
+    max: "16",
+    step: "0.25",
+    value: ytm,
+    onChange: e => setYtm(e.target.value),
+    className: "w-full mt-2"
+  }))), /*#__PURE__*/React.createElement("div", {
+    className: "min-w-0 space-y-4"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "grid sm:grid-cols-3 gap-3"
+  }, /*#__PURE__*/React.createElement(Stat, {
+    tone: "navy",
+    label: "Precio del bono",
+    value: fmtMoney(price, "PYG"),
+    sub: pct(pctPar, 2) + " del nominal"
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "rounded-2xl p-4 sm:p-5 border border-line bg-bg min-w-0"
+  }, /*#__PURE__*/React.createElement("p", {
+    className: "text-xs uppercase tracking-wider text-muted"
+  }, "Situaci\xF3n"), /*#__PURE__*/React.createElement(Pill, {
+    className: "mt-2 " + state[1]
+  }, state[0]), /*#__PURE__*/React.createElement("p", {
+    className: "mt-2 text-xs text-muted"
+  }, state[2])), /*#__PURE__*/React.createElement(Stat, {
+    tone: price >= toNum(N) ? "em" : "danger",
+    label: price >= toNum(N) ? "Ganancia si vendés hoy" : "Pérdida si vendés hoy",
+    value: fmtMoney(Math.abs(price - toNum(N)), "PYG"),
+    sub: "Frente al valor nominal"
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "h-56 rounded-xl border border-line bg-bg p-3"
+  }, ResponsiveContainer && /*#__PURE__*/React.createElement(ResponsiveContainer, {
+    width: "100%",
+    height: "100%"
+  }, /*#__PURE__*/React.createElement(LineChart, {
+    data: curve,
+    margin: {
+      top: 8,
+      right: 12,
+      left: 0,
+      bottom: 0
+    }
+  }, /*#__PURE__*/React.createElement(CartesianGrid, {
+    strokeDasharray: "3 3",
+    vertical: false
+  }), /*#__PURE__*/React.createElement(XAxis, {
+    dataKey: "r",
+    type: "number",
+    domain: [3, 16],
+    tickLine: false,
+    axisLine: false,
+    tickFormatter: v => v + " %"
+  }), /*#__PURE__*/React.createElement(YAxis, {
+    tickLine: false,
+    axisLine: false,
+    width: 48,
+    tickFormatter: v => Math.round(v) + "%",
+    domain: ["auto", "auto"]
+  }), /*#__PURE__*/React.createElement(Tooltip, {
+    formatter: v => [pct(v, 2) + " del nominal", "Precio"],
+    labelFormatter: l => "Tasa de mercado " + pct(l),
+    contentStyle: TOOLTIP_STYLE
+  }), /*#__PURE__*/React.createElement(ReferenceLine, {
+    y: 100,
+    stroke: "rgb(var(--muted))",
+    strokeDasharray: "4 4"
+  }), /*#__PURE__*/React.createElement(Line, {
+    type: "monotone",
+    dataKey: "p",
+    stroke: "rgb(var(--em))",
+    strokeWidth: 3,
+    dot: false
+  }), /*#__PURE__*/React.createElement(ReferenceDot, {
+    x: toNum(ytm),
+    y: pctPar,
+    r: 6,
+    fill: "rgb(var(--navy))",
+    stroke: "rgb(var(--card))",
+    strokeWidth: 2
+  })))), /*#__PURE__*/React.createElement("p", {
+    className: "text-xs text-muted"
+  }, "Curva precio-tasa de este bono. La l\xEDnea punteada marca el 100 % (a la par)."))), /*#__PURE__*/React.createElement("div", {
+    className: "mt-6 rounded-xl border border-line bg-bg p-5 grid md:grid-cols-[1fr_1fr] gap-5 items-center"
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h4", {
+    className: "font-bold text-ink flex items-center gap-2"
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "CalendarClock",
+    className: "w-5 h-5 text-em"
+  }), " Intereses corridos"), /*#__PURE__*/React.createElement("p", {
+    className: "mt-1 text-sm text-muted"
+  }, "Si compr\xE1s un bono entre dos fechas de pago, le pag\xE1s al vendedor los intereses que ya acumul\xF3 desde el \xFAltimo cup\xF3n. Despu\xE9s vos cobr\xE1s el cup\xF3n completo."), /*#__PURE__*/React.createElement("div", {
+    className: "mt-3 max-w-xs"
+  }, /*#__PURE__*/React.createElement(NumField, {
+    id: "pr-days",
+    label: "Días desde el último cupón (máx. " + maxDays + ")",
+    value: days,
+    onChange: setDays,
+    min: 0,
+    max: maxDays,
+    step: 1
+  }))), /*#__PURE__*/React.createElement("div", {
+    className: "grid gap-3"
+  }, /*#__PURE__*/React.createElement(Stat, {
+    label: "Intereses corridos",
+    value: fmtMoney(accrued, "PYG")
+  }), /*#__PURE__*/React.createElement(Stat, {
+    tone: "navy",
+    label: "Pag\xE1s en total (precio + corridos)",
+    value: fmtMoney(price + accrued, "PYG")
+  })))));
+}
+
+/* ---------- 4. riesgos ---------- */
+const RISKS = [["ShieldAlert", "Crédito", "Que el emisor no pague los intereses o el capital a tiempo.", "Una empresa con problemas financieros se atrasa en el pago de un cupón.", "Revisá la calificación (preferí AApy o superior), diversificá y no pongas más del 20 % en un solo emisor.", "Bonos, CDA, acciones preferidas"], ["Droplets", "Liquidez", "Que no encuentres comprador rápido si querés vender antes del vencimiento.", "Necesitás el dinero de un bono a 5 años y no aparece comprador al precio que esperás.", "Usá fondos mutuos para el dinero que podrías necesitar y hacé coincidir plazos con tus metas.", "Acciones, fondos de inversión, bonos largos"], ["Percent", "Tasa de interés", "Que suban las tasas del mercado y baje el precio de tus bonos.", "Compraste un bono al 8 % y el mercado pasa a pagar 10 %: si vendés antes, tu bono vale menos.", "Mantenelo hasta el vencimiento o armá una escalera de vencimientos.", "Bonos de largo plazo"], ["ArrowLeftRight", "Cambiario", "Que el tipo de cambio se mueva en contra de la moneda en que vas a gastar.", "Ahorrás en guaraníes para pagar algo en dólares y el dólar sube.", "Invertí en la moneda de tus gastos futuros. Las empresas pueden usar futuros de divisas.", "Inversiones en otra moneda"], ["TrendingDown", "Inflación", "Que tu rendimiento quede por debajo de la inflación.", "Un depósito al 3 % con inflación de 4 % te hace perder poder de compra.", "Buscá un rendimiento real positivo: compará con la calculadora de ahorro vs. invertir.", "Caja de ahorro e instrumentos de baja tasa"], ["PieChart", "Concentración", "Tener demasiado en un solo emisor, sector o moneda.", "Todo tu dinero en bonos del agro en un año de sequía.", "Diversificá por emisor, sector, plazo y moneda.", "Cualquier cartera"]];
+function Riesgos() {
+  const [sel, setSel] = useState(0);
+  const r = RISKS[sel];
+  return /*#__PURE__*/React.createElement(Section, {
+    id: "riesgos",
+    eyebrow: "Conoc\xE9 los riesgos",
+    title: "Los 6 riesgos de invertir y c\xF3mo cubrirte",
+    intro: "Toda inversi\xF3n tiene riesgos. Conocerlos te permite elegir mejor y protegerte. Eleg\xED uno para ver un ejemplo y c\xF3mo cubrirte."
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "grid lg:grid-cols-[1fr_1.1fr] gap-5 items-start"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "grid grid-cols-2 sm:grid-cols-3 gap-3"
+  }, RISKS.map(([ic, t, d], k) => /*#__PURE__*/React.createElement("button", {
+    key: t,
+    id: "riesgo-" + k,
+    onClick: () => setSel(k),
+    "aria-pressed": sel === k,
+    className: "text-left rounded-2xl border p-4 transition " + (sel === k ? "border-navy bg-navy text-navyfg" : "border-line bg-card text-ink hover:border-em/50")
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: ic,
+    className: "w-6 h-6 " + (sel === k ? "text-up" : "text-amber")
+  }), /*#__PURE__*/React.createElement("p", {
+    className: "mt-2 font-bold text-sm"
+  }, "Riesgo de ", t.toLowerCase()), /*#__PURE__*/React.createElement("p", {
+    className: "mt-1 text-xs " + (sel === k ? "opacity-80" : "text-muted")
+  }, d)))), /*#__PURE__*/React.createElement("article", {
+    key: sel,
+    className: "fade-in rounded-2xl border border-line bg-card p-6"
+  }, /*#__PURE__*/React.createElement("p", {
+    className: "eyebrow"
+  }, "Riesgo de ", r[1].toLowerCase()), /*#__PURE__*/React.createElement("h3", {
+    className: "mt-1 text-2xl font-bold text-ink"
+  }, r[2]), /*#__PURE__*/React.createElement("div", {
+    className: "mt-5 grid gap-3"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "rounded-xl bg-ambersoft border border-amber/30 p-4"
+  }, /*#__PURE__*/React.createElement("p", {
+    className: "text-xs font-semibold uppercase tracking-wider text-amber"
+  }, "Ejemplo"), /*#__PURE__*/React.createElement("p", {
+    className: "mt-1 text-sm text-ink"
+  }, r[3])), /*#__PURE__*/React.createElement("div", {
+    className: "rounded-xl bg-emsoft border border-em/30 p-4"
+  }, /*#__PURE__*/React.createElement("p", {
+    className: "text-xs font-semibold uppercase tracking-wider text-em"
+  }, "C\xF3mo cubrirte"), /*#__PURE__*/React.createElement("p", {
+    className: "mt-1 text-sm text-ink"
+  }, r[4])), /*#__PURE__*/React.createElement("p", {
+    className: "text-sm"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "text-muted"
+  }, "Afecta m\xE1s a: "), /*#__PURE__*/React.createElement("span", {
+    className: "font-semibold text-ink"
+  }, r[5]))))));
+}
+
+/* ---------- 5. estrategias ---------- */
+function Estrategias() {
+  const [tab, setTab] = useState("escalera");
+  const [amount, setAmount] = useState(50000000);
+  const [steps, setSteps] = useState(5);
+  const [base, setBase] = useState(7);
+  const [prem, setPrem] = useState(0.5);
+  const [target, setTarget] = useState(70);
+  const [fixed, setFixed] = useState(28000000);
+  const [variable, setVariable] = useState(22000000);
+  const ladder = Array.from({
+    length: steps
+  }, (_, k) => {
+    const r = toNum(base) + k * toNum(prem);
+    const a = toNum(amount) / steps;
+    return {
+      k: k + 1,
+      a,
+      r,
+      i: a * r / 100
+    };
+  });
+  const ladderRate = ladder.reduce((s, x) => s + x.r, 0) / steps;
+  const total = toNum(fixed) + toNum(variable);
+  const curFixed = total > 0 ? toNum(fixed) / total * 100 : 0;
+  const move = total * toNum(target) / 100 - toNum(fixed);
+  const vcs = [1000, 950, 900, 980, 1050, 1100];
+  const dca = vcs.map((vc, k) => ({
+    m: k + 1,
+    vc,
+    q: 500000 / vc
+  }));
+  const units = dca.reduce((s, x) => s + x.q, 0);
+  const avgCost = 500000 * vcs.length / units;
+  const avgPrice = vcs.reduce((s, v) => s + v, 0) / vcs.length;
+  return /*#__PURE__*/React.createElement(Section, {
+    id: "estrategias",
+    eyebrow: "Arm\xE1 tu cartera",
+    title: "Estrategias para invertir mejor",
+    intro: "Cuatro estrategias simples que usan los inversores profesionales y que pod\xE9s aplicar desde el primer d\xEDa."
+  }, /*#__PURE__*/React.createElement(TabBar, {
+    idBase: "estr",
+    label: "Estrategias",
+    value: tab,
+    onChange: setTab,
+    tabs: [["escalera", "Escalera de vencimientos", "Layers"], ["diversificar", "Diversificación", "PieChart"], ["rebalanceo", "Rebalanceo", "Scale"], ["aportes", "Aportes periódicos", "CalendarClock"]]
+  }), /*#__PURE__*/React.createElement("div", {
+    key: tab,
+    className: "fade-in mt-5 rounded-2xl border border-line bg-card p-5 sm:p-7"
+  }, tab === "escalera" && /*#__PURE__*/React.createElement("div", {
+    className: "grid lg:grid-cols-[320px_1fr] gap-6"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "space-y-4"
+  }, /*#__PURE__*/React.createElement("p", {
+    className: "text-ink"
+  }, "Divid\xEDs tu dinero en partes iguales con vencimientos escalonados. Cada a\xF1o vence una parte: si la necesit\xE1s, la us\xE1s; si no, la reinvert\xEDs al plazo m\xE1s largo. As\xED ten\xE9s liquidez peri\xF3dica y aprovech\xE1s las tasas de largo plazo."), /*#__PURE__*/React.createElement(NumField, {
+    id: "esc-amount",
+    label: "Monto total (Gs.)",
+    value: amount,
+    onChange: setAmount,
+    cur: "PYG",
+    step: 1000000
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "grid grid-cols-3 gap-3"
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("label", {
+    htmlFor: "esc-steps",
+    className: "text-sm font-semibold text-ink block mb-1.5"
+  }, "Pelda\xF1os"), /*#__PURE__*/React.createElement("select", {
+    id: "esc-steps",
+    value: steps,
+    onChange: e => setSteps(Number(e.target.value)),
+    className: FIELD
+  }, [3, 4, 5].map(n => /*#__PURE__*/React.createElement("option", {
+    key: n,
+    value: n
+  }, n)))), /*#__PURE__*/React.createElement(NumField, {
+    id: "esc-base",
+    label: "Tasa 1 a\xF1o",
+    value: base,
+    onChange: setBase,
+    suffix: "%",
+    step: 0.1
+  }), /*#__PURE__*/React.createElement(NumField, {
+    id: "esc-prem",
+    label: "+ por a\xF1o",
+    value: prem,
+    onChange: setPrem,
+    suffix: "%",
+    step: 0.1
+  }))), /*#__PURE__*/React.createElement("div", {
+    className: "min-w-0 space-y-3"
+  }, ladder.map(x => /*#__PURE__*/React.createElement("div", {
+    key: x.k,
+    className: "flex items-center gap-3"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "font-mono text-xs text-muted w-14 shrink-0"
+  }, "A\xF1o ", x.k), /*#__PURE__*/React.createElement("div", {
+    className: "flex-1 h-9 rounded-lg bg-soft overflow-hidden"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "h-full rounded-lg bg-navy text-navyfg flex items-center px-3 text-xs font-mono whitespace-nowrap",
+    style: {
+      width: 35 + x.k / steps * 65 + "%"
+    }
+  }, fmtMoney(x.a, "PYG"), " \xB7 ", pct(x.r))))), /*#__PURE__*/React.createElement("div", {
+    className: "grid sm:grid-cols-2 gap-3 pt-2"
+  }, /*#__PURE__*/React.createElement(Stat, {
+    tone: "em",
+    label: "Tasa promedio de la escalera",
+    value: pct(ladderRate, 2)
+  }), /*#__PURE__*/React.createElement(Stat, {
+    label: "Intereses por a\xF1o",
+    value: fmtMoney(ladder.reduce((s, x) => s + x.i, 0), "PYG")
+  })))), tab === "diversificar" && /*#__PURE__*/React.createElement("div", {
+    className: "grid md:grid-cols-2 gap-6"
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("p", {
+    className: "text-ink"
+  }, "No pongas todos los huevos en la misma canasta. Repart\xED tu dinero en cuatro dimensiones para que un problema puntual no afecte a toda tu cartera."), /*#__PURE__*/React.createElement("ul", {
+    className: "mt-4 space-y-3"
+  }, /*#__PURE__*/React.createElement(Bullet, null, /*#__PURE__*/React.createElement("strong", null, "Por emisor:"), " ning\xFAn emisor deber\xEDa superar el 15 % a 20 % de tu cartera."), /*#__PURE__*/React.createElement(Bullet, null, /*#__PURE__*/React.createElement("strong", null, "Por sector:"), " combin\xE1 bancos, Estado, agro, comercio y servicios."), /*#__PURE__*/React.createElement(Bullet, null, /*#__PURE__*/React.createElement("strong", null, "Por plazo:"), " mezcl\xE1 vencimientos cortos, medianos y largos."), /*#__PURE__*/React.createElement(Bullet, null, /*#__PURE__*/React.createElement("strong", null, "Por moneda:"), " guaran\xEDes y d\xF3lares seg\xFAn tus gastos futuros."))), /*#__PURE__*/React.createElement("div", {
+    className: "rounded-xl bg-bg border border-line p-5"
+  }, /*#__PURE__*/React.createElement("p", {
+    className: "text-sm font-semibold text-ink"
+  }, "Ejemplo de cartera diversificada"), [["Bonos del Tesoro (Estado)", 25], ["CDA de 2 bancos", 25], ["Bonos corporativos de 3 sectores", 30], ["Fondo mutuo", 15], ["Acciones preferidas", 5]].map(([n, w]) => /*#__PURE__*/React.createElement("div", {
+    key: n,
+    className: "mt-3"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex justify-between text-sm"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "text-ink"
+  }, n), /*#__PURE__*/React.createElement("span", {
+    className: "font-mono text-muted"
+  }, w, " %")), /*#__PURE__*/React.createElement("div", {
+    className: "mt-1 h-2 rounded-full bg-soft"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "h-full rounded-full bg-em",
+    style: {
+      width: w * 2.5 + "%"
+    }
+  })))), /*#__PURE__*/React.createElement("p", {
+    className: "mt-4 text-xs text-muted"
+  }, "Ejemplo educativo, no es una recomendaci\xF3n."))), tab === "rebalanceo" && /*#__PURE__*/React.createElement("div", {
+    className: "grid lg:grid-cols-[320px_1fr] gap-6"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "space-y-4"
+  }, /*#__PURE__*/React.createElement("p", {
+    className: "text-ink"
+  }, "Con el tiempo, lo que m\xE1s sube ocupa m\xE1s lugar en tu cartera y cambia tu nivel de riesgo. Una vez al a\xF1o volv\xE9 a tu distribuci\xF3n objetivo."), /*#__PURE__*/React.createElement(NumField, {
+    id: "reb-target",
+    label: "Objetivo en renta fija",
+    value: target,
+    onChange: setTarget,
+    suffix: "%",
+    min: 0,
+    max: 100,
+    step: 5
+  }), /*#__PURE__*/React.createElement(NumField, {
+    id: "reb-fixed",
+    label: "Ten\xE9s hoy en renta fija (Gs.)",
+    value: fixed,
+    onChange: setFixed,
+    cur: "PYG",
+    step: 1000000
+  }), /*#__PURE__*/React.createElement(NumField, {
+    id: "reb-var",
+    label: "Ten\xE9s hoy en renta variable (Gs.)",
+    value: variable,
+    onChange: setVariable,
+    cur: "PYG",
+    step: 1000000
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "min-w-0 space-y-4"
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("p", {
+    className: "text-sm text-muted mb-1"
+  }, "Hoy"), /*#__PURE__*/React.createElement("div", {
+    className: "flex h-8 rounded-lg overflow-hidden font-mono text-xs"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "bg-navy text-navyfg grid place-items-center",
+    style: {
+      width: curFixed + "%"
+    }
+  }, Math.round(curFixed), " %"), /*#__PURE__*/React.createElement("div", {
+    className: "bg-amber text-white grid place-items-center flex-1"
+  }, Math.round(100 - curFixed), " %")), /*#__PURE__*/React.createElement("p", {
+    className: "text-sm text-muted mt-3 mb-1"
+  }, "Objetivo"), /*#__PURE__*/React.createElement("div", {
+    className: "flex h-8 rounded-lg overflow-hidden font-mono text-xs"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "bg-navy text-navyfg grid place-items-center",
+    style: {
+      width: toNum(target) + "%"
+    }
+  }, toNum(target), " %"), /*#__PURE__*/React.createElement("div", {
+    className: "bg-amber text-white grid place-items-center flex-1"
+  }, 100 - toNum(target), " %")), /*#__PURE__*/React.createElement("div", {
+    className: "flex gap-4 mt-2 text-xs text-muted"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "flex items-center gap-1.5"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "w-3 h-3 rounded-sm bg-navy"
+  }), "Renta fija"), /*#__PURE__*/React.createElement("span", {
+    className: "flex items-center gap-1.5"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "w-3 h-3 rounded-sm bg-amber"
+  }), "Renta variable"))), /*#__PURE__*/React.createElement("div", {
+    className: "rounded-2xl bg-navy text-navyfg p-5"
+  }, /*#__PURE__*/React.createElement("p", {
+    className: "font-mono text-xs uppercase tracking-widest opacity-70"
+  }, "Para rebalancear"), Math.abs(move) < 1 ? /*#__PURE__*/React.createElement("p", {
+    className: "mt-1 text-lg font-semibold"
+  }, "Tu cartera ya est\xE1 en su objetivo.") : /*#__PURE__*/React.createElement("p", {
+    className: "mt-1 text-lg"
+  }, "Pas\xE1 ", /*#__PURE__*/React.createElement("span", {
+    className: "font-mono font-semibold text-up"
+  }, fmtMoney(Math.abs(move), "PYG")), " de ", move > 0 ? "renta variable a renta fija" : "renta fija a renta variable", ".")))), tab === "aportes" && /*#__PURE__*/React.createElement("div", {
+    className: "grid lg:grid-cols-[1fr_1.2fr] gap-6"
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("p", {
+    className: "text-ink"
+  }, "Invertir un monto fijo cada mes, sin intentar adivinar el mejor momento, se llama ", /*#__PURE__*/React.createElement("strong", null, "promediar el costo"), ". Cuando el precio baja compr\xE1s m\xE1s cuotas, y cuando sube, menos. Al final tu costo promedio queda por debajo del precio promedio."), /*#__PURE__*/React.createElement("div", {
+    className: "mt-4 grid grid-cols-2 gap-3"
+  }, /*#__PURE__*/React.createElement(Stat, {
+    tone: "em",
+    label: "Tu costo promedio",
+    value: "Gs. " + Math.round(avgCost).toLocaleString("es-PY"),
+    sub: "por cuota"
+  }), /*#__PURE__*/React.createElement(Stat, {
+    label: "Precio promedio",
+    value: "Gs. " + Math.round(avgPrice).toLocaleString("es-PY"),
+    sub: "por cuota"
+  }))), /*#__PURE__*/React.createElement("div", {
+    className: "overflow-x-auto rounded-xl border border-line"
+  }, /*#__PURE__*/React.createElement("table", {
+    className: "w-full text-sm min-w-[360px]"
+  }, /*#__PURE__*/React.createElement("thead", {
+    className: "bg-soft text-left text-muted"
+  }, /*#__PURE__*/React.createElement("tr", null, /*#__PURE__*/React.createElement("th", {
+    className: "p-2.5"
+  }, "Mes"), /*#__PURE__*/React.createElement("th", {
+    className: "p-2.5 text-right"
+  }, "Aporte"), /*#__PURE__*/React.createElement("th", {
+    className: "p-2.5 text-right"
+  }, "Valor cuota"), /*#__PURE__*/React.createElement("th", {
+    className: "p-2.5 text-right"
+  }, "Cuotas"))), /*#__PURE__*/React.createElement("tbody", {
+    className: "divide-y divide-line font-mono"
+  }, dca.map(x => /*#__PURE__*/React.createElement("tr", {
+    key: x.m
+  }, /*#__PURE__*/React.createElement("td", {
+    className: "p-2.5 text-muted"
+  }, x.m), /*#__PURE__*/React.createElement("td", {
+    className: "p-2.5 text-right text-ink"
+  }, "Gs. 500.000"), /*#__PURE__*/React.createElement("td", {
+    className: "p-2.5 text-right text-ink"
+  }, x.vc.toLocaleString("es-PY")), /*#__PURE__*/React.createElement("td", {
+    className: "p-2.5 text-right text-em"
+  }, x.q.toLocaleString("es-PY", {
+    maximumFractionDigits: 1
+  })))), /*#__PURE__*/React.createElement("tr", {
+    className: "bg-emsoft font-semibold"
+  }, /*#__PURE__*/React.createElement("td", {
+    className: "p-2.5 text-ink"
+  }, "Total"), /*#__PURE__*/React.createElement("td", {
+    className: "p-2.5 text-right text-ink"
+  }, "Gs. 3.000.000"), /*#__PURE__*/React.createElement("td", {
+    className: "p-2.5"
+  }), /*#__PURE__*/React.createElement("td", {
+    className: "p-2.5 text-right text-em"
+  }, units.toLocaleString("es-PY", {
+    maximumFractionDigits: 1
+  }))))), /*#__PURE__*/React.createElement("p", {
+    className: "p-3 text-xs text-muted"
+  }, "Valores cuota ficticios para ilustrar el mecanismo.")))));
+}
+
+/* ---------- 7. fondos en profundidad ---------- */
+function Fondos() {
+  const [amount, setAmount] = useState(5000000);
+  const [vc0, setVc0] = useState(12500);
+  const [vc1, setVc1] = useState(13100);
+  const [days, setDays] = useState(180);
+  const units = toNum(vc0) > 0 ? toNum(amount) / toNum(vc0) : 0;
+  const now = units * toNum(vc1);
+  const r = toNum(vc0) > 0 ? toNum(vc1) / toNum(vc0) - 1 : 0;
+  const annual = toNum(days) > 0 ? (Math.pow(1 + r, 365 / toNum(days)) - 1) * 100 : 0;
+  return /*#__PURE__*/React.createElement(Section, {
+    id: "fondos",
+    eyebrow: "Fondos en profundidad",
+    title: "C\xF3mo funciona un fondo por dentro",
+    intro: "Antes de elegir un fondo, entend\xE9 c\xF3mo se calcula su valor, cu\xE1nto cobra y c\xF3mo comparar su rendimiento."
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "grid sm:grid-cols-2 lg:grid-cols-4 gap-3"
+  }, [["Coins", "Valor cuota", "Es el patrimonio del fondo dividido por la cantidad de cuotas. Se publica todos los días y refleja cuánto vale cada cuota."], ["Receipt", "Comisión de administración", "Porcentaje anual que cobra la administradora. Ya está descontado del valor cuota, por eso el rendimiento publicado es neto."], ["ScrollText", "Reglamento interno", "Define en qué invierte el fondo, sus límites, plazos de rescate, comisiones y riesgos. Leelo antes de entrar."], ["LineChart", "Rentabilidad histórica", "Muestra cómo le fue al fondo. Es útil para comparar, pero no garantiza resultados futuros."]].map(([ic, t, d]) => /*#__PURE__*/React.createElement("div", {
+    key: t,
+    className: "rounded-2xl border border-line bg-card p-4"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "grid place-items-center w-10 h-10 rounded-xl bg-emsoft text-em"
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: ic,
+    className: "w-5 h-5"
+  })), /*#__PURE__*/React.createElement("p", {
+    className: "mt-3 font-bold text-ink"
+  }, t), /*#__PURE__*/React.createElement("p", {
+    className: "mt-1 text-sm text-muted"
+  }, d)))), /*#__PURE__*/React.createElement("div", {
+    className: "mt-5 rounded-2xl border border-line bg-card p-5 sm:p-7 grid lg:grid-cols-[320px_1fr] gap-6"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "space-y-4"
+  }, /*#__PURE__*/React.createElement("h3", {
+    className: "text-xl font-bold text-ink"
+  }, "Calcul\xE1 el rendimiento de tu fondo"), /*#__PURE__*/React.createElement(NumField, {
+    id: "fd-amount",
+    label: "Monto invertido (Gs.)",
+    value: amount,
+    onChange: setAmount,
+    cur: "PYG",
+    step: 100000
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "grid grid-cols-2 gap-3"
+  }, /*#__PURE__*/React.createElement(NumField, {
+    id: "fd-vc0",
+    label: "Valor cuota al entrar",
+    value: vc0,
+    onChange: setVc0,
+    step: 1
+  }), /*#__PURE__*/React.createElement(NumField, {
+    id: "fd-vc1",
+    label: "Valor cuota hoy",
+    value: vc1,
+    onChange: setVc1,
+    step: 1
+  })), /*#__PURE__*/React.createElement(NumField, {
+    id: "fd-days",
+    label: "D\xEDas transcurridos",
+    value: days,
+    onChange: setDays,
+    min: 1,
+    step: 1
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "min-w-0 space-y-4"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "grid sm:grid-cols-2 gap-3"
+  }, /*#__PURE__*/React.createElement(Stat, {
+    label: "Cuotas que compraste",
+    value: units.toLocaleString("es-PY", {
+      maximumFractionDigits: 2
+    })
+  }), /*#__PURE__*/React.createElement(Stat, {
+    tone: "navy",
+    label: "Tu inversi\xF3n vale hoy",
+    value: fmtMoney(now, "PYG")
+  }), /*#__PURE__*/React.createElement(Stat, {
+    tone: r >= 0 ? "em" : "danger",
+    label: "Rendimiento del per\xEDodo",
+    value: (r >= 0 ? "+" : "") + pct(r * 100, 2),
+    sub: fmtMoney(now - toNum(amount), "PYG")
+  }), /*#__PURE__*/React.createElement(Stat, {
+    tone: annual >= 0 ? "em" : "danger",
+    label: "Equivale por a\xF1o",
+    value: (annual >= 0 ? "+" : "") + pct(annual, 2),
+    sub: "Rendimiento anualizado"
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "rounded-xl bg-bg border border-line p-4"
+  }, /*#__PURE__*/React.createElement("p", {
+    className: "font-semibold text-ink text-sm"
+  }, "Para comparar fondos, mir\xE1:"), /*#__PURE__*/React.createElement("ul", {
+    className: "mt-2 grid sm:grid-cols-2 gap-2"
+  }, /*#__PURE__*/React.createElement(Bullet, null, "Rendimiento anualizado del mismo per\xEDodo."), /*#__PURE__*/React.createElement(Bullet, null, "Moneda y tipo de activos en que invierte."), /*#__PURE__*/React.createElement(Bullet, null, "Plazo de rescate (24, 48 o 72 horas)."), /*#__PURE__*/React.createElement(Bullet, null, "Comisiones y monto m\xEDnimo."))))));
+}
+
+/* ---------- 6, 8, 9, 10. nivel experto ---------- */
+function Indicador({
+  label,
+  value,
+  fmt,
+  good,
+  warn,
+  higherIsBetter = true,
+  note
+}) {
+  const ok = higherIsBetter ? value >= good : value <= good;
+  const mid = higherIsBetter ? value >= warn : value <= warn;
+  const tone = !isFinite(value) ? ["—", "bg-soft text-muted"] : ok ? ["Sólido", "bg-emsoft text-em"] : mid ? ["Atención", "bg-ambersoft text-amber"] : ["Débil", "bg-dangersoft text-danger"];
+  return /*#__PURE__*/React.createElement("div", {
+    className: "rounded-xl border border-line bg-bg p-4 min-w-0"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center justify-between gap-2"
+  }, /*#__PURE__*/React.createElement("p", {
+    className: "text-sm font-semibold text-ink"
+  }, label), /*#__PURE__*/React.createElement(Pill, {
+    className: tone[1]
+  }, tone[0])), /*#__PURE__*/React.createElement("p", {
+    className: "mt-1 font-mono text-2xl font-semibold text-ink"
+  }, isFinite(value) ? fmt(value) : "—"), /*#__PURE__*/React.createElement("p", {
+    className: "mt-1 text-xs text-muted"
+  }, note));
+}
+function ExpEmisor() {
+  const [d, setD] = useState({
+    ac: 180000,
+    pc: 120000,
+    pt: 300000,
+    pat: 200000,
+    un: 26000,
+    ebitda: 60000,
+    gf: 15000
+  });
+  const [px, setPx] = useState(1200000);
+  const [div, setDiv] = useState(84000);
+  const [upa, setUpa] = useState(150000);
+  const set = k => v => setD({
+    ...d,
+    [k]: v
+  });
+  const n = k => toNum(d[k]);
+  return /*#__PURE__*/React.createElement("div", {
+    className: "space-y-6"
+  }, /*#__PURE__*/React.createElement("p", {
+    className: "text-ink prose-w"
+  }, "Antes de comprar un bono o una acci\xF3n, mir\xE1 la salud financiera del emisor. Estos cuatro indicadores se calculan con su balance y su estado de resultados, que se publican junto con el prospecto y en los informes de las calificadoras."), /*#__PURE__*/React.createElement("div", {
+    className: "grid lg:grid-cols-[320px_1fr] gap-6"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "grid grid-cols-2 gap-3 content-start"
+  }, /*#__PURE__*/React.createElement("p", {
+    className: "col-span-2 text-xs text-muted"
+  }, "Empresa de ejemplo, en millones de guaran\xEDes:"), /*#__PURE__*/React.createElement(NumField, {
+    id: "em-ac",
+    label: "Activo corriente",
+    value: d.ac,
+    onChange: set("ac"),
+    step: 1000
+  }), /*#__PURE__*/React.createElement(NumField, {
+    id: "em-pc",
+    label: "Pasivo corriente",
+    value: d.pc,
+    onChange: set("pc"),
+    step: 1000
+  }), /*#__PURE__*/React.createElement(NumField, {
+    id: "em-pt",
+    label: "Pasivo total",
+    value: d.pt,
+    onChange: set("pt"),
+    step: 1000
+  }), /*#__PURE__*/React.createElement(NumField, {
+    id: "em-pat",
+    label: "Patrimonio",
+    value: d.pat,
+    onChange: set("pat"),
+    step: 1000
+  }), /*#__PURE__*/React.createElement(NumField, {
+    id: "em-un",
+    label: "Utilidad neta",
+    value: d.un,
+    onChange: set("un"),
+    step: 1000,
+    min: -1e12
+  }), /*#__PURE__*/React.createElement(NumField, {
+    id: "em-ebitda",
+    label: "EBITDA",
+    value: d.ebitda,
+    onChange: set("ebitda"),
+    step: 1000,
+    min: -1e12
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "col-span-2"
+  }, /*#__PURE__*/React.createElement(NumField, {
+    id: "em-gf",
+    label: "Gastos financieros (intereses)",
+    value: d.gf,
+    onChange: set("gf"),
+    step: 1000
+  }))), /*#__PURE__*/React.createElement("div", {
+    className: "grid sm:grid-cols-2 gap-3 content-start"
+  }, /*#__PURE__*/React.createElement(Indicador, {
+    label: "Liquidez corriente",
+    value: n("ac") / n("pc"),
+    fmt: v => v.toLocaleString("es-PY", {
+      maximumFractionDigits: 2
+    }) + "x",
+    good: 1.2,
+    warn: 1,
+    note: "Activo corriente \xF7 pasivo corriente. Mide si puede pagar sus deudas de corto plazo."
+  }), /*#__PURE__*/React.createElement(Indicador, {
+    label: "Endeudamiento",
+    value: n("pt") / n("pat"),
+    fmt: v => v.toLocaleString("es-PY", {
+      maximumFractionDigits: 2
+    }) + "x",
+    good: 2,
+    warn: 3,
+    higherIsBetter: false,
+    note: "Pasivo total \xF7 patrimonio. Cu\xE1nto debe por cada guaran\xED propio."
+  }), /*#__PURE__*/React.createElement(Indicador, {
+    label: "Rentabilidad (ROE)",
+    value: n("un") / n("pat") * 100,
+    fmt: v => pct(v),
+    good: 10,
+    warn: 5,
+    note: "Utilidad neta \xF7 patrimonio. Cu\xE1nto gana con el capital de sus due\xF1os."
+  }), /*#__PURE__*/React.createElement(Indicador, {
+    label: "Cobertura de intereses",
+    value: n("ebitda") / n("gf"),
+    fmt: v => v.toLocaleString("es-PY", {
+      maximumFractionDigits: 1
+    }) + "x",
+    good: 3,
+    warn: 1.5,
+    note: "EBITDA \xF7 gastos financieros. Cu\xE1ntas veces cubre los intereses que paga."
+  }), /*#__PURE__*/React.createElement("p", {
+    className: "sm:col-span-2 text-xs text-muted"
+  }, "Referencias orientativas para empresas no financieras. Los bancos y financieras se analizan con otros indicadores (morosidad, solvencia, liquidez regulatoria)."))), /*#__PURE__*/React.createElement("div", {
+    className: "grid md:grid-cols-2 gap-5"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "rounded-xl border border-line bg-bg p-5"
+  }, /*#__PURE__*/React.createElement("h4", {
+    className: "font-bold text-ink flex items-center gap-2"
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "Bell",
+    className: "w-5 h-5 text-em"
+  }), " Hechos relevantes"), /*#__PURE__*/React.createElement("p", {
+    className: "mt-2 text-sm text-muted"
+  }, "Son los hechos que un emisor est\xE1 obligado a comunicar porque pueden afectar el valor de sus t\xEDtulos: cambios de calificaci\xF3n, pagos, cambios de directorio, juicios importantes o nuevas emisiones. Se publican en el sitio de la BVA. Revisalos de vez en cuando si ten\xE9s t\xEDtulos de ese emisor.")), /*#__PURE__*/React.createElement("div", {
+    className: "rounded-xl border border-line bg-bg p-5"
+  }, /*#__PURE__*/React.createElement("h4", {
+    className: "font-bold text-ink flex items-center gap-2"
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "TrendingUp",
+    className: "w-5 h-5 text-em"
+  }), " Para acciones"), /*#__PURE__*/React.createElement("div", {
+    className: "mt-3 grid grid-cols-3 gap-3"
+  }, /*#__PURE__*/React.createElement(NumField, {
+    id: "ac-px",
+    label: "Precio (Gs.)",
+    value: px,
+    onChange: setPx,
+    step: 1000
+  }), /*#__PURE__*/React.createElement(NumField, {
+    id: "ac-div",
+    label: "Dividendo anual",
+    value: div,
+    onChange: setDiv,
+    step: 1000
+  }), /*#__PURE__*/React.createElement(NumField, {
+    id: "ac-upa",
+    label: "Utilidad por acci\xF3n",
+    value: upa,
+    onChange: setUpa,
+    step: 1000
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "mt-3 grid grid-cols-2 gap-3"
+  }, /*#__PURE__*/React.createElement(Stat, {
+    tone: "em",
+    label: "Rendimiento por dividendo",
+    value: toNum(px) > 0 ? pct(toNum(div) / toNum(px) * 100, 2) : "—",
+    sub: "Dividendo \xF7 precio"
+  }), /*#__PURE__*/React.createElement(Stat, {
+    label: "Precio / utilidad",
+    value: toNum(upa) > 0 ? (toNum(px) / toNum(upa)).toLocaleString("es-PY", {
+      maximumFractionDigits: 1
+    }) + " veces" : "—",
+    sub: "A\xF1os de utilidades que pag\xE1s"
+  })))));
+}
+function ExpDerechos() {
+  return /*#__PURE__*/React.createElement("div", {
+    className: "grid lg:grid-cols-2 gap-6"
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("p", {
+    className: "text-ink"
+  }, "El mercado de valores paraguayo se rige por la ", /*#__PURE__*/React.createElement("strong", null, "Ley N.\xBA 5.810/2017 de Mercado de Valores"), " y por las normas de la Superintendencia de Valores del BCP. Como inversor ten\xE9s estos derechos:"), /*#__PURE__*/React.createElement("ul", {
+    className: "mt-4 space-y-3"
+  }, /*#__PURE__*/React.createElement(Bullet, {
+    icon: "ShieldCheck"
+  }, "Recibir informaci\xF3n clara y completa: prospecto, riesgos, condiciones y calificaci\xF3n antes de invertir."), /*#__PURE__*/React.createElement(Bullet, {
+    icon: "ShieldCheck"
+  }, "Conocer de antemano todas las comisiones y costos."), /*#__PURE__*/React.createElement(Bullet, {
+    icon: "ShieldCheck"
+  }, "Que tus \xF3rdenes se ejecuten seg\xFAn tus instrucciones y en tu mejor inter\xE9s."), /*#__PURE__*/React.createElement(Bullet, {
+    icon: "ShieldCheck"
+  }, "Recibir comprobantes de cada operaci\xF3n y estados de cuenta peri\xF3dicos."), /*#__PURE__*/React.createElement(Bullet, {
+    icon: "ShieldCheck"
+  }, "Que tus t\xEDtulos y tu dinero est\xE9n separados del patrimonio de la Casa de Bolsa."), /*#__PURE__*/React.createElement(Bullet, {
+    icon: "ShieldCheck"
+  }, "Que se ofrezcan productos acordes a tu perfil de inversionista."), /*#__PURE__*/React.createElement(Bullet, {
+    icon: "ShieldCheck"
+  }, "Confidencialidad de tus datos y operaciones."))), /*#__PURE__*/React.createElement("div", {
+    className: "board-bg rounded-2xl bg-navy text-navyfg p-6"
+  }, /*#__PURE__*/React.createElement("p", {
+    className: "font-mono text-xs uppercase tracking-widest text-up"
+  }, "C\xF3mo hacer un reclamo"), /*#__PURE__*/React.createElement("ol", {
+    className: "mt-4 space-y-4"
+  }, [["Reuní la documentación", "Comprobantes, estados de cuenta, correos y contratos relacionados con el problema."], ["Reclamá por escrito a tu Casa de Bolsa", "Describí el problema, adjuntá la documentación y pedí una respuesta formal con fecha."], ["Si no hay solución, acudí al regulador", "Presentá tu denuncia ante la Superintendencia de Valores del Banco Central del Paraguay."], ["Guardá constancia de todo", "Números de nota, fechas y nombres de quienes te atendieron."]].map(([t, dd], k) => /*#__PURE__*/React.createElement("li", {
+    key: t,
+    className: "flex gap-3"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "grid place-items-center w-7 h-7 shrink-0 rounded-full bg-em text-white font-mono text-sm"
+  }, k + 1), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("p", {
+    className: "font-bold"
+  }, t), /*#__PURE__*/React.createElement("p", {
+    className: "text-sm opacity-80"
+  }, dd)))))));
+}
+function ExpImpuestos() {
+  const rows = [["Intereses de un bono", "Cupones por Gs. 900.000 en el año", "IRP – rentas de capital, 8 %, salvo que aplique una exención", "Gs. 72.000"], ["Dividendos de acciones", "Dividendo de Gs. 1.000.000", "Retención de IDU del 8 % para residentes (15 % para no residentes)", "Gs. 80.000 retenidos"], ["Ganancia por vender un título", "Compraste a Gs. 10.000.000 y vendiste a Gs. 10.500.000", "IRP – ganancias de capital, 8 % sobre la ganancia neta", "Gs. 40.000"], ["Rescate de un fondo mutuo", "Ganancia de Gs. 300.000 al rescatar", "Depende del tratamiento del fondo y de tu situación", "Consultá a la administradora"]];
+  return /*#__PURE__*/React.createElement("div", {
+    className: "space-y-5"
+  }, /*#__PURE__*/React.createElement("p", {
+    className: "text-ink prose-w"
+  }, "En Paraguay, las rentas de las inversiones de personas f\xEDsicas se rigen por la Ley N.\xBA 6.380/2019. En general est\xE1n alcanzadas por el Impuesto a la Renta Personal (IRP) sobre rentas y ganancias de capital, a una tasa del 8 %, y los dividendos tienen su propio impuesto (IDU). Hay exenciones para algunos instrumentos."), /*#__PURE__*/React.createElement("div", {
+    className: "overflow-x-auto rounded-xl border border-line"
+  }, /*#__PURE__*/React.createElement("table", {
+    className: "w-full text-sm min-w-[640px]"
+  }, /*#__PURE__*/React.createElement("thead", {
+    className: "bg-soft text-left text-muted"
+  }, /*#__PURE__*/React.createElement("tr", null, /*#__PURE__*/React.createElement("th", {
+    className: "p-3"
+  }, "Situaci\xF3n"), /*#__PURE__*/React.createElement("th", {
+    className: "p-3"
+  }, "Ejemplo"), /*#__PURE__*/React.createElement("th", {
+    className: "p-3"
+  }, "Tratamiento general"), /*#__PURE__*/React.createElement("th", {
+    className: "p-3 text-right"
+  }, "Impuesto estimado"))), /*#__PURE__*/React.createElement("tbody", {
+    className: "divide-y divide-line"
+  }, rows.map(([a, b, c, dd]) => /*#__PURE__*/React.createElement("tr", {
+    key: a
+  }, /*#__PURE__*/React.createElement("td", {
+    className: "p-3 font-semibold text-ink"
+  }, a), /*#__PURE__*/React.createElement("td", {
+    className: "p-3 text-ink"
+  }, b), /*#__PURE__*/React.createElement("td", {
+    className: "p-3 text-muted"
+  }, c), /*#__PURE__*/React.createElement("td", {
+    className: "p-3 text-right font-mono text-ink"
+  }, dd)))))), /*#__PURE__*/React.createElement(Notice, null, "Informaci\xF3n general con fines educativos. Las exenciones, los m\xEDnimos y las formas de declarar cambian y dependen de tu situaci\xF3n. Confirm\xE1 tu caso con un contador o en la DNIT antes de invertir."));
+}
+function ExpPanorama() {
+  const vol = [["Julio", 6.34], ["Agosto", 4.24], ["Septiembre", 5.19]];
+  const {
+    ResponsiveContainer,
+    BarChart,
+    Bar,
+    XAxis,
+    YAxis,
+    Tooltip,
+    CartesianGrid,
+    LabelList
+  } = RC || {};
+  const compare = [["Supervisión", "Superintendencia de Valores del BCP", "Regulador del país del mercado (por ejemplo, la SEC en EE. UU.)"], ["Moneda", "Guaraníes y dólares", "Mayormente dólares"], ["Instrumentos", "Bonos, CDA, fondos y algunas acciones", "Miles de acciones, ETF y bonos"], ["Liquidez", "Menor: puede costar vender rápido", "Muy alta en los mercados grandes"], ["Rendimiento de renta fija", "Tasas locales más altas", "Tasas en USD generalmente más bajas"], ["Riesgos extra", "Concentración en pocos emisores", "Tipo de cambio, impuestos de otro país, transferencias al exterior"]];
+  return /*#__PURE__*/React.createElement("div", {
+    className: "space-y-6"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "grid lg:grid-cols-[1fr_1.2fr] gap-6 items-start"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "space-y-3"
+  }, /*#__PURE__*/React.createElement("p", {
+    className: "text-ink"
+  }, "Seg\xFAn el informe mensual de la BVA de ", /*#__PURE__*/React.createElement("strong", null, "septiembre de 2026"), ":"), /*#__PURE__*/React.createElement("div", {
+    className: "grid grid-cols-2 gap-3"
+  }, /*#__PURE__*/React.createElement(Stat, {
+    tone: "navy",
+    label: "Volumen del mes",
+    value: "Gs. 5,19 billones",
+    sub: "+22,4 % frente a agosto"
+  }), /*#__PURE__*/React.createElement(Stat, {
+    label: "En guaran\xEDes",
+    value: "71 %",
+    sub: "29 % en d\xF3lares"
+  }), /*#__PURE__*/React.createElement(Stat, {
+    tone: "em",
+    label: "Renta fija en PYG",
+    value: "8,45 %",
+    sub: "Tasa promedio \xB7 plazo 5,7 a\xF1os"
+  }), /*#__PURE__*/React.createElement(Stat, {
+    tone: "em",
+    label: "Renta fija en USD",
+    value: "6 %",
+    sub: "Tasa promedio \xB7 plazo 7,2 a\xF1os"
+  })), /*#__PURE__*/React.createElement("p", {
+    className: "text-xs text-muted"
+  }, "Fuente: informe mensual de la BVA citado por InfoNegocios (6/10/2026). Para datos actualizados, consult\xE1 \xABDatos de mercado\xBB en el sitio de la BVA.")), /*#__PURE__*/React.createElement("div", {
+    className: "rounded-xl border border-line bg-bg p-4"
+  }, /*#__PURE__*/React.createElement("p", {
+    className: "text-sm font-semibold text-ink"
+  }, "Volumen negociado en la BVA, 2026 (billones de Gs.)"), /*#__PURE__*/React.createElement("div", {
+    className: "h-56 mt-2"
+  }, ResponsiveContainer && /*#__PURE__*/React.createElement(ResponsiveContainer, {
+    width: "100%",
+    height: "100%"
+  }, /*#__PURE__*/React.createElement(BarChart, {
+    data: vol.map(([m, v]) => ({
+      m,
+      v
+    })),
+    margin: {
+      top: 20,
+      right: 8,
+      left: 0,
+      bottom: 0
+    }
+  }, /*#__PURE__*/React.createElement(CartesianGrid, {
+    strokeDasharray: "3 3",
+    vertical: false
+  }), /*#__PURE__*/React.createElement(XAxis, {
+    dataKey: "m",
+    tickLine: false,
+    axisLine: false
+  }), /*#__PURE__*/React.createElement(YAxis, {
+    tickLine: false,
+    axisLine: false,
+    width: 32
+  }), /*#__PURE__*/React.createElement(Tooltip, {
+    formatter: v => ["Gs. " + v.toLocaleString("es-PY") + " billones", "Volumen"],
+    contentStyle: TOOLTIP_STYLE,
+    cursor: {
+      fill: "rgb(var(--soft))"
+    }
+  }), /*#__PURE__*/React.createElement(Bar, {
+    dataKey: "v",
+    fill: "rgb(var(--navy))",
+    radius: [6, 6, 0, 0]
+  }, /*#__PURE__*/React.createElement(LabelList, {
+    dataKey: "v",
+    position: "top",
+    formatter: v => v.toLocaleString("es-PY"),
+    style: {
+      fill: "rgb(var(--ink))",
+      fontSize: 12
+    }
+  }))))))), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h4", {
+    className: "text-lg font-bold text-ink"
+  }, "Mercado local vs. invertir en el exterior"), /*#__PURE__*/React.createElement("div", {
+    className: "mt-3 overflow-x-auto rounded-xl border border-line"
+  }, /*#__PURE__*/React.createElement("table", {
+    className: "w-full text-sm min-w-[600px]"
+  }, /*#__PURE__*/React.createElement("thead", {
+    className: "bg-soft text-left text-muted"
+  }, /*#__PURE__*/React.createElement("tr", null, /*#__PURE__*/React.createElement("th", {
+    className: "p-3 w-40"
+  }), /*#__PURE__*/React.createElement("th", {
+    className: "p-3"
+  }, "Bolsa paraguaya"), /*#__PURE__*/React.createElement("th", {
+    className: "p-3"
+  }, "Mercados del exterior"))), /*#__PURE__*/React.createElement("tbody", {
+    className: "divide-y divide-line"
+  }, compare.map(([a, b, c]) => /*#__PURE__*/React.createElement("tr", {
+    key: a
+  }, /*#__PURE__*/React.createElement("th", {
+    scope: "row",
+    className: "p-3 text-left font-semibold text-ink"
+  }, a), /*#__PURE__*/React.createElement("td", {
+    className: "p-3 text-ink"
+  }, b), /*#__PURE__*/React.createElement("td", {
+    className: "p-3 text-ink"
+  }, c)))))), /*#__PURE__*/React.createElement("p", {
+    className: "mt-2 text-xs text-muted"
+  }, "Algunas Casas de Bolsa locales ofrecen acceso a mercados del exterior. Pregunt\xE1 por costos, custodia y tratamiento impositivo antes de invertir afuera.")));
+}
+function Experto() {
+  const [tab, setTab] = useState("emisor");
+  const titles = {
+    emisor: "Analizar a un emisor",
+    derechos: "Tus derechos como inversor",
+    impuestos: "Impuestos con ejemplos",
+    panorama: "El mercado en cifras y el exterior"
+  };
+  return /*#__PURE__*/React.createElement(Section, {
+    id: "experto",
+    eyebrow: "Nivel experto",
+    title: "Para entender el mercado a fondo",
+    intro: "Cuatro temas para dar el salto: leer los n\xFAmeros de una empresa, conocer tus derechos, calcular impuestos y ver el mercado en perspectiva."
+  }, /*#__PURE__*/React.createElement(TabBar, {
+    idBase: "exp",
+    label: "Temas avanzados",
+    value: tab,
+    onChange: setTab,
+    tabs: [["emisor", "Analizar un emisor", "Search"], ["derechos", "Tus derechos", "ShieldCheck"], ["impuestos", "Impuestos", "Receipt"], ["panorama", "Mercado en cifras", "BarChart3"]]
+  }), /*#__PURE__*/React.createElement("div", {
+    key: tab,
+    className: "fade-in mt-5 rounded-2xl border border-line bg-card p-5 sm:p-7"
+  }, /*#__PURE__*/React.createElement("h3", {
+    className: "text-2xl font-bold text-ink mb-5"
+  }, titles[tab]), tab === "emisor" && /*#__PURE__*/React.createElement(ExpEmisor, null), tab === "derechos" && /*#__PURE__*/React.createElement(ExpDerechos, null), tab === "impuestos" && /*#__PURE__*/React.createElement(ExpImpuestos, null), tab === "panorama" && /*#__PURE__*/React.createElement(ExpPanorama, null)));
+}
 function App() {
   const [view, setView] = useState(readHash);
   useEffect(() => {
@@ -4048,6 +5417,12 @@ function App() {
       key: "c"
     }), /*#__PURE__*/React.createElement(Instrumentos, {
       key: "i"
+    }), /*#__PURE__*/React.createElement(Fondos, {
+      key: "f"
+    }), /*#__PURE__*/React.createElement(Riesgos, {
+      key: "r"
+    }), /*#__PURE__*/React.createElement(Estrategias, {
+      key: "es"
     }), /*#__PURE__*/React.createElement(Casas, {
       key: "cb"
     })],
@@ -4055,13 +5430,21 @@ function App() {
       key: "e"
     }), /*#__PURE__*/React.createElement(Mapa, {
       key: "m"
+    }), /*#__PURE__*/React.createElement(Negociacion, {
+      key: "n"
+    }), /*#__PURE__*/React.createElement(Precios, {
+      key: "pr"
     }), /*#__PURE__*/React.createElement(Prospecto, {
       key: "p"
     }), /*#__PURE__*/React.createElement(LineaTiempo, {
       key: "l"
     })],
-    empezar: [/*#__PURE__*/React.createElement(Stepper, {
+    empezar: [/*#__PURE__*/React.createElement(Mitos, {
+      key: "mi"
+    }), /*#__PURE__*/React.createElement(Stepper, {
       key: "s"
+    }), /*#__PURE__*/React.createElement(Estafas, {
+      key: "es"
     }), /*#__PURE__*/React.createElement(ChecklistPre, {
       key: "ch"
     }), /*#__PURE__*/React.createElement(Perfil, {
@@ -4072,6 +5455,8 @@ function App() {
     })],
     aprender: [/*#__PURE__*/React.createElement(Aprender, {
       key: "a"
+    }), /*#__PURE__*/React.createElement(Experto, {
+      key: "x"
     }), /*#__PURE__*/React.createElement(Quiz, {
       key: "q"
     }), /*#__PURE__*/React.createElement(GlosarioFAQ, {
