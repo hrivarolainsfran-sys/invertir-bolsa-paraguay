@@ -4,17 +4,17 @@ Guía educativa e interactiva para aprender a invertir en la Bolsa de Valores de
 
 ## Contenido
 
-La guía está ordenada en siete secciones, de lo más simple a lo más avanzado. Cada una tiene su propio enlace (`#empezar`, `#mercado`, etc.):
+La guía está ordenada en siete secciones, de lo más práctico a lo más avanzado. Cada una tiene su propio enlace (`#empezar`, `#mercado`, etc.):
 
 | Sección | Qué incluye |
 |---|---|
 | **Inicio** | Portada con pizarra de tasas interactiva (tocá una fila y simulá), "¿Qué querés lograr hoy?", beneficios con ejemplos, caja de ahorro vs. invertir y mapa de la guía |
-| **Empezar** | Mitos y realidades, paso a paso, señales de estafa, checklist y test de perfil |
+| **Empezar** | Lo básico en palabras simples, cómo viaja tu plata, mitos y realidades, paso a paso, el caso de María, señales de estafa, checklist y test de perfil |
 | **Instrumentos** | Instrumentos con filtros y comparador, fondos por dentro y los 6 riesgos |
 | **Dónde invertir** | Según tu objetivo, casos de ejemplo, estrategias de cartera y las 24 Casas de Bolsa habilitadas |
-| **El mercado** | Ecosistema, mapa de sectores, cómo se negocia, precio de un bono, prospecto y línea de tiempo |
 | **Calculadoras** | Simulador, meta de ahorro, bono y cupones, PYG vs. USD y costo real |
-| **Aprender** | Ruta en 5 niveles, mini-cursos, nivel experto, **nivel profesional** (duración y convexidad, curva de rendimientos, spread de crédito, valuación de acciones, carteras y Sharpe, macroeconomía, derivados, subastas, psicología del inversor, cartera de práctica, diario y quiz profesional), quiz, glosario, fuentes oficiales y "Sobre esta guía" |
+| **El mercado** | Cómo funciona, mapa de sectores, línea de tiempo de una inversión, cómo leer un prospecto, cómo se negocia y precio de un bono |
+| **Aprender** | Ruta en 5 niveles, mini-cursos, quiz, glosario y preguntas frecuentes, nivel experto, **nivel profesional** (duración y convexidad, curva de rendimientos, spread de crédito, valuación de acciones, carteras y Sharpe, macroeconomía, derivados, subastas, psicología del inversor, cartera de práctica, diario y quiz profesional), fuentes oficiales y "Sobre esta guía" |
 
 Datos de mercado actualizados a noviembre de 2026.
 
