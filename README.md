@@ -8,7 +8,7 @@ La guía está ordenada en siete secciones, de lo más simple a lo más avanzado
 
 | Sección | Qué incluye |
 |---|---|
-| **Inicio** | Portada con pizarra de tasas, beneficios, caja de ahorro vs. invertir y mapa de la guía |
+| **Inicio** | Portada con pizarra de tasas interactiva (tocá una fila y simulá), "¿Qué querés lograr hoy?", beneficios con ejemplos, caja de ahorro vs. invertir y mapa de la guía |
 | **Empezar** | Mitos y realidades, paso a paso, señales de estafa, checklist y test de perfil |
 | **Instrumentos** | Instrumentos con filtros y comparador, fondos por dentro y los 6 riesgos |
 | **Dónde invertir** | Según tu objetivo, casos de ejemplo, estrategias de cartera y las 24 Casas de Bolsa habilitadas |
@@ -17,6 +17,12 @@ La guía está ordenada en siete secciones, de lo más simple a lo más avanzado
 | **Aprender** | Ruta en 5 niveles, mini-cursos, nivel experto, **nivel profesional** (duración y convexidad, curva de rendimientos, spread de crédito, valuación de acciones, carteras y Sharpe, macroeconomía, derivados, subastas, psicología del inversor, cartera de práctica, diario y quiz profesional), quiz, glosario, fuentes oficiales y "Sobre esta guía" |
 
 Datos de mercado actualizados a noviembre de 2026.
+
+## Experiencia interactiva
+
+- **Buscador** (botón de lupa, `Ctrl + K` o `/`): encuentra temas, calculadoras, instrumentos, términos del glosario y preguntas frecuentes.
+- **Tu progreso e insignias**: los temas se marcan solos cuando los leés unos segundos; hay 9 insignias para desbloquear. Todo se guarda solo en tu navegador.
+- **Animaciones suaves** al desplazarte, celebraciones al completar el checklist, un nivel de la ruta o el quiz, y avisos al ganar una insignia. Se desactivan si tu sistema pide reducir el movimiento.
 
 ## Archivos
 
@@ -30,4 +36,4 @@ Abrí `index.html` en el navegador, o activá GitHub Pages en **Settings → Pag
 
 ## Aviso legal
 
-Contenido exclusivamente educativo e informativo. No constituye asesoría financiera ni recomendación de compra o venta. Las tasas, montos y entidades mencionadas son ilustrativas: verificá siempre la información vigente en el Banco Central del Paraguay (bcp.gov.py) y la Bolsa de Valores de Asunción (bva.com.py).
+Contenido exclusivamente educativo e informativo. No constituye asesoría financiera ni recomendación de compra o venta. Las tasas, montos y entidades mencionadas son ilustrativas: verificá siempre la información vigente en el Banco Central del Paraguay (bcp.gov.py) y la Bolsa de Valores de Asunción (bolsadevalores.com.py).

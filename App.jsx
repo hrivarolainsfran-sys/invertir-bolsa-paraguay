@@ -196,6 +196,7 @@ const Section = ({ id, eyebrow, title, intro, children }) => (
       <div className="mb-10 prose-w">
         {eyebrow && <p className="eyebrow mb-3 flex items-center gap-3">{sectionIndex(id) && <span className="rounded-md bg-navy text-up px-2 py-0.5 tracking-normal">{sectionIndex(id)}</span>}<span>{eyebrow}</span></p>}
         <h2 className="text-3xl sm:text-4xl font-bold text-ink">{title}</h2>
+        <span aria-hidden="true" className="mt-4 block h-1 w-14 rounded-full bg-gradient-to-r from-em to-gold" />
         {intro && <p className="mt-4 text-muted text-lg">{intro}</p>}
       </div>
       {children}
@@ -273,7 +274,7 @@ function NumField({ id, label, value, onChange, cur, suffix, step, min = 0, max,
 const Stat = ({ label, value, tone = "plain", sub }) => (
   <div className={"rounded-2xl p-4 sm:p-5 min-w-0 " + (tone === "navy" ? "bg-navy text-navyfg" : tone === "em" ? "bg-emsoft border border-em/30" : tone === "danger" ? "bg-dangersoft border border-danger/30" : "bg-bg border border-line")}>
     <p className={"text-xs uppercase tracking-wider " + (tone === "navy" ? "opacity-70" : tone === "em" ? "text-em" : tone === "danger" ? "text-danger" : "text-muted")}>{label}</p>
-    <p className={"mt-1 num font-display text-xl font-bold break-words " + (tone === "navy" ? "" : tone === "em" ? "text-em" : tone === "danger" ? "text-danger" : "text-ink")}>{value}</p>
+    <p key={String(value)} className={"pop mt-1 num font-display text-xl font-bold break-words " + (tone === "navy" ? "" : tone === "em" ? "text-em" : tone === "danger" ? "text-danger" : "text-ink")}>{value}</p>
     {sub && <p className={"mt-1 text-xs " + (tone === "navy" ? "opacity-70" : "text-muted")}>{sub}</p>}
   </div>
 );
@@ -392,6 +393,7 @@ function BackToTop() {
 function SubNav({ v }) {
   const ids = v.sections.map(([id]) => id);
   const active = useActiveSection(ids);
+  const seen = useSeen();
   if (v.sections.length < 2) return null;
   return (
     <nav className="hidden lg:block border-t border-line bg-bg/95" aria-label={"En " + v.label}>
@@ -400,7 +402,7 @@ function SubNav({ v }) {
         {v.sections.map(([id, l], k) => (
           <button key={id} onClick={() => scrollTo(id)} aria-current={active === id ? "location" : undefined}
             className={"shrink-0 inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-sm transition " + (active === id ? "bg-emsoft text-em font-semibold" : "text-muted hover:text-ink hover:bg-soft")}>
-            <span className="font-mono text-[11px] opacity-70">{String(k + 1).padStart(2, "0")}</span>{l}
+            {seen[id] ? <Icon name="CheckCircle2" className="w-3.5 h-3.5 text-em" /> : <span className="font-mono text-[11px] opacity-70">{String(k + 1).padStart(2, "0")}</span>}{l}
           </button>
         ))}
       </div>
@@ -411,11 +413,17 @@ function SubNav({ v }) {
 function Nav({ view }) {
   const [isDark, toggleTheme] = useTheme();
   const v = VIEWS.find((x) => x.id === view);
+  const mref = React.useRef(null);
+  useEffect(() => {
+    const box = mref.current; if (!box) return;
+    const a = box.querySelector('[aria-current="page"]');
+    if (a) box.scrollTo({ left: Math.max(0, a.offsetLeft - box.clientWidth / 2 + a.offsetWidth / 2), behavior: "smooth" });
+  }, [view]);
   const tab = (x, compact) => (
     <a key={x.id} href={"#" + x.id} aria-current={view === x.id ? "page" : undefined}
       className={"inline-flex items-center gap-1.5 rounded-lg font-semibold transition whitespace-nowrap text-sm " + (compact ? "px-3 py-1.5 " : "px-2.5 py-2 ") +
         (view === x.id ? "bg-navy text-navyfg" : "text-muted hover:text-ink hover:bg-soft")}>
-      <Icon name={x.icon} className="w-4 h-4" />{x.label}
+      <Icon name={x.icon} className={"w-4 h-4" + (compact ? "" : " xl:hidden 2xl:block")} />{x.label}
     </a>
   );
   return (
@@ -428,12 +436,19 @@ function Nav({ view }) {
             <span>Bolsa<span className="text-em">PY</span> Aprende</span>
           </a>
           <nav className="hidden xl:flex items-center gap-0.5" aria-label="Secciones">{VIEWS.map((x) => tab(x, false))}</nav>
+          <div className="flex items-center gap-1.5 shrink-0">
+            <button onClick={() => window.dispatchEvent(new CustomEvent("bpy-search"))} aria-label="Buscar en la guía" title="Buscar (Ctrl + K)"
+              className="inline-flex items-center gap-2 h-9 px-2.5 shrink-0 rounded-lg border border-line text-muted hover:text-ink hover:bg-soft transition">
+              <Icon name="Search" className="w-4 h-4" /><span className="hidden sm:inline xl:hidden text-sm">Buscar</span>
+            </button>
+            <ProgressButton />
           <button onClick={toggleTheme} aria-label={isDark ? "Cambiar a tema claro" : "Cambiar a tema oscuro"} title={isDark ? "Tema claro" : "Tema oscuro"}
             className="grid place-items-center w-9 h-9 shrink-0 rounded-lg border border-line text-ink hover:bg-soft transition">
             <Icon name={isDark ? "Sun" : "Moon"} className="w-4 h-4" />
           </button>
+          </div>
         </div>
-        <nav className="xl:hidden border-t border-line overflow-x-auto" aria-label="Secciones">
+        <nav ref={mref} className="xl:hidden border-t border-line overflow-x-auto" aria-label="Secciones">
           <div className="wrap flex gap-1 py-1.5 min-w-max">{VIEWS.map((x) => tab(x, true))}</div>
         </nav>
         {view !== "inicio" && <SubNav v={v} />}
@@ -445,21 +460,28 @@ function Nav({ view }) {
 
 function ViewHeader({ v }) {
   const i = VIEWS.findIndex((x) => x.id === v.id);
+  const s = useSeen();
+  const len = v.sections.length, n = v.sections.filter(([id]) => s[id]).length;
   return (
-    <header className="board-bg bg-navy text-navyfg">
-      <div className="wrap py-10 sm:py-14">
+    <header className="relative overflow-hidden board-bg bg-navy text-navyfg">
+      <div aria-hidden="true" className="orb orb-a" />
+      <span aria-hidden="true" className="hidden md:block absolute right-[5%] top-1/2 -translate-y-1/2 pointer-events-none"><Icon name={v.icon} className="float-slow w-60 h-60 text-up/10" /></span>
+      <div className="wrap relative py-10 sm:py-14">
         <p className="font-mono text-xs tracking-widest uppercase text-up flex items-center gap-2">
           <a href="#inicio" className="hover:underline">Inicio</a><span className="opacity-50">/</span><span>Sección {i} de {VIEWS.length - 1}</span>
         </p>
         <h1 className="mt-3 text-3xl sm:text-5xl font-extrabold">{v.title}</h1>
         <p className="mt-3 max-w-2xl text-lg opacity-80">{v.desc}</p>
-        <p className="mt-4 hidden lg:flex items-center gap-2 font-mono text-xs opacity-70"><Icon name="ListOrdered" className="w-4 h-4" />{v.sections.length} {v.sections.length === 1 ? "tema" : "temas"} · usá la barra «En esta sección» para moverte</p>
-        {v.sections.length > 1 && (
-          <div className="mt-7 flex flex-wrap gap-2 lg:hidden">
+        <div className="mt-6 flex items-center gap-3 max-w-md">
+          <div className="flex-1 h-1.5 rounded-full bg-navyfg/15 overflow-hidden"><div className="h-full rounded-full bg-up transition-all duration-700" style={{ width: (n / len) * 100 + "%" }} /></div>
+          <span className="font-mono text-xs opacity-80 num shrink-0">{n === len ? "¡Sección completa!" : n + " de " + len + (len === 1 ? " tema visto" : " temas vistos")}</span>
+        </div>
+        {len > 1 && (
+          <div className="mt-5 flex flex-wrap gap-2">
             {v.sections.map(([id, l], k) => (
               <button key={id} onClick={() => scrollTo(id)}
-                className="inline-flex items-center gap-2 rounded-full border border-navyfg/20 bg-navyfg/5 px-3.5 py-1.5 text-sm font-medium hover:bg-navyfg/15 transition">
-                <span className="font-mono text-xs text-up">{String(k + 1).padStart(2, "0")}</span>{l}
+                className={"inline-flex items-center gap-2 rounded-full border px-3.5 py-1.5 text-sm font-medium transition hover:-translate-y-0.5 " + (s[id] ? "border-up/40 bg-up/10" : "border-navyfg/20 bg-navyfg/5 hover:bg-navyfg/15")}>
+                {s[id] ? <Icon name="CheckCircle2" className="w-4 h-4 text-up" /> : <span className="font-mono text-xs text-up">{String(k + 1).padStart(2, "0")}</span>}{l}
               </button>
             ))}
           </div>
@@ -492,6 +514,7 @@ function ViewPager({ view }) {
 }
 
 function Explorar() {
+  const s = useSeen();
   return (
     <Section id="explorar" eyebrow="Mapa de la guía" title="Todo lo que vas a encontrar"
       intro="La guía está ordenada en seis secciones, de lo más simple a lo más avanzado. Recorrelas en orden o andá directo a lo que necesitás.">
@@ -499,7 +522,7 @@ function Explorar() {
         {VIEWS.slice(1).map((v, i) => (
           <a key={v.id} href={"#" + v.id} className="group rounded-2xl border border-line bg-card p-6 hover:border-em hover:-translate-y-0.5 transition flex flex-col">
             <div className="flex items-center justify-between">
-              <span className="grid place-items-center w-11 h-11 rounded-xl bg-navy text-up"><Icon name={v.icon} /></span>
+              <span className="grid place-items-center w-11 h-11 rounded-xl bg-navy text-up group-hover:bg-em group-hover:text-white group-hover:-rotate-6 transition"><Icon name={v.icon} /></span>
               <span className="font-mono text-xs text-muted">{String(i + 1).padStart(2, "0")}</span>
             </div>
             <h3 className="mt-4 text-xl font-bold text-ink">{v.label}</h3>
@@ -507,7 +530,11 @@ function Explorar() {
             <ul className="mt-4 space-y-1 flex-1">
               {v.sections.map(([id, l]) => <li key={id} className="text-sm text-ink flex gap-2"><Icon name="ChevronRight" className="w-4 h-4 text-em shrink-0 mt-0.5" />{l}</li>)}
             </ul>
-            <span className="mt-5 inline-flex items-center gap-1 text-sm font-semibold text-em">Entrar <Icon name="ArrowRight" className="w-4 h-4 group-hover:translate-x-0.5 transition" /></span>
+            <div className="mt-4">
+              <div className="h-1.5 rounded-full bg-soft overflow-hidden"><div className="h-full rounded-full bg-em transition-all duration-700" style={{ width: (v.sections.filter(([id]) => s[id]).length / v.sections.length) * 100 + "%" }} /></div>
+              <p className="mt-1.5 text-xs text-muted num">{v.sections.filter(([id]) => s[id]).length} de {v.sections.length} {v.sections.length === 1 ? "tema visto" : "temas vistos"}</p>
+            </div>
+            <span className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-em">Entrar <Icon name="ArrowRight" className="w-4 h-4 group-hover:translate-x-0.5 transition" /></span>
           </a>
         ))}
         <div className="board-bg rounded-2xl bg-navy text-navyfg p-6 flex flex-col sm:col-span-2">
@@ -523,34 +550,44 @@ function Explorar() {
   );
 }
 
-/* ---------- 1. hero ---------- */
+/* ---------- 1. hero (interactivo: tocá una fila de la pizarra y simulá) ---------- */
 function Hero() {
   const { ResponsiveContainer, AreaChart, Area } = RC || {};
-  const spark = Array.from({ length: 61 }, (_, m) => ({ m, v: 10000000 * Math.pow(1.08, m / 12) }));
   const board = ["fm", "cda", "bc", "bt", "fi", "ap", "rep"].map(instById);
   const dot = { Bajo: "bg-up", Medio: "bg-gold", Alto: "bg-danger" };
+  const [sel, setSel] = useState("cda");
+  const [amt, setAmt] = useState(10000000);
+  const [yrs, setYrs] = useState(5);
+  const inst = instById(sel);
+  const rate = inst.ratePYG;
+  const months = yrs * 12;
+  const spark = useMemo(() => Array.from({ length: months + 1 }, (_, m) => ({ m, v: amt * Math.pow(1 + rate / 100, m / 12) })), [amt, rate, months]);
+  const final = spark[months].v;
+  const shown = useCountUp(final, 650);
   return (
-    <section className="board-bg bg-navy text-navyfg">
-      <div className="wrap pt-12 pb-14 sm:pt-16 sm:pb-20 grid lg:grid-cols-[1.05fr_1fr] gap-10 items-center">
+    <section className="relative overflow-hidden board-bg bg-navy text-navyfg">
+      <div aria-hidden="true" className="orb orb-a" />
+      <div aria-hidden="true" className="orb orb-b" />
+      <div className="wrap relative pt-12 pb-24 sm:pt-16 sm:pb-28 grid lg:grid-cols-[1.05fr_1fr] gap-10 items-center">
         <div className="min-w-0">
           <p className="font-mono text-xs tracking-widest uppercase text-up flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-up animate-pulse" aria-hidden="true" />Guía educativa · Mercado de valores del Paraguay
           </p>
-          <h1 className="mt-4 text-4xl sm:text-5xl lg:text-6xl font-extrabold">Aprendé a invertir en la Bolsa de Paraguay <span className="text-up">desde cero</span></h1>
+          <h1 className="mt-4 text-4xl sm:text-5xl lg:text-6xl font-extrabold">Aprendé a invertir en la Bolsa de Paraguay <Rotator /></h1>
           <p className="mt-5 text-lg sm:text-xl opacity-80 prose-w">
             No hace falta ser millonario. Con un fondo mutuo podés empezar con montos accesibles, en guaraníes o en dólares, en un mercado regulado por el Banco Central del Paraguay.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
-            <button onClick={() => scrollTo("guia")} className="inline-flex items-center gap-2 rounded-xl bg-em px-5 py-3 font-semibold text-white shadow-lg shadow-em/20 hover:brightness-110 active:scale-[.98] transition">
+            <button onClick={() => scrollTo("guia")} className="shine inline-flex items-center gap-2 rounded-xl bg-em px-5 py-3 font-semibold text-white shadow-lg shadow-em/30 hover:brightness-110 transition">
               Empezar la guía paso a paso <Icon name="ArrowRight" className="w-4 h-4" />
             </button>
-            <button onClick={() => scrollTo("simulador")} className="inline-flex items-center gap-2 rounded-xl border border-navyfg/25 px-5 py-3 font-semibold hover:bg-navyfg/10 transition">
-              <Icon name="Calculator" className="w-4 h-4" /> Simular mi inversión
+            <button onClick={() => window.dispatchEvent(new CustomEvent("bpy-search"))} className="inline-flex items-center gap-2 rounded-xl border border-navyfg/25 px-5 py-3 font-semibold hover:bg-navyfg/10 transition">
+              <Icon name="Search" className="w-4 h-4" /> Buscar un tema
             </button>
           </div>
           <dl className="mt-10 grid grid-cols-3 gap-4 max-w-md border-t border-navyfg/15 pt-6">
-            {[["9", "instrumentos explicados"], ["6", "calculadoras"], ["24", "Casas de Bolsa habilitadas"]].map(([n, l]) => (
-              <div key={l}><dd className="font-mono text-3xl font-semibold text-up">{n}</dd><dt className="text-xs opacity-70 leading-snug mt-1">{l}</dt></div>
+            {[[9, "instrumentos explicados"], [6, "calculadoras"], [24, "Casas de Bolsa habilitadas"]].map(([n, l]) => (
+              <div key={l}><dd className="font-mono text-3xl font-semibold text-up num"><CountUp to={n} /></dd><dt className="text-xs opacity-70 leading-snug mt-1">{l}</dt></div>
             ))}
           </dl>
         </div>
@@ -567,8 +604,12 @@ function Hero() {
               </tr></thead>
               <tbody>
                 {board.map((x) => (
-                  <tr key={x.id} className="border-t border-navyfg/10 hover:bg-navyfg/5">
-                    <td className="pl-4 pr-2 sm:px-5 py-2.5 font-sans font-medium">{x.name}</td>
+                  <tr key={x.id} onClick={() => setSel(x.id)} className={"cursor-pointer border-t border-navyfg/10 transition " + (sel === x.id ? "bg-up/15" : "hover:bg-navyfg/5")}>
+                    <td className="pl-4 pr-2 sm:px-5 py-2.5 font-sans font-medium">
+                      <button type="button" aria-pressed={sel === x.id} className="text-left inline-flex items-center gap-2">
+                        <span className={"w-1.5 h-1.5 rounded-full shrink-0 transition " + (sel === x.id ? "bg-up scale-150" : "bg-navyfg/25")} />{x.name}
+                      </button>
+                    </td>
                     <td className="px-2 sm:px-3 py-2.5 text-right text-up whitespace-nowrap">{x.currencies.includes("PYG") ? pct(x.ratePYG) : "—"}</td>
                     <td className="px-2 sm:px-3 py-2.5 text-right text-up whitespace-nowrap">{x.currencies.includes("USD") && x.rateUSD ? pct(x.rateUSD) : "—"}</td>
                     <td className="pl-2 pr-4 sm:px-5 py-2.5 text-right"><span className="inline-flex items-center gap-1.5 text-xs" title={"Riesgo " + x.risk.toLowerCase()}><span className={"w-2 h-2 rounded-full " + dot[x.risk]} /><span className="hidden sm:inline">{x.risk}</span></span></td>
@@ -578,22 +619,36 @@ function Hero() {
             </table>
           </div>
           <div className="border-t border-navyfg/15 px-5 pt-4 pb-3">
-            <div className="flex items-end justify-between gap-3 flex-wrap">
-              <div><p className="font-mono text-[11px] uppercase tracking-wider opacity-60">Gs. 10.000.000 al 8 % · 5 años</p><p className="font-mono text-2xl font-semibold text-up">{fmtMoney(spark[60].v, "PYG")}</p></div>
-              <p className="font-mono text-xs text-up">▲ {pct((spark[60].v / spark[0].v - 1) * 100)}</p>
+            <p className="font-mono text-[11px] uppercase tracking-wider text-gold flex items-center gap-1.5"><Icon name="MousePointerClick" className="w-3.5 h-3.5" /> Tocá una fila y mové los controles</p>
+            <div className="mt-2 flex items-end justify-between gap-3 flex-wrap">
+              <div className="min-w-0">
+                <p className="font-mono text-[11px] uppercase tracking-wider opacity-60">{inst.name} al {pct(rate)} · {yrs} {yrs === 1 ? "año" : "años"}</p>
+                <p className="font-mono text-2xl sm:text-3xl font-semibold text-up num" aria-live="polite">{fmtMoney(shown, "PYG")}</p>
+              </div>
+              <p className="font-mono text-xs text-up num">▲ ganás {fmtShort(final - amt, "PYG")}</p>
+            </div>
+            <div className="mt-3 grid sm:grid-cols-2 gap-x-5 gap-y-2">
+              <label className="block">
+                <span className="flex justify-between font-mono text-[11px] uppercase tracking-wider"><span className="opacity-60">Monto</span><span className="text-up num">{fmtShort(amt, "PYG")}</span></span>
+                <input type="range" min={1000000} max={100000000} step={1000000} value={amt} onChange={(e) => setAmt(Number(e.target.value))} className="hero-range w-full" aria-label="Monto a invertir en guaraníes" />
+              </label>
+              <label className="block">
+                <span className="flex justify-between font-mono text-[11px] uppercase tracking-wider"><span className="opacity-60">Plazo</span><span className="text-up num">{yrs} {yrs === 1 ? "año" : "años"}</span></span>
+                <input type="range" min={1} max={10} step={1} value={yrs} onChange={(e) => setYrs(Number(e.target.value))} className="hero-range w-full" aria-label="Plazo en años" />
+              </label>
             </div>
             <div className="h-16 mt-2" aria-hidden="true">
               {ResponsiveContainer && (
                 <ResponsiveContainer width="100%" height="100%">
                   <AreaChart data={spark} margin={{ top: 4, right: 0, left: 0, bottom: 0 }}>
                     <defs><linearGradient id="gHero" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="rgb(var(--up))" stopOpacity={0.45} /><stop offset="100%" stopColor="rgb(var(--up))" stopOpacity={0} /></linearGradient></defs>
-                    <Area type="monotone" dataKey="v" stroke="rgb(var(--up))" strokeWidth={2} fill="url(#gHero)" isAnimationActive={false} />
+                    <Area type="monotone" dataKey="v" stroke="rgb(var(--up))" strokeWidth={2} fill="url(#gHero)" animationDuration={500} />
                   </AreaChart>
                 </ResponsiveContainer>
               )}
             </div>
           </div>
-          <p className="px-5 py-3 text-xs opacity-70 border-t border-navyfg/15">Actualizado a {DATA_DATE}. Rangos con fines educativos, no son cotizaciones en tiempo real. Consultá las tasas vigentes en tu Casa de Bolsa.</p>
+          <p className="px-5 py-3 text-xs opacity-70 border-t border-navyfg/15">Actualizado a {DATA_DATE}. Rangos con fines educativos, no son cotizaciones en tiempo real ni una promesa de rendimiento. Consultá las tasas vigentes en tu Casa de Bolsa.</p>
         </div>
       </div>
     </section>
@@ -639,14 +694,8 @@ function Beneficios() {
   return (
     <Section id="beneficios" eyebrow="Por qué invertir" title="Beneficios de invertir en la bolsa"
       intro="Dejar el dinero quieto también tiene un costo: la inflación le quita poder de compra todos los años. Estos son los motivos por los que miles de paraguayos ya invierten en la bolsa.">
-      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {BENEFITS.map(([ic, t, d]) => (
-          <article key={t} className="group rounded-2xl border border-line bg-card p-5 hover:border-em/50 hover:-translate-y-0.5 transition">
-            <span className="grid place-items-center w-11 h-11 rounded-xl bg-emsoft text-em group-hover:bg-em group-hover:text-white transition"><Icon name={ic} /></span>
-            <h3 className="mt-4 font-bold text-ink">{t}</h3>
-            <p className="mt-1 text-sm text-muted">{d}</p>
-          </article>
-        ))}
+      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 items-start">
+        {BENEFITS.map(([ic, t, d], k) => <BenefitCard key={t} ic={ic} t={t} d={d} ex={BEN_EX[k]} />)}
       </div>
 
       <div id="ahorro-vs-invertir" className="mt-10 rounded-2xl border border-line bg-card p-5 sm:p-7">
@@ -1193,7 +1242,7 @@ function ChecklistPre() {
           {PRE_CHECK.map((t, k) => (
             <li key={k}>
               <label htmlFor={"pre-" + k} className={"flex gap-3 h-full cursor-pointer rounded-xl border p-4 transition " + (done[k] ? "border-em/40 bg-emsoft" : "border-line bg-card hover:border-em/50")}>
-                <input id={"pre-" + k} type="checkbox" className="mt-1 w-4 h-4 accent-[rgb(var(--em))] shrink-0" checked={!!done[k]} onChange={(e) => setDone({ ...done, [k]: e.target.checked })} />
+                <input id={"pre-" + k} type="checkbox" className="mt-1 w-4 h-4 accent-[rgb(var(--em))] shrink-0" checked={!!done[k]} onChange={(e) => { const nd = { ...done, [k]: e.target.checked }; setDone(nd); if (e.target.checked && PRE_CHECK.every((_, j) => nd[j])) { celebrate(); toast("¡Checklist completo!", "Cumpliste todos los puntos para tu primera inversión.", "CheckCircle2"); } }} />
                 <span className="text-sm text-ink"><span className="num text-muted mr-1">{k + 1}.</span>{t}</span>
               </label>
             </li>
@@ -1949,7 +1998,9 @@ const TOOLS = [
   ["costo", "Costo real", "Receipt"],
 ];
 function Herramientas() {
-  const [tab, setTab] = useState("sim");
+  const [tab, setTab] = useState(() => { const t = PENDING.tool || "sim"; PENDING.tool = null; return t; });
+  useEffect(() => { const on = (e) => { setTab(e.detail); PENDING.tool = null; }; window.addEventListener("bpy-tool", on); return () => window.removeEventListener("bpy-tool", on); }, []);
+  useEffect(() => { if (tab !== "sim") markSeen("tool-" + tab); }, [tab]);
   const titles = {
     sim: ["Simulador de inversión", "Calculá cuánto podría crecer tu dinero con aportes mensuales. Las tasas vienen precargadas como referencia y podés editarlas."],
     meta: ["Calculadora de meta", "Decinos cuánto querés juntar y en cuánto tiempo, y te decimos cuánto invertir por mes."],
@@ -2087,7 +2138,8 @@ const highlight = (text, q) => {
 const norm = (s) => s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
 
 function GlosarioFAQ() {
-  const [q, setQ] = useState("");
+  const [q, setQ] = useState(() => { const t = PENDING.glos || ""; PENDING.glos = null; return t; });
+  useEffect(() => { const on = (e) => { setQ(e.detail); PENDING.glos = null; }; window.addEventListener("bpy-glos", on); return () => window.removeEventListener("bpy-glos", on); }, []);
   const [open, setOpen] = useState(0);
   const items = GLOSSARY.filter(([t, d]) => norm(t + " " + d).includes(norm(q.trim())));
   return (
@@ -2287,7 +2339,7 @@ function Aprender() {
                 <ul className={"mt-3 gap-x-4 " + (li === 4 ? "grid sm:grid-cols-2 gap-y-1" : "space-y-1")}>
                   {l.items.map(([id, label]) => (
                     <li key={id} className="flex items-center gap-2 rounded-lg px-1 py-1.5 hover:bg-soft">
-                      <input id={"ruta-" + id} type="checkbox" checked={!!done[id]} onChange={(e) => setDone({ ...done, [id]: e.target.checked })} className="w-4 h-4 accent-[rgb(var(--em))] shrink-0" />
+                      <input id={"ruta-" + id} type="checkbox" checked={!!done[id]} onChange={(e) => { const nd = { ...done, [id]: e.target.checked }; setDone(nd); if (e.target.checked && l.items.every(([x]) => nd[x])) { celebrate(); toast("¡Nivel " + (li + 1) + " completado!", l.level + ". Seguí con el próximo nivel.", "Trophy"); } }} className="w-4 h-4 accent-[rgb(var(--em))] shrink-0" />
                       <label htmlFor={"ruta-" + id} className={"flex-1 text-sm cursor-pointer " + (done[id] ? "text-muted line-through" : "text-ink")}>{label}</label>
                       <button onClick={() => goTo(id)} className="text-xs font-semibold text-em hover:underline shrink-0" aria-label={"Ir a " + label}>Ir</button>
                     </li>
@@ -2324,7 +2376,11 @@ function Quiz() {
   const finished = answers.length === QUIZ.length;
   const score = answers.filter((a, k) => a === QUIZ[k][2]).length;
   const choose = (k) => { if (picked === null) setPicked(k); };
-  const next = () => { setAnswers([...answers, picked]); setPicked(null); setI(i + 1); };
+  const next = () => {
+    const na = [...answers, picked];
+    setAnswers(na); setPicked(null); setI(i + 1);
+    if (na.length === QUIZ.length && na.filter((a, k) => a === QUIZ[k][2]).length >= 7) { markSeen("quiz-ok"); setTimeout(() => celebrate(), 150); }
+  };
   const reset = () => { setI(0); setAnswers([]); setPicked(null); };
   const level = score >= 9 ? ["¡Experto en la bolsa!", "Tenés una base sólida para empezar a invertir con criterio."] : score >= 6 ? ["¡Muy bien!", "Entendés lo principal. Repasá los temas donde fallaste."] : ["Vas por buen camino", "Recorré la ruta de aprendizaje y volvé a intentarlo."];
   const q = QUIZ[i];
@@ -3698,7 +3754,7 @@ function ProPractica() {
               <div className="fade-in mt-3 rounded-xl bg-soft p-3 text-sm">
                 <p className={"font-bold " + (qp === QUIZ_PRO[qi][2] ? "text-em" : "text-danger")}>{qp === QUIZ_PRO[qi][2] ? "¡Correcto!" : "Incorrecto"}</p>
                 <p className="mt-1 text-ink">{QUIZ_PRO[qi][3]}</p>
-                <button onClick={() => { setQa((a) => [...a, qp]); setQp(null); setQi(qi + 1); }} className="mt-3 inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-em text-white font-semibold">{qi === QUIZ_PRO.length - 1 ? "Ver resultado" : "Siguiente"} <Icon name="ArrowRight" className="w-4 h-4" /></button>
+                <button onClick={() => { const na = [...qa, qp]; setQa(na); setQp(null); setQi(qi + 1); if (na.length === QUIZ_PRO.length && na.filter((a, k) => a === QUIZ_PRO[k][2]).length >= 7) setTimeout(() => celebrate(), 150); }} className="mt-3 inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-em text-white font-semibold">{qi === QUIZ_PRO.length - 1 ? "Ver resultado" : "Siguiente"} <Icon name="ArrowRight" className="w-4 h-4" /></button>
               </div>
             )}
           </div>
@@ -3725,6 +3781,8 @@ const PRO_TABS = [
 function Profesional() {
   const [tab, setTab] = useState("rf");
   useEffect(() => { const on = (e) => setTab(e.detail); window.addEventListener("bpy-pro", on); return () => window.removeEventListener("bpy-pro", on); }, []);
+  const firstPro = React.useRef(true);
+  useEffect(() => { if (firstPro.current) { firstPro.current = false; return; } markSeen("pro-" + tab); }, [tab]);
   const t = PRO_TABS.find((x) => x[0] === tab);
   const i = PRO_TABS.findIndex((x) => x[0] === tab);
   return (
@@ -3753,6 +3811,470 @@ function Profesional() {
   );
 }
 
+/* =====================================================================
+   EXPERIENCIA (v7): animaciones al desplazarse, progreso e insignias,
+   buscador, celebraciones, avisos y portada interactiva.
+   ===================================================================== */
+const reduceMotion = () => !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+
+/* ---------- celebración (confeti) ---------- */
+function celebrate(x, y) {
+  if (reduceMotion() || !document.body) return;
+  const colors = ["#059669", "#34D399", "#FBBF24", "#F8FAFC", "#B45309", "#38BDF8"];
+  const box = document.createElement("div");
+  box.className = "confetti";
+  box.setAttribute("aria-hidden", "true");
+  const cx = x == null ? window.innerWidth / 2 : x, cy = y == null ? window.innerHeight * 0.35 : y;
+  for (let k = 0; k < 80; k++) {
+    const p = document.createElement("i");
+    const a = Math.random() * Math.PI * 2, d = 90 + Math.random() * 240;
+    p.style.left = cx + "px"; p.style.top = cy + "px"; p.style.background = colors[k % colors.length];
+    p.style.setProperty("--dx", Math.round(Math.cos(a) * d) + "px");
+    p.style.setProperty("--dy", Math.round(Math.sin(a) * d * 0.7 - 80) + "px");
+    p.style.setProperty("--r", Math.round(Math.random() * 900 - 450) + "deg");
+    p.style.animationDelay = Math.round(Math.random() * 90) + "ms";
+    if (k % 3 === 0) p.style.borderRadius = "50%";
+    box.appendChild(p);
+  }
+  document.body.appendChild(box);
+  setTimeout(() => box.remove(), 1900);
+}
+
+/* ---------- avisos flotantes ---------- */
+const toast = (title, body, icon) => window.dispatchEvent(new CustomEvent("bpy-toast", { detail: { title, body, icon: icon || "Award", id: Date.now() + Math.random() } }));
+function Toasts() {
+  const [list, setList] = useState([]);
+  useEffect(() => {
+    const on = (e) => {
+      const t = e.detail;
+      setList((l) => [...l, t].slice(-3));
+      setTimeout(() => setList((l) => l.filter((x) => x.id !== t.id)), 5000);
+    };
+    window.addEventListener("bpy-toast", on);
+    return () => window.removeEventListener("bpy-toast", on);
+  }, []);
+  return (
+    <div className="fixed z-[96] left-1/2 -translate-x-1/2 flex flex-col gap-2 w-[min(92vw,380px)] pointer-events-none" style={{ bottom: "calc(76px + env(safe-area-inset-bottom, 0px))" }} aria-live="polite">
+      {list.map((t) => (
+        <div key={t.id} className="toast-in flex gap-3 items-start rounded-2xl bg-navy text-navyfg p-4 shadow-2xl border border-navyfg/15">
+          <span className="grid place-items-center w-10 h-10 rounded-xl bg-gold/20 text-gold shrink-0"><Icon name={t.icon} className="w-5 h-5" /></span>
+          <div className="min-w-0"><p className="font-bold">{t.title}</p>{t.body && <p className="text-sm opacity-80">{t.body}</p>}</div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/* ---------- progreso e insignias ---------- */
+const TRACKED = VIEWS.filter((v) => v.id !== "inicio").flatMap((v) => v.sections.map(([id]) => id));
+let SEEN = store.get("bpy-seen", {});
+if (!SEEN || typeof SEEN !== "object") SEEN = {};
+const viewDone = (vid, s) => VIEWS.find((v) => v.id === vid).sections.every(([id]) => s[id]);
+const BADGES = [
+  { id: "empezar", name: "Primeros pasos", icon: "Rocket", desc: "Recorriste toda la sección Empezar." },
+  { id: "instrumentos", name: "Conocedor", icon: "Layers", desc: "Viste los instrumentos, los fondos y los riesgos." },
+  { id: "invertir", name: "Estratega", icon: "Target", desc: "Recorriste Dónde invertir de punta a punta." },
+  { id: "mercado", name: "Experto del mercado", icon: "Landmark", desc: "Entendés cómo funciona el mercado por dentro." },
+  { id: "herramientas", name: "Calculista", icon: "Calculator", desc: "Usaste al menos 3 calculadoras.", test: (s) => TOOLS.filter(([id]) => (id === "sim" ? s.simulador : s["tool-" + id])).length >= 3 },
+  { id: "aprender", name: "Estudiante", icon: "GraduationCap", desc: "Recorriste toda la sección Aprender." },
+  { id: "quiz", name: "Quiz aprobado", icon: "Award", desc: "Sacaste 7 o más en el quiz general.", test: (s) => !!s["quiz-ok"] },
+  { id: "pro", name: "Mente profesional", icon: "Brain", desc: "Abriste los 9 temas del nivel profesional.", test: (s) => PRO_TABS.every(([id]) => (id === "rf" ? s.profesional : s["pro-" + id])) },
+  { id: "all", name: "Inversor informado", icon: "Trophy", desc: "Viste todos los temas de la guía.", test: (s) => TRACKED.every((id) => s[id]) },
+].map((b) => ({ ...b, test: b.test || ((s) => viewDone(b.id, s)) }));
+
+function markSeen(id) {
+  if (SEEN[id]) return;
+  const before = BADGES.filter((b) => b.test(SEEN)).map((b) => b.id);
+  SEEN = { ...SEEN, [id]: true };
+  store.set("bpy-seen", SEEN);
+  window.dispatchEvent(new CustomEvent("bpy-seen"));
+  BADGES.filter((b) => b.test(SEEN) && !before.includes(b.id)).forEach((b, k) => setTimeout(() => {
+    toast("¡Insignia desbloqueada!", b.name + ": " + b.desc, b.icon);
+    celebrate();
+  }, 300 + k * 700));
+}
+function resetSeen() {
+  SEEN = {};
+  store.set("bpy-seen", SEEN);
+  window.dispatchEvent(new CustomEvent("bpy-seen"));
+}
+function useSeen() {
+  const [s, setS] = useState(SEEN);
+  useEffect(() => {
+    const on = () => setS(SEEN);
+    window.addEventListener("bpy-seen", on);
+    return () => window.removeEventListener("bpy-seen", on);
+  }, []);
+  return s;
+}
+
+/* Marca un tema como visto después de leerlo unos segundos y anima el contenido al aparecer */
+function useExperience(view) {
+  useEffect(() => {
+    if (!("IntersectionObserver" in window)) return;
+    const timers = new Map();
+    const io = new IntersectionObserver((ents) => ents.forEach((e) => {
+      const id = e.target.id;
+      if (e.isIntersecting) { if (!timers.has(id)) timers.set(id, setTimeout(() => markSeen(id), 1500)); }
+      else { clearTimeout(timers.get(id)); timers.delete(id); }
+    }), { rootMargin: "-35% 0px -45% 0px" });
+    document.querySelectorAll("main section[id]").forEach((s) => { if (TRACKED.includes(s.id)) io.observe(s); });
+
+    let rio = null;
+    if (!reduceMotion()) {
+      rio = new IntersectionObserver((ents) => ents.forEach((e) => {
+        if (!e.isIntersecting) return;
+        const el = e.target;
+        el.setAttribute("data-reveal", "in");
+        rio.unobserve(el);
+        setTimeout(() => { el.removeAttribute("data-reveal"); el.style.removeProperty("--rd"); }, 1100);
+      }), { rootMargin: "0px 0px -6% 0px" });
+      const targets = [];
+      document.querySelectorAll("main section .wrap").forEach((w) => Array.from(w.children).forEach((c) => {
+        const kids = c.children;
+        if (c.classList.contains("grid") && kids.length > 1 && kids.length <= 12) {
+          Array.from(kids).forEach((k, i) => { k.style.setProperty("--rd", (i % 4) * 80 + "ms"); targets.push(k); });
+        } else targets.push(c);
+      }));
+      const vh = window.innerHeight;
+      targets.forEach((el) => {
+        if (el.getBoundingClientRect().top > vh * 0.92) { el.setAttribute("data-reveal", ""); rio.observe(el); }
+        else el.style.removeProperty("--rd");
+      });
+    }
+    return () => { io.disconnect(); if (rio) rio.disconnect(); timers.forEach((t) => clearTimeout(t)); };
+  }, [view]);
+}
+
+function Ring({ value, size = 36, stroke = 4, track = "rgb(var(--line))", color = "rgb(var(--em))", children }) {
+  const r = (size - stroke) / 2, c = 2 * Math.PI * r;
+  return (
+    <span className="relative inline-grid place-items-center shrink-0" style={{ width: size, height: size }}>
+      <svg width={size} height={size} className="-rotate-90" aria-hidden="true">
+        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={track} strokeWidth={stroke} />
+        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={color} strokeWidth={stroke} strokeLinecap="round"
+          strokeDasharray={c} strokeDashoffset={c * (1 - Math.max(0, Math.min(1, value)))} style={{ transition: "stroke-dashoffset .7s ease" }} />
+      </svg>
+      <span className="absolute inset-0 grid place-items-center">{children}</span>
+    </span>
+  );
+}
+
+function useEscape(onClose) {
+  useEffect(() => {
+    const on = (e) => { if (e.key === "Escape") onClose(); };
+    window.addEventListener("keydown", on);
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => { window.removeEventListener("keydown", on); document.body.style.overflow = prev; };
+  }, []);
+}
+
+function ProgressPanel({ onClose }) {
+  const s = useSeen();
+  const [confirm, setConfirm] = useState(false);
+  useEscape(onClose);
+  const n = TRACKED.filter((id) => s[id]).length, p = n / TRACKED.length;
+  const earned = BADGES.filter((b) => b.test(s)).length;
+  const go = (id) => { onClose(); setTimeout(() => scrollTo(id), 40); };
+  return (
+    <div className="fixed inset-0 z-[90]" role="dialog" aria-modal="true" aria-labelledby="prog-title">
+      <div className="absolute inset-0 bg-navy/60 backdrop-blur-sm fade-in" onClick={onClose} />
+      <div className="slide-in absolute right-0 top-0 h-full w-full max-w-md bg-card shadow-2xl overflow-y-auto border-l border-line">
+        <div className="sticky top-0 z-10 flex items-center justify-between gap-3 px-5 py-4 bg-card/95 backdrop-blur border-b border-line">
+          <h2 id="prog-title" className="text-lg font-bold text-ink flex items-center gap-2"><Icon name="Award" className="w-5 h-5 text-amber" /> Tu progreso</h2>
+          <button onClick={onClose} autoFocus aria-label="Cerrar" className="grid place-items-center w-9 h-9 rounded-lg border border-line text-ink hover:bg-soft"><Icon name="X" className="w-4 h-4" /></button>
+        </div>
+        <div className="p-5">
+          <div className="flex items-center gap-5 rounded-2xl bg-navy text-navyfg p-5 board-bg">
+            <Ring value={p} size={92} stroke={8} track="rgb(var(--navy-fg) / .15)" color="rgb(var(--up))">
+              <span className="font-mono text-xl font-semibold text-up num">{Math.round(p * 100)}%</span>
+            </Ring>
+            <div className="min-w-0">
+              <p className="font-display text-xl font-bold">{n} de {TRACKED.length} temas</p>
+              <p className="text-sm opacity-80 mt-1">{earned} de {BADGES.length} insignias. Los temas se marcan solos cuando los leés unos segundos.</p>
+            </div>
+          </div>
+
+          <h3 className="mt-7 font-mono text-xs uppercase tracking-widest text-muted">Insignias</h3>
+          <ul className="mt-3 grid grid-cols-3 gap-2">
+            {BADGES.map((b) => {
+              const ok = b.test(s);
+              return (
+                <li key={b.id} title={b.desc} className={"rounded-xl border p-3 text-center " + (ok ? "border-amber/40 bg-ambersoft" : "border-line bg-soft")}>
+                  <span className={"mx-auto grid place-items-center w-10 h-10 rounded-full " + (ok ? "bg-gold text-navy shadow-md" : "bg-line text-muted")}>
+                    <Icon name={ok ? b.icon : "Lock"} className="w-5 h-5" />
+                  </span>
+                  <p className={"mt-2 text-xs font-semibold leading-tight " + (ok ? "text-ink" : "text-muted")}>{b.name}</p>
+                  <p className="sr-only">{ok ? "Obtenida. " : "Bloqueada. "}{b.desc}</p>
+                </li>
+              );
+            })}
+          </ul>
+
+          <h3 className="mt-7 font-mono text-xs uppercase tracking-widest text-muted">Temas por sección</h3>
+          <ul className="mt-3 space-y-3">
+            {VIEWS.filter((v) => v.id !== "inicio").map((v) => {
+              const d = v.sections.filter(([id]) => s[id]).length;
+              return (
+                <li key={v.id} className="rounded-xl border border-line p-3">
+                  <div className="flex items-center justify-between gap-2">
+                    <a href={"#" + v.id} onClick={onClose} className="flex items-center gap-2 font-semibold text-ink hover:text-em"><Icon name={v.icon} className="w-4 h-4 text-em" />{v.label}</a>
+                    <span className="num text-xs font-semibold text-muted">{d}/{v.sections.length}</span>
+                  </div>
+                  <div className="mt-2 h-1.5 rounded-full bg-soft overflow-hidden"><div className="h-full rounded-full bg-em transition-all duration-700" style={{ width: (d / v.sections.length) * 100 + "%" }} /></div>
+                  <div className="mt-2 flex flex-wrap gap-1.5">
+                    {v.sections.map(([id, l]) => (
+                      <button key={id} onClick={() => go(id)} className={"inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs border transition " + (s[id] ? "border-em/40 bg-emsoft text-em" : "border-line text-muted hover:text-ink hover:border-em/50")}>
+                        {s[id] && <Icon name="Check" className="w-3 h-3" />}{l}
+                      </button>
+                    ))}
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+
+          <div className="mt-7 border-t border-line pt-5">
+            {!confirm ? (
+              <button onClick={() => setConfirm(true)} className="inline-flex items-center gap-2 text-sm font-semibold text-muted hover:text-danger"><Icon name="RotateCcw" className="w-4 h-4" /> Reiniciar mi progreso</button>
+            ) : (
+              <div className="rounded-xl border border-danger/30 bg-dangersoft p-3 text-sm text-ink">
+                <p>¿Borrar los temas vistos y las insignias de este navegador?</p>
+                <div className="mt-2 flex gap-2">
+                  <button onClick={() => { resetSeen(); setConfirm(false); }} className="px-3 py-1.5 rounded-lg bg-danger text-white font-semibold">Sí, borrar</button>
+                  <button onClick={() => setConfirm(false)} className="px-3 py-1.5 rounded-lg border border-line font-semibold">Cancelar</button>
+                </div>
+              </div>
+            )}
+            <p className="mt-3 text-xs text-muted">Tu progreso se guarda solo en este navegador. No lo enviamos a ningún lado.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ProgressButton() {
+  const s = useSeen();
+  const [open, setOpen] = useState(false);
+  const n = TRACKED.filter((id) => s[id]).length, p = n / TRACKED.length;
+  const earned = BADGES.filter((b) => b.test(s)).length;
+  return (
+    <>
+      <button onClick={() => setOpen(true)} title="Tu progreso e insignias"
+        aria-label={"Tu progreso: " + Math.round(p * 100) + " por ciento, " + earned + (earned === 1 ? " insignia" : " insignias")}
+        className="inline-flex items-center gap-1.5 h-9 rounded-lg border border-line pl-1 pr-2 text-ink hover:bg-soft transition shrink-0">
+        <Ring value={p} size={28} stroke={3}><span className="text-[9px] font-bold num text-ink">{Math.round(p * 100)}</span></Ring>
+        <Icon name="Award" className="w-4 h-4 text-amber" /><span className="text-sm font-semibold num">{earned}</span>
+      </button>
+      {open && ReactDOM.createPortal(<ProgressPanel onClose={() => setOpen(false)} />, document.body)}
+    </>
+  );
+}
+
+/* ---------- buscador (Ctrl + K) ---------- */
+const PENDING = {};
+const openTool = (id) => {
+  PENDING.tool = id;
+  scrollTo("simulador");
+  setTimeout(() => window.dispatchEvent(new CustomEvent("bpy-tool", { detail: id })), 160);
+};
+const openGlossary = (term) => {
+  PENDING.glos = term;
+  scrollTo("glosario");
+  setTimeout(() => window.dispatchEvent(new CustomEvent("bpy-glos", { detail: term })), 160);
+};
+let SEARCH_INDEX = null;
+function searchIndex() {
+  if (SEARCH_INDEX) return SEARCH_INDEX;
+  const out = [];
+  VIEWS.forEach((v) => {
+    if (v.id !== "inicio") out.push({ k: "Sección", icon: v.icon, label: v.title, sub: v.desc, go: () => { window.location.hash = v.id; } });
+    v.sections.forEach(([id, l]) => out.push({ k: "Tema", icon: v.icon, label: l, sub: v.label, go: () => scrollTo(id) }));
+  });
+  TOOLS.forEach(([id, l, ic]) => out.push({ k: "Calculadora", icon: ic, label: l, sub: "Calculadoras", go: () => openTool(id) }));
+  PRO_TABS.forEach(([id, l, ic]) => out.push({ k: "Nivel profesional", icon: ic, label: l, sub: "Aprender · Nivel profesional", go: () => goTo("pro-" + id) }));
+  INSTRUMENTS.forEach((x) => out.push({ k: "Instrumento", icon: x.icon, label: x.name, sub: x.summary, go: () => scrollTo("instrumentos") }));
+  GLOSSARY.forEach(([t, d]) => out.push({ k: "Glosario", icon: "BookOpen", label: t, sub: d, def: true, go: () => openGlossary(t) }));
+  FAQ.forEach(([q, a]) => out.push({ k: "Pregunta", icon: "MessageCircle", label: q, sub: a, def: true, go: () => scrollTo("glosario") }));
+  SEARCH_INDEX = out.map((o, i) => ({ ...o, i, nl: norm(o.label + " " + o.k), ns: norm(o.sub || "") }));
+  return SEARCH_INDEX;
+}
+const SEARCH_SUGGEST = ["Simulador", "Paso a paso", "Señales de estafa", "Tu perfil", "Según tu objetivo", "CDA", "Cupón", "Casas de Bolsa"];
+
+function Buscador({ onClose }) {
+  const [q, setQ] = useState("");
+  const [sel, setSel] = useState(0);
+  const [exp, setExp] = useState(-1);
+  useEscape(onClose);
+  const idx = searchIndex();
+  const res = useMemo(() => {
+    const words = norm(q.trim()).split(/\s+/).filter(Boolean);
+    if (!words.length) return SEARCH_SUGGEST.map((l) => idx.find((r) => r.label === l)).filter(Boolean);
+    return idx
+      .map((r) => {
+        if (!words.every((w) => r.nl.includes(w) || r.ns.includes(w))) return null;
+        const sc = words.reduce((a, w) => a + (r.nl.startsWith(w) ? 4 : r.nl.includes(w) ? 2 : 0.5), 0) + (r.k === "Tema" || r.k === "Calculadora" ? 0.6 : 0);
+        return [sc, r];
+      })
+      .filter(Boolean).sort((a, b) => b[0] - a[0]).slice(0, 30).map((x) => x[1]);
+  }, [q]);
+  useEffect(() => { setSel(0); setExp(-1); }, [q]);
+  useEffect(() => { const el = document.getElementById("bus-" + sel); if (el) el.scrollIntoView({ block: "nearest" }); }, [sel]);
+  const pick = (r) => {
+    if (r.def && exp !== r.i) { setExp(r.i); return; }
+    onClose();
+    setTimeout(r.go, 40);
+  };
+  const onKey = (e) => {
+    if (e.key === "ArrowDown") { e.preventDefault(); setSel((x) => Math.min(res.length - 1, x + 1)); }
+    else if (e.key === "ArrowUp") { e.preventDefault(); setSel((x) => Math.max(0, x - 1)); }
+    else if (e.key === "Enter" && res[sel]) { e.preventDefault(); pick(res[sel]); }
+  };
+  return (
+    <div className="fixed inset-0 z-[90] flex items-start justify-center p-3 sm:p-6" role="dialog" aria-modal="true" aria-label="Buscar en la guía">
+      <div className="absolute inset-0 bg-navy/60 backdrop-blur-sm fade-in" onClick={onClose} />
+      <div className="pop-in relative w-full max-w-2xl mt-[6vh] rounded-2xl bg-card border border-line shadow-2xl overflow-hidden flex flex-col max-h-[82vh]">
+        <div className="flex items-center gap-3 px-4 border-b border-line">
+          <Icon name="Search" className="w-5 h-5 text-em shrink-0" />
+          <input autoFocus value={q} onChange={(e) => setQ(e.target.value)} onKeyDown={onKey}
+            placeholder="Buscá un tema, instrumento o palabra"
+            role="combobox" aria-expanded="true" aria-controls="bus-list" aria-activedescendant={res[sel] ? "bus-" + sel : undefined} aria-label="Buscar en la guía"
+            style={{ outline: "none" }} className="flex-1 min-w-0 bg-transparent py-4 text-base text-ink placeholder:text-muted" />
+          <button onClick={onClose} className="shrink-0 rounded-md border border-line px-2 py-0.5 font-mono text-xs text-muted hover:text-ink">Esc</button>
+        </div>
+        {!q.trim() && <p className="px-5 pt-3 font-mono text-[11px] uppercase tracking-widest text-muted">Sugerencias</p>}
+        <ul id="bus-list" role="listbox" className="overflow-y-auto p-2">
+          {res.length === 0 && <li className="px-3 py-10 text-center text-muted">No encontramos «{q}». Probá con otra palabra, por ejemplo «bono» o «riesgo».</li>}
+          {res.map((r, i) => (
+            <li key={r.i} id={"bus-" + i} role="option" aria-selected={i === sel}>
+              <button type="button" onMouseMove={() => setSel(i)} onClick={() => pick(r)}
+                className={"w-full text-left flex gap-3 items-start rounded-xl px-3 py-2.5 transition " + (i === sel ? "bg-emsoft" : "")}>
+                <span className={"grid place-items-center w-9 h-9 rounded-lg shrink-0 " + (i === sel ? "bg-em text-white" : "bg-soft text-em")}><Icon name={r.icon} className="w-4 h-4" /></span>
+                <span className="min-w-0 flex-1">
+                  <span className="flex items-center gap-2 flex-wrap"><span className="font-semibold text-ink">{r.label}</span><span className="text-[10px] font-mono uppercase tracking-wider text-muted">{r.k}</span></span>
+                  <span className={"text-sm text-muted " + (exp === r.i ? "block" : "line-clamp-2")}>{r.sub}</span>
+                  {exp === r.i && <span className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-em">{r.k === "Glosario" ? "Ver en el glosario" : "Ver todas las preguntas"} <Icon name="ArrowRight" className="w-3 h-3" /></span>}
+                </span>
+                {i === sel && <Icon name="CornerDownLeft" className="w-4 h-4 text-em shrink-0 mt-2.5 hidden sm:block" />}
+              </button>
+            </li>
+          ))}
+        </ul>
+        <div className="border-t border-line px-4 py-2 text-xs text-muted flex gap-4 flex-wrap">
+          <span><kbd className="font-mono">↑ ↓</kbd> moverte</span><span><kbd className="font-mono">Enter</kbd> abrir</span><span className="hidden sm:inline"><kbd className="font-mono">Ctrl K</kbd> o <kbd className="font-mono">/</kbd> abre el buscador</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+function useSearchShortcut(setOpen) {
+  useEffect(() => {
+    const onKey = (e) => {
+      const t = e.target, typing = t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.tagName === "SELECT" || t.isContentEditable);
+      if ((e.key === "k" || e.key === "K") && (e.ctrlKey || e.metaKey)) { e.preventDefault(); setOpen(true); }
+      else if (e.key === "/" && !typing) { e.preventDefault(); setOpen(true); }
+    };
+    const onOpen = () => setOpen(true);
+    window.addEventListener("keydown", onKey);
+    window.addEventListener("bpy-search", onOpen);
+    return () => { window.removeEventListener("keydown", onKey); window.removeEventListener("bpy-search", onOpen); };
+  }, []);
+}
+
+/* ---------- portada: palabra que rota, contador animado y caminos ---------- */
+function useCountUp(target, ms = 700, from) {
+  const [v, setV] = useState(from == null ? target : from);
+  const ref = React.useRef(from == null ? target : from);
+  useEffect(() => {
+    if (reduceMotion()) { ref.current = target; setV(target); return; }
+    const a = ref.current, t0 = performance.now();
+    let raf = 0;
+    const step = (t) => {
+      const k = Math.min(1, (t - t0) / ms), e = 1 - Math.pow(1 - k, 3), val = a + (target - a) * e;
+      ref.current = val; setV(val);
+      if (k < 1) raf = requestAnimationFrame(step);
+    };
+    raf = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(raf);
+  }, [target]);
+  return v;
+}
+const CountUp = ({ to }) => <>{Math.round(useCountUp(to, 1200, 0))}</>;
+
+const HERO_WORDS = ["desde cero", "con poco dinero", "paso a paso", "en PYG o USD"];
+function Rotator() {
+  const [i, setI] = useState(0);
+  useEffect(() => {
+    if (reduceMotion()) return;
+    const t = setInterval(() => setI((k) => (k + 1) % HERO_WORDS.length), 2600);
+    return () => clearInterval(t);
+  }, []);
+  return (
+    <span className="block">
+      <span className="sr-only">desde cero</span>
+      <span key={i} aria-hidden="true" className="word-in inline-block text-up hero-grad">{HERO_WORDS[i]}</span>
+    </span>
+  );
+}
+
+const GOAL_PATHS = [
+  ["Sprout", "Empezar de cero", "Los 5 pasos para tu primera inversión.", () => scrollTo("guia"), "bg-emsoft text-em"],
+  ["CalendarClock", "Cobrar intereses", "Calculá cuánto invertir para un ingreso mensual.", () => openTool("bono"), "bg-ambersoft text-amber"],
+  ["ShieldCheck", "Proteger mis ahorros", "Qué conviene según tu objetivo y tu moneda.", () => scrollTo("donde"), "bg-navy text-up"],
+  ["Compass", "Conocer mi perfil", "Test de un minuto con una cartera de ejemplo.", () => scrollTo("perfil"), "bg-emsoft text-em"],
+];
+function Caminos() {
+  return (
+    <div className="caminos-wrap relative z-10 -mt-12 sm:-mt-14 pb-2">
+      <div className="wrap">
+        <div className="rounded-3xl border border-line bg-card shadow-xl p-3 sm:p-4 caminos">
+          <p className="px-2 pt-1 pb-3 font-mono text-[11px] uppercase tracking-widest text-muted flex items-center gap-2"><Icon name="Sparkles" className="w-3.5 h-3.5 text-amber" />¿Qué querés lograr hoy?</p>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-1 sm:gap-2">
+            {GOAL_PATHS.map(([ic, t, d, go, tone]) => (
+              <button key={t} type="button" onClick={go} className="group text-left flex gap-3 items-start rounded-2xl p-3 sm:p-3.5 hover:bg-soft transition">
+                <span className={"grid place-items-center w-11 h-11 rounded-xl shrink-0 transition group-hover:scale-110 group-hover:-rotate-6 " + tone}><Icon name={ic} /></span>
+                <span className="min-w-0 flex-1">
+                  <span className="flex items-center gap-1 font-bold text-ink">{t}<Icon name="ArrowRight" className="w-4 h-4 text-em opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition" /></span>
+                  <span className="block text-sm text-muted leading-snug mt-0.5">{d}</span>
+                </span>
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ---------- beneficios con ejemplo ---------- */
+const BEN_EX = [
+  "Con Gs. 10.000.000 en una caja de ahorro al 1 % ganás unos Gs. 100.000 en un año; en un CDA al 7,5 %, unos Gs. 750.000.",
+  "Un bono de Gs. 50.000.000 al 9 % anual con cupón mensual paga unos Gs. 375.000 por mes, antes de impuestos.",
+  "Podés entrar a un fondo mutuo con montos desde unos Gs. 100.000 y sumar, por ejemplo, Gs. 200.000 cada mes.",
+  "Si ahorrás para un viaje o para algo que se paga en dólares, invertir en USD te protege si sube el tipo de cambio.",
+  "Antes de operar, verificá que tu Casa de Bolsa figure en la lista oficial de la BVA y del BCP.",
+  "En vez de poner Gs. 30.000.000 en un solo bono, podés repartirlos entre un fondo, un CDA y dos bonos de emisores distintos.",
+  "Si compraste un bono a 5 años y necesitás el dinero al segundo año, tu Casa de Bolsa puede ofrecerlo a otro inversor.",
+  "Cuando comprás el bono de una empresa, ese dinero puede financiar, por ejemplo, una planta nueva o maquinaria.",
+];
+function BenefitCard({ ic, t, d, ex }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <article className={"group rounded-2xl border bg-card p-5 transition flex flex-col " + (open ? "border-em" : "border-line hover:border-em/50")}>
+      <span className="grid place-items-center w-11 h-11 rounded-xl bg-emsoft text-em group-hover:bg-em group-hover:text-white group-hover:-rotate-6 transition"><Icon name={ic} /></span>
+      <h3 className="mt-4 font-bold text-ink">{t}</h3>
+      <p className="mt-1 text-sm text-muted">{d}</p>
+      {open && <p className="fade-in mt-3 rounded-xl bg-emsoft p-3 text-sm text-ink"><span className="font-semibold text-em">Ejemplo: </span>{ex}</p>}
+      <button type="button" onClick={() => setOpen(!open)} aria-expanded={open}
+        className="mt-3 self-start inline-flex items-center gap-1 text-sm font-semibold text-em hover:underline underline-offset-2">
+        {open ? "Ocultar ejemplo" : "Ver un ejemplo"}<Icon name="ChevronDown" className={"w-4 h-4 transition " + (open ? "rotate-180" : "")} />
+      </button>
+    </article>
+  );
+}
+
 function App() {
   const [view, setView] = useState(readHash);
   useEffect(() => {
@@ -3761,6 +4283,9 @@ function App() {
     return () => window.removeEventListener("hashchange", onHash);
   }, []);
   useEffect(() => { window.scrollTo({ top: 0 }); }, [view]);
+  useExperience(view);
+  const [busca, setBusca] = useState(false);
+  useSearchShortcut(setBusca);
   currentView = view;
   const v = VIEWS.find((x) => x.id === view);
   const pages = {
@@ -3777,6 +4302,7 @@ function App() {
       {view === "inicio" ? (
         <main key="inicio">
           <Hero />
+          <Caminos />
           <Beneficios />
           <Explorar />
         </main>
@@ -3789,6 +4315,8 @@ function App() {
       <ViewPager view={view} />
       <Footer />
       <BackToTop />
+      <Toasts />
+      {busca && <Buscador onClose={() => setBusca(false)} />}
     </>
   );
 }
