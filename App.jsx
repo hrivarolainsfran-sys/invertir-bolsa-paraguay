@@ -49,15 +49,15 @@ const VIEWS = [
   { id: "invertir", label: "Dónde invertir", icon: "Target", title: "Dónde invertir",
     desc: "Qué instrumento conviene según tu objetivo, cómo invierten otras personas, cómo armar tu cartera y con qué Casa de Bolsa operar.",
     sections: [["donde", "Según tu objetivo"], ["casos", "Casos de ejemplo"], ["estrategias", "Estrategias"], ["casas", "Casas de Bolsa"]] },
-  { id: "mercado", label: "El mercado", icon: "Landmark", title: "Cómo funciona el mercado",
-    desc: "Quiénes participan, qué sectores emiten, cómo se negocia, cómo se mueve el precio de un bono y cómo se lee una emisión de principio a fin.",
-    sections: [["ecosistema", "Cómo funciona"], ["mapa", "Mapa del mercado"], ["negociacion", "Cómo se negocia"], ["precios", "Precio de un bono"], ["prospecto", "Leer un prospecto"], ["linea", "Línea de tiempo"]] },
   { id: "herramientas", label: "Calculadoras", icon: "Calculator", title: "Calculadoras",
     desc: "Simulá tu inversión, calculá cuánto ahorrar para una meta, armá el calendario de cupones de un bono y compará monedas y costos.",
     sections: [["simulador", "Calculadoras"]] },
+  { id: "mercado", label: "El mercado", icon: "Landmark", title: "Cómo funciona el mercado",
+    desc: "Quiénes participan, qué sectores emiten, cómo es la vida de una inversión, cómo se lee un prospecto, cómo se negocia y cómo se mueve el precio de un bono.",
+    sections: [["ecosistema", "Cómo funciona"], ["mapa", "Mapa del mercado"], ["linea", "Línea de tiempo"], ["prospecto", "Leer un prospecto"], ["negociacion", "Cómo se negocia"], ["precios", "Precio de un bono"]] },
   { id: "aprender", label: "Aprender", icon: "GraduationCap", title: "Aprender",
-    desc: "Tu ruta de aprendizaje en 5 niveles, mini-cursos, temas de nivel experto y profesional, un quiz, el glosario, las fuentes oficiales y quiénes hacemos esta guía.",
-    sections: [["aprender", "Ruta y mini-cursos"], ["experto", "Nivel experto"], ["profesional", "Nivel profesional"], ["quiz", "Quiz"], ["glosario", "Glosario y FAQ"], ["oficial", "Fuentes oficiales"], ["acerca", "Sobre esta guía"]] },
+    desc: "Tu ruta de aprendizaje en 5 niveles, mini-cursos, un quiz, el glosario, temas de nivel experto y profesional, las fuentes oficiales y quiénes hacemos esta guía.",
+    sections: [["aprender", "Ruta y mini-cursos"], ["quiz", "Quiz"], ["glosario", "Glosario y FAQ"], ["experto", "Nivel experto"], ["profesional", "Nivel profesional"], ["oficial", "Fuentes oficiales"], ["acerca", "Sobre esta guía"]] },
 ];
 const VIEW_IDS = VIEWS.map((v) => v.id);
 const SECTION_VIEW = {};
@@ -5136,10 +5136,10 @@ function App() {
   const pages = {
     instrumentos: [<Instrumentos key="i" />, <Fondos key="f" />, <Riesgos key="r" />],
     invertir: [<DondeInvertir key="d" />, <Casos key="c" />, <Estrategias key="es" />, <Casas key="cb" />],
-    mercado: [<Ecosistema key="e" />, <Mapa key="m" />, <Negociacion key="n" />, <Precios key="pr" />, <Prospecto key="p" />, <LineaTiempo key="l" />],
+    mercado: [<Ecosistema key="e" />, <Mapa key="m" />, <LineaTiempo key="l" />, <Prospecto key="p" />, <Negociacion key="n" />, <Precios key="pr" />],
     empezar: [<Basico key="b" />, <Mitos key="mi" />, <Stepper key="s" />, <CasoMaria key="ma" />, <Estafas key="es" />, <ChecklistPre key="ch" />, <Perfil key="pf" />],
     herramientas: [<Herramientas key="h" />],
-    aprender: [<Aprender key="a" />, <Experto key="x" />, <Profesional key="pro" />, <Quiz key="q" />, <GlosarioFAQ key="g" />, <DatosOficiales key="o" />, <Acerca key="ac" />],
+    aprender: [<Aprender key="a" />, <Quiz key="q" />, <GlosarioFAQ key="g" />, <Experto key="x" />, <Profesional key="pro" />, <DatosOficiales key="o" />, <Acerca key="ac" />],
   };
   return (
     <>

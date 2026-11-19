@@ -350,13 +350,6 @@ const VIEWS = [{
   desc: "Qué instrumento conviene según tu objetivo, cómo invierten otras personas, cómo armar tu cartera y con qué Casa de Bolsa operar.",
   sections: [["donde", "Según tu objetivo"], ["casos", "Casos de ejemplo"], ["estrategias", "Estrategias"], ["casas", "Casas de Bolsa"]]
 }, {
-  id: "mercado",
-  label: "El mercado",
-  icon: "Landmark",
-  title: "Cómo funciona el mercado",
-  desc: "Quiénes participan, qué sectores emiten, cómo se negocia, cómo se mueve el precio de un bono y cómo se lee una emisión de principio a fin.",
-  sections: [["ecosistema", "Cómo funciona"], ["mapa", "Mapa del mercado"], ["negociacion", "Cómo se negocia"], ["precios", "Precio de un bono"], ["prospecto", "Leer un prospecto"], ["linea", "Línea de tiempo"]]
-}, {
   id: "herramientas",
   label: "Calculadoras",
   icon: "Calculator",
@@ -364,12 +357,19 @@ const VIEWS = [{
   desc: "Simulá tu inversión, calculá cuánto ahorrar para una meta, armá el calendario de cupones de un bono y compará monedas y costos.",
   sections: [["simulador", "Calculadoras"]]
 }, {
+  id: "mercado",
+  label: "El mercado",
+  icon: "Landmark",
+  title: "Cómo funciona el mercado",
+  desc: "Quiénes participan, qué sectores emiten, cómo es la vida de una inversión, cómo se lee un prospecto, cómo se negocia y cómo se mueve el precio de un bono.",
+  sections: [["ecosistema", "Cómo funciona"], ["mapa", "Mapa del mercado"], ["linea", "Línea de tiempo"], ["prospecto", "Leer un prospecto"], ["negociacion", "Cómo se negocia"], ["precios", "Precio de un bono"]]
+}, {
   id: "aprender",
   label: "Aprender",
   icon: "GraduationCap",
   title: "Aprender",
-  desc: "Tu ruta de aprendizaje en 5 niveles, mini-cursos, temas de nivel experto y profesional, un quiz, el glosario, las fuentes oficiales y quiénes hacemos esta guía.",
-  sections: [["aprender", "Ruta y mini-cursos"], ["experto", "Nivel experto"], ["profesional", "Nivel profesional"], ["quiz", "Quiz"], ["glosario", "Glosario y FAQ"], ["oficial", "Fuentes oficiales"], ["acerca", "Sobre esta guía"]]
+  desc: "Tu ruta de aprendizaje en 5 niveles, mini-cursos, un quiz, el glosario, temas de nivel experto y profesional, las fuentes oficiales y quiénes hacemos esta guía.",
+  sections: [["aprender", "Ruta y mini-cursos"], ["quiz", "Quiz"], ["glosario", "Glosario y FAQ"], ["experto", "Nivel experto"], ["profesional", "Nivel profesional"], ["oficial", "Fuentes oficiales"], ["acerca", "Sobre esta guía"]]
 }];
 const VIEW_IDS = VIEWS.map(v => v.id);
 const SECTION_VIEW = {};
@@ -9909,14 +9909,14 @@ function App() {
       key: "e"
     }), /*#__PURE__*/React.createElement(Mapa, {
       key: "m"
+    }), /*#__PURE__*/React.createElement(LineaTiempo, {
+      key: "l"
+    }), /*#__PURE__*/React.createElement(Prospecto, {
+      key: "p"
     }), /*#__PURE__*/React.createElement(Negociacion, {
       key: "n"
     }), /*#__PURE__*/React.createElement(Precios, {
       key: "pr"
-    }), /*#__PURE__*/React.createElement(Prospecto, {
-      key: "p"
-    }), /*#__PURE__*/React.createElement(LineaTiempo, {
-      key: "l"
     })],
     empezar: [/*#__PURE__*/React.createElement(Basico, {
       key: "b"
@@ -9938,14 +9938,14 @@ function App() {
     })],
     aprender: [/*#__PURE__*/React.createElement(Aprender, {
       key: "a"
-    }), /*#__PURE__*/React.createElement(Experto, {
-      key: "x"
-    }), /*#__PURE__*/React.createElement(Profesional, {
-      key: "pro"
     }), /*#__PURE__*/React.createElement(Quiz, {
       key: "q"
     }), /*#__PURE__*/React.createElement(GlosarioFAQ, {
       key: "g"
+    }), /*#__PURE__*/React.createElement(Experto, {
+      key: "x"
+    }), /*#__PURE__*/React.createElement(Profesional, {
+      key: "pro"
     }), /*#__PURE__*/React.createElement(DatosOficiales, {
       key: "o"
     }), /*#__PURE__*/React.createElement(Acerca, {
