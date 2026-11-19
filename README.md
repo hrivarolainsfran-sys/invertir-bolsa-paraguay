@@ -21,8 +21,19 @@ Datos de mercado actualizados a noviembre de 2026.
 ## Experiencia interactiva
 
 - **Buscador** (botón de lupa, `Ctrl + K` o `/`): encuentra temas, calculadoras, instrumentos, términos del glosario y preguntas frecuentes.
-- **Tu progreso e insignias**: los temas se marcan solos cuando los leés unos segundos; hay 9 insignias para desbloquear. Todo se guarda solo en tu navegador.
+- **Tu progreso e insignias**: los temas se marcan solos cuando los leés unos segundos; hay 10 insignias para desbloquear. Todo se guarda solo en tu navegador.
 - **Animaciones suaves** al desplazarte, celebraciones al completar el checklist, un nivel de la ruta o el quiz, y avisos al ganar una insignia. Se desactivan si tu sistema pide reducir el movimiento.
+
+## Para entender mejor
+
+- **Palabras subrayadas**: tocá un término (cupón, liquidez, Casa de Bolsa…) y ves su definición sin salir del texto.
+- **En 1 minuto**: cada sección empieza con tres ideas clave en palabras simples.
+- **La bolsa en palabras simples**: comparaciones con cosas de todos los días (un CDA es como un plazo fijo, un bono es un préstamo que vos hacés…) y un diagrama de cómo viaja tu plata.
+- **El caso de María**: un ejemplo con números, de punta a punta, desde que decide invertir hasta que cobra.
+- **Modo Simple y modo Experto** (botón **Aa**): en modo Simple, los temas avanzados quedan plegados.
+- **¿Lo entendiste?**: una pregunta con explicación al final de cada sección.
+- **Tu ruta en 3 preguntas**: según tu nivel, tu objetivo y tu monto, te arma una ruta de lectura.
+- **Letra más grande** (botón **Aa**) y botón **Escuchar** para oír cada sección en voz alta.
 
 ## Archivos
 

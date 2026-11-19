@@ -39,8 +39,8 @@ const scrollTo = (id) => {
 const VIEWS = [
   { id: "inicio", label: "Inicio", icon: "Home", title: "Inicio", desc: "", sections: [["beneficios", "Beneficios"], ["explorar", "Mapa de la guía"]] },
   { id: "empezar", label: "Empezar", icon: "Rocket", title: "Empezá a invertir",
-    desc: "Derribá los mitos, seguí los pasos para tu primera inversión, aprendé a detectar estafas, completá el checklist y conocé tu perfil.",
-    sections: [["mitos", "Mitos y realidades"], ["guia", "Paso a paso"], ["estafas", "Señales de estafa"], ["checklist", "Checklist"], ["perfil", "Tu perfil"]] },
+    desc: "Lo básico en palabras simples, cómo viaja tu plata, los mitos, los pasos para tu primera inversión, el caso de María, las estafas, el checklist y tu perfil.",
+    sections: [["basico", "Lo básico"], ["mitos", "Mitos y realidades"], ["guia", "Paso a paso"], ["maria", "Caso de María"], ["estafas", "Señales de estafa"], ["checklist", "Checklist"], ["perfil", "Tu perfil"]] },
   { id: "instrumentos", label: "Instrumentos", icon: "Layers", title: "Instrumentos y riesgos",
     desc: "Qué podés comprar en la bolsa paraguaya, cómo funcionan los fondos por dentro y qué riesgos tiene cada inversión.",
     sections: [["instrumentos", "Instrumentos"], ["fondos", "Fondos por dentro"], ["riesgos", "Riesgos"]] },
@@ -190,19 +190,26 @@ const sectionIndex = (id) => {
   const i = v.sections.findIndex(([sid]) => sid === id);
   return String(i + 1).padStart(2, "0") + " / " + String(v.sections.length).padStart(2, "0");
 };
-const Section = ({ id, eyebrow, title, intro, children }) => (
-  <section id={id} className="py-16 sm:py-20">
-    <div className="wrap">
-      <div className="mb-10 prose-w">
-        {eyebrow && <p className="eyebrow mb-3 flex items-center gap-3">{sectionIndex(id) && <span className="rounded-md bg-navy text-up px-2 py-0.5 tracking-normal">{sectionIndex(id)}</span>}<span>{eyebrow}</span></p>}
-        <h2 className="text-3xl sm:text-4xl font-bold text-ink">{title}</h2>
-        <span aria-hidden="true" className="mt-4 block h-1 w-14 rounded-full bg-gradient-to-r from-em to-gold" />
-        {intro && <p className="mt-4 text-muted text-lg">{intro}</p>}
+const Section = ({ id, eyebrow, title, intro, children }) => {
+  const mode = useMode();
+  const [show, setShow] = useState(false);
+  if (mode === "simple" && ADVANCED[id] && !show) return <AdvancedStub id={id} eyebrow={eyebrow} title={title} onShow={() => setShow(true)} />;
+  return (
+    <section id={id} className="py-16 sm:py-20">
+      <div className="wrap">
+        <div className="mb-10 prose-w">
+          {eyebrow && <p className="eyebrow mb-3 flex items-center gap-3">{sectionIndex(id) && <span className="rounded-md bg-navy text-up px-2 py-0.5 tracking-normal">{sectionIndex(id)}</span>}<span>{eyebrow}</span></p>}
+          <h2 className="text-3xl sm:text-4xl font-bold text-ink">{title}</h2>
+          <span aria-hidden="true" className="mt-4 block h-1 w-14 rounded-full bg-gradient-to-r from-em to-gold" />
+          {intro && <p className="mt-4 text-muted text-lg">{intro}</p>}
+          {id !== "explorar" && <SectionAids id={id} />}
+        </div>
+        {children}
+        <SectionCheck id={id} />
       </div>
-      {children}
-    </div>
-  </section>
-);
+    </section>
+  );
+};
 
 const Pill = ({ children, className = "" }) => (
   <span className={"inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold whitespace-nowrap " + className}>{children}</span>
@@ -430,18 +437,19 @@ function Nav({ view }) {
     <header className="sticky z-50" style={{ top: "env(safe-area-inset-top, 0px)" }}>
       <Ticker />
       <div className="relative bg-card/95 backdrop-blur border-b border-line">
-        <div className="wrap flex items-center justify-between h-14 gap-3">
-          <a href="#inicio" className="flex items-center gap-2 font-display font-extrabold text-ink shrink-0">
-            <span className="grid place-items-center w-8 h-8 rounded-lg bg-navy text-up"><Icon name="CandlestickChart" className="w-4 h-4" /></span>
-            <span>Bolsa<span className="text-em">PY</span> Aprende</span>
+        <div className="wrap flex items-center justify-between h-14 gap-2 sm:gap-3">
+          <a href="#inicio" aria-label="BolsaPY Aprende, inicio" className="flex items-center gap-2 font-display font-extrabold text-ink min-w-0">
+            <span className="grid place-items-center w-8 h-8 rounded-lg bg-navy text-up shrink-0"><Icon name="CandlestickChart" className="w-4 h-4" /></span>
+            <span className="truncate">Bolsa<span className="text-em">PY</span><span className="hidden min-[420px]:inline"> Aprende</span></span>
           </a>
           <nav className="hidden xl:flex items-center gap-0.5" aria-label="Secciones">{VIEWS.map((x) => tab(x, false))}</nav>
-          <div className="flex items-center gap-1.5 shrink-0">
+          <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
             <button onClick={() => window.dispatchEvent(new CustomEvent("bpy-search"))} aria-label="Buscar en la guía" title="Buscar (Ctrl + K)"
               className="inline-flex items-center gap-2 h-9 px-2.5 shrink-0 rounded-lg border border-line text-muted hover:text-ink hover:bg-soft transition">
               <Icon name="Search" className="w-4 h-4" /><span className="hidden sm:inline xl:hidden text-sm">Buscar</span>
             </button>
             <ProgressButton />
+            <ReadingMenu />
           <button onClick={toggleTheme} aria-label={isDark ? "Cambiar a tema claro" : "Cambiar a tema oscuro"} title={isDark ? "Tema claro" : "Tema oscuro"}
             className="grid place-items-center w-9 h-9 shrink-0 rounded-lg border border-line text-ink hover:bg-soft transition">
             <Icon name={isDark ? "Sun" : "Moon"} className="w-4 h-4" />
@@ -461,6 +469,8 @@ function Nav({ view }) {
 function ViewHeader({ v }) {
   const i = VIEWS.findIndex((x) => x.id === v.id);
   const s = useSeen();
+  const mode = useMode();
+  const adv = mode === "simple" ? v.sections.filter(([id]) => ADVANCED[id]).length : 0;
   const len = v.sections.length, n = v.sections.filter(([id]) => s[id]).length;
   return (
     <header className="relative overflow-hidden board-bg bg-navy text-navyfg">
@@ -482,9 +492,16 @@ function ViewHeader({ v }) {
               <button key={id} onClick={() => scrollTo(id)}
                 className={"inline-flex items-center gap-2 rounded-full border px-3.5 py-1.5 text-sm font-medium transition hover:-translate-y-0.5 " + (s[id] ? "border-up/40 bg-up/10" : "border-navyfg/20 bg-navyfg/5 hover:bg-navyfg/15")}>
                 {s[id] ? <Icon name="CheckCircle2" className="w-4 h-4 text-up" /> : <span className="font-mono text-xs text-up">{String(k + 1).padStart(2, "0")}</span>}{l}
+                {adv > 0 && ADVANCED[id] && <span className="rounded bg-navyfg/15 px-1.5 py-0.5 font-mono text-[10px] uppercase tracking-wider opacity-80">avanzado</span>}
               </button>
             ))}
           </div>
+        )}
+        {adv > 0 && (
+          <p className="mt-4 text-sm opacity-80 flex flex-wrap items-center gap-x-2 gap-y-1">
+            <Icon name="Sprout" className="w-4 h-4 text-up" />Modo Simple: {adv === 1 ? "1 tema avanzado está plegado." : adv + " temas avanzados están plegados."}
+            <button type="button" onClick={() => setMode("experto")} className="font-semibold text-up hover:underline">Ver todo</button>
+          </p>
         )}
       </div>
     </header>
@@ -581,8 +598,8 @@ function Hero() {
             <button onClick={() => scrollTo("guia")} className="shine inline-flex items-center gap-2 rounded-xl bg-em px-5 py-3 font-semibold text-white shadow-lg shadow-em/30 hover:brightness-110 transition">
               Empezar la guía paso a paso <Icon name="ArrowRight" className="w-4 h-4" />
             </button>
-            <button onClick={() => window.dispatchEvent(new CustomEvent("bpy-search"))} className="inline-flex items-center gap-2 rounded-xl border border-navyfg/25 px-5 py-3 font-semibold hover:bg-navyfg/10 transition">
-              <Icon name="Search" className="w-4 h-4" /> Buscar un tema
+            <button onClick={openWizard} className="inline-flex items-center gap-2 rounded-xl border border-navyfg/25 px-5 py-3 font-semibold hover:bg-navyfg/10 transition">
+              <Icon name="Route" className="w-4 h-4" /> Armar mi ruta
             </button>
           </div>
           <dl className="mt-10 grid grid-cols-3 gap-4 max-w-md border-t border-navyfg/15 pt-6">
@@ -781,7 +798,8 @@ const GOALS = [
 ];
 
 function DondeInvertir() {
-  const [goalId, setGoalId] = useState("meta");
+  const [goalId, setGoalId] = useState(() => { const g = PENDING.goal; PENDING.goal = null; return GOALS.some((x) => x.id === g) ? g : "meta"; });
+  useEffect(() => { const on = (e) => { if (GOALS.some((x) => x.id === e.detail)) setGoalId(e.detail); PENDING.goal = null; }; window.addEventListener("bpy-goal", on); return () => window.removeEventListener("bpy-goal", on); }, []);
   const [curSel, setCurSel] = useState("PYG");
   const [amount, setAmount] = useState(10000000);
   const goal = GOALS.find((g) => g.id === goalId);
@@ -2176,7 +2194,7 @@ function GlosarioFAQ() {
                     {qq}<Icon name="ChevronDown" className={"w-5 h-5 shrink-0 text-muted transition-transform " + (open === k ? "rotate-180 text-em" : "")} />
                   </button>
                 </h4>
-                {open === k && <div id={"faq-p-" + k} className="fade-in px-4 pb-4 text-sm text-muted">{a}</div>}
+                {open === k && <div id={"faq-p-" + k} className="fade-in px-4 pb-4 text-sm text-muted"><Paras text={a} /></div>}
               </div>
             ))}
           </div>
@@ -2188,7 +2206,7 @@ function GlosarioFAQ() {
 
 /* ---------- 11. ruta de aprendizaje + 12. mini-cursos ---------- */
 const ROUTE = [
-  { level: "Principiante", icon: "Sprout", items: [["beneficios", "Beneficios de invertir"], ["mitos", "Mitos y realidades"], ["ecosistema", "Cómo funciona la bolsa"], ["guia", "Paso a paso para empezar"], ["glosario", "Glosario básico"]] },
+  { level: "Principiante", icon: "Sprout", items: [["basico", "La bolsa en palabras simples"], ["beneficios", "Beneficios de invertir"], ["mitos", "Mitos y realidades"], ["ecosistema", "Cómo funciona la bolsa"], ["guia", "Paso a paso para empezar"], ["glosario", "Glosario básico"]] },
   { level: "Intermedio", icon: "TrendingUp", items: [["donde", "Dónde invertir según tu objetivo"], ["instrumentos", "Instrumentos financieros"], ["fondos", "Fondos por dentro"], ["casas", "Cómo elegir una Casa de Bolsa"], ["estafas", "Señales de estafa"]] },
   { level: "Avanzado", icon: "LineChart", items: [["riesgos", "Los 6 riesgos"], ["estrategias", "Estrategias de cartera"], ["prospecto", "Cómo leer un prospecto"], ["linea", "Ciclo de vida de una inversión"], ["simulador", "Calculadoras"]] },
   { level: "Experto", icon: "GraduationCap", items: [["negociacion", "Cómo se negocia"], ["precios", "Precio de un bono"], ["mapa", "Mapa del mercado"], ["experto", "Emisores, derechos e impuestos"], ["quiz", "Quiz final"]] },
@@ -3910,6 +3928,7 @@ function useSeen() {
 
 /* Marca un tema como visto después de leerlo unos segundos y anima el contenido al aparecer */
 function useExperience(view) {
+  const mode = useMode();
   useEffect(() => {
     if (!("IntersectionObserver" in window)) return;
     const timers = new Map();
@@ -3918,7 +3937,7 @@ function useExperience(view) {
       if (e.isIntersecting) { if (!timers.has(id)) timers.set(id, setTimeout(() => markSeen(id), 1500)); }
       else { clearTimeout(timers.get(id)); timers.delete(id); }
     }), { rootMargin: "-35% 0px -45% 0px" });
-    document.querySelectorAll("main section[id]").forEach((s) => { if (TRACKED.includes(s.id)) io.observe(s); });
+    document.querySelectorAll("main section[id]:not([data-stub])").forEach((s) => { if (TRACKED.includes(s.id)) io.observe(s); });
 
     let rio = null;
     if (!reduceMotion()) {
@@ -3943,7 +3962,7 @@ function useExperience(view) {
       });
     }
     return () => { io.disconnect(); if (rio) rio.disconnect(); timers.forEach((t) => clearTimeout(t)); };
-  }, [view]);
+  }, [view, mode]);
 }
 
 function Ring({ value, size = 36, stroke = 4, track = "rgb(var(--line))", color = "rgb(var(--em))", children }) {
@@ -4066,7 +4085,7 @@ function ProgressButton() {
         aria-label={"Tu progreso: " + Math.round(p * 100) + " por ciento, " + earned + (earned === 1 ? " insignia" : " insignias")}
         className="inline-flex items-center gap-1.5 h-9 rounded-lg border border-line pl-1 pr-2 text-ink hover:bg-soft transition shrink-0">
         <Ring value={p} size={28} stroke={3}><span className="text-[9px] font-bold num text-ink">{Math.round(p * 100)}</span></Ring>
-        <Icon name="Award" className="w-4 h-4 text-amber" /><span className="text-sm font-semibold num">{earned}</span>
+        <span className="hidden min-[400px]:inline-flex items-center gap-1.5"><Icon name="Award" className="w-4 h-4 text-amber" /><span className="text-sm font-semibold num">{earned}</span></span>
       </button>
       {open && ReactDOM.createPortal(<ProgressPanel onClose={() => setOpen(false)} />, document.body)}
     </>
@@ -4242,6 +4261,7 @@ function Caminos() {
               </button>
             ))}
           </div>
+          <RutaBar />
         </div>
       </div>
     </div>
@@ -4275,6 +4295,828 @@ function BenefitCard({ ic, t, d, ex }) {
   );
 }
 
+/* =====================================================================
+   COMPRENSIÓN (v8): glosario en el texto, resúmenes, comparaciones,
+   diagrama del dinero, caso de María, modo Simple/Experto,
+   "¿Lo entendiste?", asistente de ruta, letra grande y lectura en voz alta.
+   ===================================================================== */
+
+/* ---------- modo Simple / Experto ---------- */
+const ADVANCED = { negociacion: 1, precios: 1, prospecto: 1, experto: 1, profesional: 1 };
+const getMode = () => (store.get("bpy-mode", "simple") === "experto" ? "experto" : "simple");
+function setMode(m) { store.set("bpy-mode", m); window.dispatchEvent(new CustomEvent("bpy-mode", { detail: m })); }
+function useMode() {
+  const [m, setM] = useState(getMode);
+  useEffect(() => { const on = (e) => setM(e.detail); window.addEventListener("bpy-mode", on); return () => window.removeEventListener("bpy-mode", on); }, []);
+  return m;
+}
+
+/* ---------- tamaño de letra ---------- */
+const FONT_STEPS = [100, 112.5, 125];
+const FONT_LABELS = ["Normal", "Grande", "Muy grande"];
+const clampFont = (v) => Math.min(2, Math.max(0, Math.round(Number(v)) || 0));
+function applyFont(i) { try { document.documentElement.style.fontSize = i ? FONT_STEPS[i] + "%" : ""; } catch (e) { /* nada */ } }
+applyFont(clampFont(store.get("bpy-font", 0)));
+
+/* ---------- glosario: términos básicos extra ---------- */
+const GLOSS_EXTRA = [
+  ["Casa de Bolsa", "Empresa autorizada por la Superintendencia de Valores del BCP para comprar y vender títulos en la bolsa por cuenta de sus clientes. Es tu puerta de entrada obligatoria al mercado."],
+  ["Emisor", "La empresa, el banco o el Estado que emite títulos (bonos, acciones, CDA) para conseguir financiamiento. Es quien te paga los intereses y te devuelve el capital."],
+  ["Fondo mutuo", "Fondo que junta el dinero de muchas personas y lo invierte una administradora profesional. Podés retirar tu dinero en pocos días y es una forma sencilla de empezar."],
+  ["CDA", "Certificado de Depósito de Ahorro: un depósito a plazo emitido por un banco o una financiera. Si lo comprás en la bolsa, podés venderlo antes del vencimiento a otro inversor."],
+  ["Bono", "Título de deuda: le prestás dinero a una empresa o al Estado, que te paga intereses (cupones) y te devuelve el capital al vencimiento."],
+  ["Acción", "Una parte de la propiedad de una empresa. Te convierte en socio: podés cobrar dividendos, y su precio puede subir o bajar."],
+  ["Diversificar", "Repartir tu dinero entre distintos instrumentos, emisores, plazos y monedas para que un problema en uno no afecte todo."],
+  ["Inflación", "Aumento general de los precios. Si tu inversión rinde menos que la inflación, perdés poder de compra aunque tengas más guaraníes."],
+  ["Interés compuesto", "Ganar intereses sobre los intereses que ya ganaste. Reinvertir lo que cobrás hace que tu dinero crezca cada vez más rápido."],
+  ["Vencimiento", "La fecha en que termina un título y el emisor te devuelve el capital."],
+  ["Rescate", "Retirar tu dinero de un fondo: le vendés tus cuotas a la administradora al valor cuota del día."],
+];
+GLOSSARY.unshift(...GLOSS_EXTRA.filter(([t]) => !GLOSSARY.some(([g]) => g === t)));
+
+const GLOSS_ALIAS = {
+  "Casa de Bolsa": ["Casa de Bolsa", "Casas de Bolsa"], "Emisor": ["emisor", "emisores"], "Fondo mutuo": ["fondo mutuo", "fondos mutuos"],
+  "CDA": ["CDA"], "Bono": ["bono", "bonos"], "Acción": ["acción", "acciones"], "Diversificar": ["diversificar", "diversificación", "diversificá"],
+  "Inflación": ["inflación"], "Interés compuesto": ["interés compuesto"], "Vencimiento": ["vencimiento"], "Rescate": ["rescate", "rescatar", "rescatás"],
+  "Renta fija": ["renta fija"], "Renta variable": ["renta variable"], "Cupón": ["cupón", "cupones"],
+  "Calificación de riesgo": ["calificación de riesgo", "calificaciones de riesgo"], "Cuenta comitente": ["cuenta comitente", "cuentas comitentes"],
+  "Liquidez": ["liquidez"], "Mercado secundario": ["mercado secundario"], "Mercado primario": ["mercado primario"], "ISIN": ["ISIN"],
+  "Dividendo": ["dividendo", "dividendos"], "Reporto": ["reporto"], "Prospecto": ["prospecto", "prospectos"], "Valor nominal": ["valor nominal"],
+  "Rendimiento al vencimiento (TIR)": ["TIR", "rendimiento al vencimiento"], "A la par / bajo la par / sobre la par": ["bajo la par", "sobre la par"],
+  "Intereses corridos": ["intereses corridos"], "Orden con precio límite": ["precio límite"], "Spread": ["spread"], "Valor cuota": ["valor cuota"],
+  "Hecho relevante": ["hecho relevante", "hechos relevantes"], "Escalera de vencimientos": ["escalera de vencimientos"],
+  "Duración": ["duración modificada", "duración"], "Convexidad": ["convexidad"], "Curva de rendimientos": ["curva de rendimientos"],
+  "Spread de crédito": ["spread de crédito"], "Covenant (resguardo)": ["covenant", "covenants"], "Volatilidad": ["volatilidad"],
+  "Índice de Sharpe": ["Sharpe"], "Drawdown (caída máxima)": ["drawdown", "caída máxima"], "Tasa de política monetaria": ["tasa de política monetaria"],
+  "Formador de mercado": ["formador de mercado", "formadores de mercado"], "Titularización": ["titularización"], "Custodia": ["custodia"],
+};
+const GL_DEF = {};
+GLOSSARY.forEach(([t, d]) => { GL_DEF[t] = d; });
+const GL_KEY = {};
+Object.keys(GLOSS_ALIAS).forEach((t) => { if (GL_DEF[t]) GLOSS_ALIAS[t].forEach((a) => { GL_KEY[a.toLowerCase()] = t; }); });
+const GL_RE = (() => {
+  try {
+    const alts = Object.keys(GL_KEY).sort((a, b) => b.length - a.length).map((a) => a.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
+    return new RegExp("(?<![\\p{L}\\p{N}])(" + alts.join("|") + ")(?![\\p{L}\\p{N}])", "giu");
+  } catch (e) { return null; }
+})();
+const HL = (() => { try { return !!(GL_RE && window.CSS && CSS.highlights && typeof Highlight !== "undefined"); } catch (e) { return false; } })();
+const GL_SKIP = "h1,h2,h3,h4,button,a,label,input,select,textarea,nav,code,kbd,svg,table,[role=dialog],[role=tablist],[aria-hidden='true'],.eyebrow,.no-gloss,.recharts-wrapper";
+let GL_RANGES = [];
+
+function scanGloss() {
+  if (!HL) return;
+  const out = [];
+  document.querySelectorAll("main section[id]").forEach((sec) => {
+    if (sec.id === "glosario" || sec.hasAttribute("data-stub")) return;
+    const used = new Set();
+    const walker = document.createTreeWalker(sec, NodeFilter.SHOW_TEXT, {
+      acceptNode: (n) => (n.nodeValue && n.nodeValue.length > 2 && n.parentElement && !n.parentElement.closest(GL_SKIP) ? 1 : 2),
+    });
+    let n;
+    while ((n = walker.nextNode())) {
+      GL_RE.lastIndex = 0;
+      let m, visible = null;
+      while ((m = GL_RE.exec(n.nodeValue))) {
+        const term = GL_KEY[m[1].toLowerCase()];
+        if (!term || used.has(term)) continue;
+        if (visible === null) visible = n.parentElement.getClientRects().length > 0;
+        if (!visible) break;
+        used.add(term);
+        const r = document.createRange();
+        r.setStart(n, m.index); r.setEnd(n, m.index + m[0].length);
+        out.push({ r, term });
+      }
+    }
+  });
+  GL_RANGES = out;
+  try { CSS.highlights.set("gloss", new Highlight(...out.map((x) => x.r))); } catch (e) { /* nada */ }
+  if (out.length && !store.get("bpy-gloss-tip", false)) {
+    store.set("bpy-gloss-tip", true);
+    setTimeout(() => toast("Palabras con definición", "Tocá las palabras subrayadas en verde para ver qué significan.", "BookOpen"), 1200);
+  }
+}
+
+function GlossHost() {
+  const [pop, setPop] = useState(null);
+  useEffect(() => {
+    if (!HL) return;
+    let t = null;
+    const run = () => { clearTimeout(t); t = setTimeout(scanGloss, 450); };
+    const root = document.getElementById("root");
+    const mo = new MutationObserver(run);
+    if (root) mo.observe(root, { childList: true, subtree: true, characterData: true });
+    run();
+    const hit = (x, y) => {
+      for (const g of GL_RANGES) {
+        const rs = g.r.getClientRects();
+        for (let i = 0; i < rs.length; i++) { const rc = rs[i]; if (x >= rc.left - 1 && x <= rc.right + 1 && y >= rc.top - 2 && y <= rc.bottom + 2) return { g, rc }; }
+      }
+      return null;
+    };
+    const onClick = (e) => {
+      if (e.button !== 0 || !e.target.closest) return;
+      if (e.target.closest("[data-gloss-pop]")) return;
+      const h = e.target.closest("main") && !e.target.closest("button, a, input, label, select, textarea, [role=dialog]") ? hit(e.clientX, e.clientY) : null;
+      if (!h) { setPop(null); return; }
+      e.stopPropagation(); e.preventDefault();
+      setPop({ term: h.g.term, def: GL_DEF[h.g.term], rc: { left: h.rc.left, right: h.rc.right, top: h.rc.top, bottom: h.rc.bottom } });
+    };
+    let raf = 0;
+    const onMove = (e) => {
+      if (raf) return;
+      raf = requestAnimationFrame(() => {
+        raf = 0;
+        const on = !!(e.target && e.target.closest && e.target.closest("main") && hit(e.clientX, e.clientY));
+        document.documentElement.classList.toggle("gloss-hover", on);
+      });
+    };
+    const close = () => setPop(null);
+    const hover = window.matchMedia && window.matchMedia("(hover: hover)").matches;
+    document.addEventListener("click", onClick, true);
+    if (hover) document.addEventListener("mousemove", onMove, { passive: true });
+    window.addEventListener("scroll", close, { passive: true });
+    window.addEventListener("hashchange", close);
+    const esc = (e) => { if (e.key === "Escape") close(); };
+    window.addEventListener("keydown", esc);
+    return () => {
+      mo.disconnect(); clearTimeout(t);
+      document.removeEventListener("click", onClick, true);
+      document.removeEventListener("mousemove", onMove);
+      window.removeEventListener("scroll", close); window.removeEventListener("hashchange", close); window.removeEventListener("keydown", esc);
+    };
+  }, []);
+  if (!pop) return null;
+  const vw = window.innerWidth, vh = window.innerHeight;
+  const W = Math.min(330, vw - 16);
+  const left = Math.max(8, Math.min(vw - W - 8, (pop.rc.left + pop.rc.right) / 2 - W / 2));
+  const below = pop.rc.bottom + 220 < vh;
+  const style = below ? { left, top: pop.rc.bottom + 8, width: W } : { left, bottom: vh - pop.rc.top + 8, width: W };
+  return ReactDOM.createPortal(
+    <div data-gloss-pop="" role="dialog" aria-label={"Qué significa " + pop.term} style={style} className="pop-in fixed z-[75] rounded-2xl border border-line bg-card shadow-2xl p-4">
+      <div className="flex items-start justify-between gap-3">
+        <p className="font-mono text-[11px] uppercase tracking-widest text-em flex items-center gap-1.5"><Icon name="BookOpen" className="w-3.5 h-3.5" />Qué significa</p>
+        <button type="button" onClick={() => setPop(null)} aria-label="Cerrar" className="-m-1 p-1 rounded-md text-muted hover:text-ink hover:bg-soft"><Icon name="X" className="w-4 h-4" /></button>
+      </div>
+      <p className="mt-1 font-display text-lg font-bold text-ink">{pop.term}</p>
+      <p className="mt-1 text-sm text-muted leading-relaxed">{pop.def}</p>
+      <button type="button" onClick={() => { const t = pop.term; setPop(null); openGlossary(t); }} className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-em hover:underline">
+        Ver en el glosario <Icon name="ArrowRight" className="w-3.5 h-3.5" />
+      </button>
+    </div>,
+    document.body
+  );
+}
+
+/* ---------- lectura en voz alta ---------- */
+const canSpeak = (() => { try { return "speechSynthesis" in window && typeof SpeechSynthesisUtterance !== "undefined"; } catch (e) { return false; } })();
+try { if (canSpeak) speechSynthesis.getVoices(); } catch (e) { /* nada */ }
+let SPEAKING = null, SPEAK_TOK = 0;
+const NO_LISTEN = { explorar: 1, simulador: 1, quiz: 1, perfil: 1, checklist: 1 };
+const READ_SEL = "h2, h3, h4, p, li";
+const READ_SKIP = "button, label, nav, table, svg, [aria-hidden='true'], [role=dialog], .eyebrow, .no-read, .recharts-wrapper";
+const speakTx = (t) => t
+  .replace(/Gs\.\s?([\d.]+)/g, "$1 guaraníes").replace(/US\$\s?([\d.,]+)/g, "$1 dólares")
+  .replace(/(\d)\s?%/g, "$1 por ciento").replace(/[«»“”]/g, "").replace(/\s+/g, " ").trim();
+function pickVoice() {
+  let vs = [];
+  try { vs = speechSynthesis.getVoices() || []; } catch (e) { /* nada */ }
+  const L = (v) => (v.lang || "").replace("_", "-").toLowerCase();
+  for (const p of ["es-py", "es-ar", "es-uy", "es-419", "es-us", "es-mx", "es-es"]) { const v = vs.find((x) => L(x) === p); if (v) return v; }
+  return vs.find((x) => L(x).startsWith("es")) || null;
+}
+const clearReading = () => document.querySelectorAll(".reading-now").forEach((e) => e.classList.remove("reading-now"));
+function stopSpeak() {
+  SPEAK_TOK++;
+  try { if (canSpeak) speechSynthesis.cancel(); } catch (e) { /* nada */ }
+  clearReading();
+  if (SPEAKING !== null) { SPEAKING = null; window.dispatchEvent(new CustomEvent("bpy-speak", { detail: null })); }
+}
+function speakSection(id) {
+  stopSpeak();
+  const sec = document.getElementById(id);
+  if (!sec || !canSpeak) return;
+  const els = Array.from(sec.querySelectorAll(READ_SEL)).filter((el) => {
+    if (el.closest(READ_SKIP) || !el.getClientRects().length) return false;
+    const up = el.parentElement && el.parentElement.closest(READ_SEL);
+    return !(up && sec.contains(up));
+  }).filter((el) => (el.innerText || "").trim().length > 1).slice(0, 80);
+  if (!els.length) return;
+  const tok = ++SPEAK_TOK;
+  SPEAKING = id;
+  window.dispatchEvent(new CustomEvent("bpy-speak", { detail: id }));
+  const voice = pickVoice();
+  els.forEach((el, i) => {
+    const u = new SpeechSynthesisUtterance(speakTx(el.innerText || ""));
+    u.lang = voice ? voice.lang : "es-ES";
+    if (voice) u.voice = voice;
+    u.rate = 1;
+    u.onstart = () => {
+      if (tok !== SPEAK_TOK) return;
+      clearReading(); el.classList.add("reading-now");
+      const r = el.getBoundingClientRect();
+      if (r.top < 120 || r.bottom > window.innerHeight - 40) el.scrollIntoView({ block: "center", behavior: reduceMotion() ? "auto" : "smooth" });
+    };
+    if (i === els.length - 1) u.onend = () => { if (tok === SPEAK_TOK) stopSpeak(); };
+    speechSynthesis.speak(u);
+  });
+}
+function ListenButton({ id }) {
+  const [on, setOn] = useState(SPEAKING === id);
+  useEffect(() => { const f = (e) => setOn(e.detail === id); window.addEventListener("bpy-speak", f); return () => window.removeEventListener("bpy-speak", f); }, [id]);
+  return (
+    <button type="button" onClick={() => (on ? stopSpeak() : speakSection(id))} aria-pressed={on} title={on ? "Detener la lectura" : "Escuchar esta sección en voz alta"}
+      className={"inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-sm font-semibold transition " + (on ? "border-em bg-em text-white" : "border-line bg-card text-ink hover:border-em hover:text-em")}>
+      <Icon name={on ? "Square" : "Volume2"} className="w-4 h-4" />{on ? "Detener" : "Escuchar"}
+      {on && <span className="eq" aria-hidden="true"><i /><i /><i /></span>}
+    </button>
+  );
+}
+
+/* ---------- resúmenes "En 1 minuto" ---------- */
+const SUMMARY = {
+  basico: ["Un CDA es como un plazo fijo; un bono, un préstamo que vos hacés; una acción te hace socio de una empresa.", "Un fondo mutuo junta el dinero de muchas personas y lo invierte un profesional.", "Para comprar en la bolsa siempre pasás por una Casa de Bolsa habilitada."],
+  mitos: ["No hace falta ser rico: con un fondo mutuo empezás con montos accesibles.", "Invertir con información no es apostar: en la renta fija conocés la tasa y las fechas de pago.", "Una tasa más alta casi siempre significa más riesgo."],
+  guia: ["Primero definí para qué invertís, por cuánto tiempo y en qué moneda.", "Después elegí una Casa de Bolsa habilitada y abrí tu cuenta comitente.", "Transferí solo a la cuenta oficial de la Casa de Bolsa, comprá y seguí tus cobros."],
+  maria: ["Separó una reserva en un fondo mutuo y puso el resto en un bono a 2 años.", "Cobró intereses cada seis meses y tuvo en cuenta el impuesto.", "Al final recuperó su capital y terminó con más dinero que si lo dejaba quieto."],
+  estafas: ["Desconfiá de las ganancias garantizadas muy altas y de la presión para decidir rápido.", "Transferí solo a cuentas de una Casa de Bolsa habilitada, nunca a cuentas personales.", "Ante la duda, verificá en el registro de la Superintendencia de Valores del BCP."],
+  checklist: ["Antes de invertir, tené un fondo de emergencia separado.", "Sabé para qué invertís, cuándo vas a necesitar el dinero y cuánto cuesta operar.", "Leé el prospecto, revisá la calificación y no pongas todo en un solo emisor."],
+  perfil: ["Cinco preguntas para saber si tu perfil es conservador, moderado o dinámico.", "Tu perfil depende de tu plazo y de cuánto soportarías ver bajar tu inversión.", "El resultado es orientativo: tu Casa de Bolsa te va a hacer su propio test."],
+  instrumentos: ["Renta fija (CDA y bonos): conocés la tasa y las fechas de pago desde el inicio.", "Renta variable (acciones): el resultado depende de cómo le vaya a la empresa.", "Fondos: un profesional invierte por vos, y los fondos mutuos se retiran rápido."],
+  fondos: ["Lo que vale tu inversión = cantidad de cuotas × valor cuota del día.", "Si el valor cuota sube, ganás; si baja, perdés. No hay tasa garantizada.", "Compará fondos por rendimiento, costos y riesgo, no solo por lo que ganaron antes."],
+  riesgos: ["Hay seis riesgos principales: crédito, liquidez, tasa de interés, cambiario, inflación y concentración.", "Cada riesgo tiene una forma de cubrirte: mirar la calificación, elegir plazos y moneda, diversificar.", "Más rendimiento casi siempre significa más riesgo."],
+  donde: ["Elegí tu objetivo: emergencia, una meta corta, un ingreso mensual, el largo plazo o el dólar.", "Cada objetivo tiene instrumentos que suelen encajar mejor.", "Es una guía educativa: confirmá con tu Casa de Bolsa antes de invertir."],
+  casos: ["Cuatro personas con metas distintas arman carteras distintas.", "El plazo y la moneda de la meta definen qué instrumentos usar.", "Los resultados son estimados y tienen fines educativos."],
+  estrategias: ["Escalera de vencimientos: títulos que vencen en años distintos.", "Diversificar y rebalancear: repartí tu dinero y volvé cada tanto a la proporción que elegiste.", "Aportes periódicos: invertir lo mismo cada mes suaviza los altibajos."],
+  casas: ["Solo una Casa de Bolsa habilitada puede comprar y vender por vos en la bolsa.", "Comparalas por costos, atención, canales y productos.", "Verificá que figure en el registro de la Superintendencia de Valores y como miembro de la BVA."],
+  ecosistema: ["La bolsa une a quienes necesitan financiamiento con quienes tienen ahorros.", "La Superintendencia regula, la BVA es donde se negocia y las Casas de Bolsa intermedian.", "En el mercado primario se emiten títulos nuevos; en el secundario se revenden."],
+  mapa: ["Los bancos y las financieras son los emisores más frecuentes.", "El Estado emite bonos del Tesoro; el agro, el comercio y otros sectores emiten bonos y acciones.", "Cada sector tiene un perfil de riesgo distinto."],
+  negociacion: ["Le das la orden a tu Casa de Bolsa, que la ejecuta en la BVA.", "Las ofertas de compra y de venta se ordenan por precio; la diferencia entre ellas es el spread.", "Con una orden con precio límite controlás cuánto pagás o cuánto recibís."],
+  precios: ["Si las tasas del mercado suben, el precio de los bonos que ya existen baja, y al revés.", "Ese cambio solo te afecta si vendés antes del vencimiento.", "Si lo mantenés hasta el final, cobrás todos los cupones y el capital pactados."],
+  prospecto: ["El prospecto reúne todas las condiciones de una emisión.", "Mirá el emisor, la calificación, la tasa, el plazo, la moneda, las garantías y las fechas de pago.", "Si algo no entendés, preguntale a tu Casa de Bolsa antes de comprar."],
+  linea: ["Comprás el bono y queda registrado a tu nombre.", "Cobrás un cupón en cada fecha de pago; en el ejemplo, cada seis meses.", "Al vencimiento recibís el último cupón y tu capital."],
+  simulador: ["Simulá cuánto puede crecer tu dinero según el monto, la tasa y el plazo.", "Calculá cuánto ahorrar para una meta, los cupones de un bono, la moneda y los costos.", "Son estimaciones educativas: las tasas reales cambian."],
+  aprender: ["Una ruta en 5 niveles, de lo básico a lo profesional.", "Marcá cada tema cuando lo termines: tu avance queda guardado en este navegador.", "Los mini-cursos explican cada idea en pocos minutos."],
+  experto: ["Cómo leer los números de una empresa antes de prestarle tu dinero.", "Tus derechos como inversor y dónde reclamar.", "Los impuestos con ejemplos y el mercado paraguayo en cifras."],
+  profesional: ["Nueve temas avanzados: renta fija, crédito, valuación, carteras, macroeconomía y más.", "Cada tema trae una herramienta para practicar.", "Al final hay un quiz para poner a prueba lo que aprendiste."],
+};
+
+function SectionAids({ id }) {
+  const sum = SUMMARY[id];
+  const listen = canSpeak && !NO_LISTEN[id];
+  if (!sum) return listen ? <div className="mt-4"><ListenButton id={id} /></div> : null;
+  return (
+    <div className="mt-6 rounded-2xl border border-em/25 bg-emsoft/60 p-4 sm:p-5">
+      <div className="flex items-center justify-between gap-3 flex-wrap">
+        <p className="font-mono text-[11px] uppercase tracking-widest text-em flex items-center gap-1.5"><Icon name="Timer" className="w-3.5 h-3.5" />En 1 minuto</p>
+        {listen && <ListenButton id={id} />}
+      </div>
+      <ul className="mt-3 space-y-2.5">
+        {sum.map((b, i) => (
+          <li key={i} className="flex gap-2.5 text-ink leading-snug">
+            <span aria-hidden="true" className="mt-0.5 grid place-items-center w-5 h-5 rounded-full bg-em text-white text-[11px] font-bold shrink-0">{i + 1}</span><span>{b}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+/* ---------- tema avanzado oculto en modo Simple ---------- */
+function AdvancedStub({ id, eyebrow, title, onShow }) {
+  return (
+    <section id={id} data-stub="" className="py-6">
+      <div className="wrap">
+        <div className="rounded-2xl border border-dashed border-line bg-soft/60 p-5 flex flex-col sm:flex-row sm:items-center gap-4">
+          <span className="grid place-items-center w-11 h-11 rounded-xl bg-navy text-up shrink-0"><Icon name="GraduationCap" /></span>
+          <div className="min-w-0 flex-1">
+            <p className="font-mono text-[11px] uppercase tracking-widest text-muted">Tema avanzado{eyebrow ? " · " + eyebrow : ""}</p>
+            <h2 className="mt-0.5 font-display text-lg font-bold text-ink">{title}</h2>
+            <p className="mt-0.5 text-sm text-muted">Lo dejamos plegado en el modo Simple para que te enfoques en lo esencial. Podés abrirlo cuando quieras.</p>
+          </div>
+          <div className="flex flex-wrap gap-2 shrink-0">
+            <button type="button" onClick={onShow} className="inline-flex items-center gap-1.5 rounded-xl border border-line bg-card px-4 py-2 text-sm font-semibold text-ink hover:border-em hover:text-em transition"><Icon name="Eye" className="w-4 h-4" />Ver este tema</button>
+            <button type="button" onClick={() => setMode("experto")} className="inline-flex items-center gap-1.5 rounded-xl bg-navy px-4 py-2 text-sm font-semibold text-navyfg hover:brightness-110 transition">Modo Experto</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ---------- "¿Lo entendiste?" ---------- */
+const CHECKS = {
+  basico: { q: "Si comprás un bono, ¿qué estás haciendo?", o: ["Comprando una parte de la empresa", "Prestándole dinero al emisor a cambio de intereses", "Abriendo una caja de ahorro"], a: 1, e: "Un bono es un préstamo: el emisor te paga intereses (cupones) y te devuelve el capital al vencimiento. Comprar una parte de la empresa es una acción." },
+  mitos: { q: "Un título paga una tasa mucho más alta que otros parecidos. ¿Qué suele indicar?", o: ["Que es una ganga sin riesgo", "Que probablemente tiene más riesgo", "Que el Estado lo garantiza"], a: 1, e: "Una tasa más alta suele compensar un riesgo mayor. Mirá la calificación del emisor y el plazo, no solo el número." },
+  guia: { q: "¿Cuál es el primer paso antes de elegir dónde invertir?", o: ["Transferir el dinero a la Casa de Bolsa", "Definir tu objetivo, tu plazo y tu moneda", "Comprar el título con la tasa más alta"], a: 1, e: "Sin saber para qué y cuándo vas a necesitar el dinero, no podés elegir bien el instrumento." },
+  maria: { q: "¿Por qué María puso una parte en un fondo mutuo?", o: ["Porque paga la tasa más alta", "Para tener dinero disponible rápido si surge un imprevisto", "Porque no tiene ningún riesgo"], a: 1, e: "Un fondo mutuo se retira en pocos días, ideal para una reserva. Rinde menos que un bono y su rendimiento no está garantizado." },
+  estafas: { q: "Te ofrecen 5 % mensual garantizado y te piden transferir a una cuenta personal. ¿Qué hacés?", o: ["Invierto poco para probar", "Desconfío: son dos señales típicas de estafa", "Acepto si me muestran capturas de ganancias"], a: 1, e: "Las ganancias garantizadas muy altas y las transferencias a cuentas personales son señales clásicas de estafa. Una Casa de Bolsa habilitada recibe fondos solo en cuentas de la empresa." },
+  instrumentos: { q: "¿Cuál de estos suele convertirse en efectivo más rápido?", o: ["Un fondo mutuo", "Una acción local poco negociada", "Un fondo de inversión"], a: 0, e: "Un fondo mutuo se retira en pocos días. Las acciones locales con poca negociación y los fondos de inversión pueden tardar mucho más." },
+  fondos: { q: "Entraste a un fondo con un valor cuota de 10.000 y hoy vale 10.500. ¿Cuánto ganaste?", o: ["0,5 %", "5 %", "50 %"], a: 1, e: "10.500 ÷ 10.000 = 1,05: tu inversión creció 5 %, antes de costos e impuestos." },
+  riesgos: { q: "Ahorrás en guaraníes, pero vas a pagar un posgrado en dólares. ¿Qué riesgo enfrentás?", o: ["Riesgo cambiario", "Riesgo de liquidez", "Ninguno"], a: 0, e: "Si el dólar sube, tus guaraníes alcanzan para menos. Invertir en la moneda en que vas a gastar reduce ese riesgo." },
+  donde: { q: "Para un fondo de emergencia, ¿qué es lo más importante?", o: ["La tasa más alta posible", "Poder retirar el dinero rápido y con bajo riesgo", "Un plazo largo"], a: 1, e: "El fondo de emergencia tiene que estar disponible cuando lo necesites. Por eso se usan instrumentos líquidos y de bajo riesgo, como un fondo mutuo." },
+  casos: { q: "¿Por qué Laura ahorra en dólares?", o: ["Porque los dólares siempre rinden más", "Porque su meta, el posgrado, se paga en dólares", "Porque es obligatorio"], a: 1, e: "Conviene invertir en la moneda en la que vas a gastar: así evitás el riesgo cambiario." },
+  estrategias: { q: "¿Qué es una escalera de vencimientos?", o: ["Comprar y vender todos los días", "Repartir la inversión en títulos que vencen en años distintos", "Poner todo en el título más largo"], a: 1, e: "Así tenés dinero disponible cada cierto tiempo y podés reinvertir a las tasas de cada momento." },
+  casas: { q: "¿Cómo verificás que una Casa de Bolsa está habilitada?", o: ["Por sus publicaciones en redes sociales", "En el registro de la Superintendencia de Valores del BCP y en la BVA", "Preguntándole a quien te la recomendó"], a: 1, e: "El registro oficial de la Superintendencia de Valores y la lista de miembros de la BVA son las fuentes confiables." },
+  ecosistema: { q: "¿Quién regula y supervisa el mercado de valores en Paraguay?", o: ["La Bolsa de Valores de Asunción", "La Superintendencia de Valores del BCP", "Cada Casa de Bolsa"], a: 1, e: "La Superintendencia de Valores, que depende del Banco Central del Paraguay, autoriza y supervisa a los participantes. La BVA es donde se negocia." },
+  mapa: { q: "Según esta guía, ¿quiénes emiten con más frecuencia en la bolsa paraguaya?", o: ["Los bancos y las financieras", "Las empresas de tecnología", "Los clubes deportivos"], a: 0, e: "Los bancos y las financieras son los emisores más frecuentes, con CDA y bonos." },
+  negociacion: { q: "Querés comprar un bono sin pagar más del 100 % de su valor. ¿Qué orden das?", o: ["Una orden con precio límite", "Una orden sin precio", "Ninguna: se compra solo"], a: 0, e: "Con una orden con precio límite fijás el máximo que pagás, o el mínimo que aceptás si vendés." },
+  precios: { q: "Tenés un bono al 8 % y las tasas del mercado suben al 10 %. Si querés venderlo hoy, tu bono…", o: ["vale más", "vale menos", "vale lo mismo"], a: 1, e: "Nadie paga el 100 % por un bono al 8 % si puede comprar uno nuevo al 10 %, así que su precio baja. Si lo mantenés hasta el vencimiento, cobrás todo lo pactado." },
+  prospecto: { q: "¿Dónde encontrás la tasa, el plazo, las garantías y los riesgos de una emisión?", o: ["En el prospecto", "En una publicidad", "En la cotización del día"], a: 0, e: "El prospecto es el documento oficial con todas las condiciones de la emisión." },
+  linea: { q: "En un bono con cupón semestral, ¿cada cuánto cobrás intereses?", o: ["Cada mes", "Cada seis meses", "Solo al final"], a: 1, e: "Semestral significa dos veces por año. Al vencimiento, además del último cupón, recibís el capital." },
+  simulador: { q: "Si reinvertís los intereses en vez de gastarlos, ¿qué aprovechás?", o: ["El interés compuesto", "El riesgo cambiario", "La comisión de corretaje"], a: 0, e: "Ganás intereses sobre los intereses. Probalo en el simulador: la diferencia crece con los años." },
+  experto: { q: "Según esta guía, ¿qué impuesto alcanza en general a los intereses que cobra una persona?", o: ["El IVA", "El IRP, en la categoría de rentas de capital", "Ninguno"], a: 1, e: "En general es el IRP sobre las rentas de capital, salvo exenciones. Confirmá tu caso con un contador." },
+  profesional: { q: "Un bono tiene una duración modificada de 4. Si la tasa del mercado sube 1 punto, ¿cuánto cae su precio, aproximadamente?", o: ["1 %", "4 %", "10 %"], a: 1, e: "La duración mide la sensibilidad del precio: 4 × 1 punto ≈ 4 % de caída." },
+};
+BADGES.splice(Math.max(0, BADGES.length - 1), 0, { id: "checks", name: "Lo entendí", icon: "Lightbulb", desc: "Respondiste bien 10 preguntas «¿Lo entendiste?».", test: (s) => Object.keys(CHECKS).filter((k) => s["chk-" + k]).length >= 10 });
+
+function SectionCheck({ id }) {
+  const c = CHECKS[id];
+  const seen = useSeen();
+  const done = !!seen["chk-" + id];
+  const [wrong, setWrong] = useState([]);
+  const [solved, setSolved] = useState(false);
+  if (!c) return null;
+  const isSolved = solved || done;
+  const choose = (i, e) => {
+    if (isSolved || wrong.includes(i)) return;
+    if (i === c.a) {
+      setSolved(true);
+      markSeen("chk-" + id);
+      const r = e.currentTarget.getBoundingClientRect();
+      if (!reduceMotion()) celebrate(r.left + r.width / 2, r.top);
+    } else setWrong(wrong.concat(i));
+  };
+  return (
+    <div className="mt-10 max-w-3xl rounded-2xl border border-line bg-card p-5 sm:p-6">
+      <p className="font-mono text-[11px] uppercase tracking-widest text-amber flex items-center gap-1.5"><Icon name="Lightbulb" className="w-3.5 h-3.5" />¿Lo entendiste?</p>
+      <p className="mt-2 font-display text-lg font-bold text-ink">{c.q}</p>
+      <div className="mt-4 grid gap-2">
+        {c.o.map((o, i) => {
+          const ok = isSolved && i === c.a, bad = wrong.includes(i);
+          return (
+            <button key={i} type="button" onClick={(e) => choose(i, e)} disabled={isSolved && !ok}
+              className={"flex items-center gap-3 text-left rounded-xl border px-4 py-3 transition " + (ok ? "border-em bg-emsoft text-ink font-semibold" : bad ? "border-danger/50 bg-dangersoft text-muted" : isSolved ? "border-line text-muted opacity-60" : "border-line text-ink hover:border-em hover:bg-soft")}>
+              <span className={"grid place-items-center w-6 h-6 rounded-full text-xs font-bold shrink-0 " + (ok ? "bg-em text-white" : bad ? "bg-danger text-white" : "bg-soft text-muted")}>
+                {ok ? <Icon name="Check" className="w-3.5 h-3.5" /> : bad ? <Icon name="X" className="w-3.5 h-3.5" /> : String.fromCharCode(65 + i)}
+              </span>{o}
+            </button>
+          );
+        })}
+      </div>
+      <div aria-live="polite">
+        {isSolved ? (
+          <div className="pop-in mt-4 rounded-xl bg-emsoft p-4 text-sm flex gap-3">
+            <Icon name="CheckCircle2" className="w-5 h-5 shrink-0 text-em" />
+            <div><p className="font-semibold text-ink">¡Correcto!</p><p className="mt-1 text-ink/80">{c.e}</p></div>
+          </div>
+        ) : wrong.length > 0 && (
+          <div className="pop-in mt-4 rounded-xl bg-ambersoft p-4 text-sm flex gap-3">
+            <Icon name="RefreshCw" className="w-5 h-5 shrink-0 text-amber" />
+            <div>
+              <p className="font-semibold text-ink">No es esa. Probá con otra opción.</p>
+              <button type="button" onClick={() => setSolved(true)} className="mt-1 font-semibold text-em hover:underline">Ver la respuesta</button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ---------- textos largos en párrafos cortos ---------- */
+function Paras({ text, className = "" }) {
+  const s = String(text).split(/(?<=[.!?])\s+(?=[A-ZÁÉÍÓÚÑ¿¡])/);
+  const out = [];
+  for (let i = 0; i < s.length; i += 2) out.push(s.slice(i, i + 2).join(" "));
+  return <>{out.map((p, i) => <p key={i} className={(i ? "mt-2 " : "") + className}>{p}</p>)}</>;
+}
+
+/* ---------- 3. comparaciones con la vida diaria ---------- */
+const ANALOGIES = [
+  { icon: "Landmark", term: "CDA", like: "un plazo fijo del banco", real: "Depositás una suma por un plazo y una tasa acordados. Al final recibís tu dinero más los intereses.", diff: "Si lo comprás en la bolsa, podés venderlo antes del vencimiento a otro inversor, al precio que haya ese día.", go: "instrumentos" },
+  { icon: "FileText", term: "Bono", like: "un préstamo que vos le hacés a una empresa o al Estado", real: "Le prestás tu dinero; a cambio te paga intereses cada cierto tiempo (cupones) y te devuelve el capital al final.", diff: "Si el emisor tiene problemas, puede atrasarse en los pagos. Por eso importa su calificación de riesgo.", go: "linea" },
+  { icon: "TrendingUp", term: "Acción", like: "ser socio de una empresa", real: "Comprás una pequeña parte de la empresa. Si le va bien, puede repartir dividendos y tu parte puede valer más.", diff: "No hay tasa fija: si a la empresa le va mal, tu acción puede valer menos y quizás no cobres dividendos.", go: "instrumentos" },
+  { icon: "PieChart", term: "Fondo mutuo", like: "una «vaquita» que administra un profesional", real: "Muchas personas juntan su dinero y una administradora lo invierte por todas. Cada una tiene cuotas según lo que puso.", diff: "El rendimiento no está garantizado: depende de lo que gane el fondo. Podés retirar tu dinero en pocos días.", go: "fondos" },
+  { icon: "Building2", term: "Casa de Bolsa", like: "un despachante que hace los trámites por vos", real: "No podés comprar directo en la bolsa. La Casa de Bolsa abre tu cuenta, ejecuta tus órdenes y te asesora.", diff: "Verificá siempre que esté habilitada por la Superintendencia de Valores del BCP.", go: "casas" },
+  { icon: "Repeat", term: "Mercado secundario", like: "revender una entrada a otra persona", real: "Si ya no querés un título antes de que venza, se lo vendés a otro inversor a través de tu Casa de Bolsa.", diff: "Te pueden pagar más o menos de lo que pagaste, según las tasas de ese momento.", go: "negociacion" },
+  { icon: "Layers", term: "Diversificar", like: "no poner todos los huevos en la misma canasta", real: "Repartís tu dinero entre varios emisores, plazos y monedas.", diff: "No elimina el riesgo, pero evita que un solo problema te afecte todo.", go: "estrategias" },
+  { icon: "TrendingDown", term: "Inflación", like: "un agujerito en el bolsillo de tu plata quieta", real: "Si los precios suben 4 % al año y tu dinero no rinde nada, cada año te alcanza para menos.", diff: "Por eso conviene que tu inversión rinda más que la inflación.", go: "riesgos" },
+];
+
+function Basico() {
+  const [open, setOpen] = useState(null);
+  return (
+    <Section id="basico" eyebrow="Lo básico" title="La bolsa en palabras simples"
+      intro="Si nunca invertiste, empezá acá. Cada idea está comparada con algo que ya conocés. Tocá una tarjeta para ver cómo funciona de verdad.">
+      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 items-start">
+        {ANALOGIES.map((a, k) => {
+          const on = open === k;
+          return (
+            <article key={a.term} className={"rounded-2xl border bg-card transition " + (on ? "border-em shadow-lg" : "border-line hover:border-em/50")}>
+              <button type="button" onClick={() => setOpen(on ? null : k)} aria-expanded={on} className="w-full text-left p-5">
+                <span className="flex items-center justify-between gap-2">
+                  <span className={"grid place-items-center w-11 h-11 rounded-xl transition " + (on ? "bg-em text-white" : "bg-emsoft text-em")}><Icon name={a.icon} /></span>
+                  <Icon name="ChevronDown" className={"w-5 h-5 text-muted transition-transform " + (on ? "rotate-180 text-em" : "")} />
+                </span>
+                <span className="mt-4 block font-display text-xl font-bold text-ink">{a.term}</span>
+                <span className="mt-1 block text-sm text-muted">es como…</span>
+                <span className="mt-0.5 block text-lg font-semibold text-em leading-snug">{a.like}</span>
+              </button>
+              {on && (
+                <div className="fade-in px-5 pb-5 -mt-1 text-sm">
+                  <p className="font-mono text-[11px] uppercase tracking-widest text-muted">Cómo funciona</p>
+                  <p className="mt-1 text-ink">{a.real}</p>
+                  <p className="mt-3 rounded-lg bg-ambersoft px-3 py-2 text-ink"><strong>Ojo: </strong>{a.diff}</p>
+                  <button type="button" onClick={() => scrollTo(a.go)} className="mt-3 inline-flex items-center gap-1 font-semibold text-em hover:underline">Ver más <Icon name="ArrowRight" className="w-3.5 h-3.5" /></button>
+                </div>
+              )}
+            </article>
+          );
+        })}
+      </div>
+      <FlujoDinero />
+    </Section>
+  );
+}
+
+/* ---------- 4. diagrama: cómo viaja tu plata ---------- */
+const FLOW_NODES = [["User", "Vos"], ["Wallet", "Tu banco"], ["Building2", "Casa de Bolsa"], ["CandlestickChart", "Bolsa y Caja de Valores"], ["Factory", "Emisor"]];
+const FLOW = {
+  ida: [
+    [0, "Decidís cuánto invertir y en qué. El dinero sale de tu cuenta en el banco."],
+    [1, "Transferís por SIPAP o transferencia bancaria a la cuenta oficial de la Casa de Bolsa. Nunca a una cuenta personal."],
+    [2, "Tu Casa de Bolsa recibe tu orden de compra y la ejecuta en la bolsa por vos."],
+    [3, "En la bolsa se concreta la operación, y la Caja de Valores registra el título a tu nombre."],
+    [4, "El emisor (una empresa, un banco o el Estado) recibe el dinero y lo usa para financiarse."],
+  ],
+  vuelta: [
+    [4, "En cada fecha de pago, el emisor paga los intereses (cupones) y, al final, devuelve el capital."],
+    [3, "El pago se reparte según el registro: la Caja de Valores sabe que ese título es tuyo."],
+    [2, "Tu Casa de Bolsa acredita el dinero en tu cuenta comitente."],
+    [0, "Vos decidís: lo retirás a tu banco o lo reinvertís para aprovechar el interés compuesto."],
+  ],
+};
+function FlujoDinero() {
+  const [dir, setDir] = useState("ida");
+  const [step, setStep] = useState(0);
+  const [play, setPlay] = useState(false);
+  const steps = FLOW[dir];
+  const [node, text] = steps[step];
+  const path = steps.slice(0, step + 1).map(([n]) => n);
+  useEffect(() => {
+    if (!play) return;
+    const t = setTimeout(() => { if (step < steps.length - 1) setStep(step + 1); else setPlay(false); }, 2800);
+    return () => clearTimeout(t);
+  }, [play, step, steps.length]);
+  const switchDir = (d) => { setDir(d); setStep(0); setPlay(false); };
+  const back = dir === "vuelta";
+  return (
+    <div className="mt-12 rounded-3xl border border-line bg-card p-5 sm:p-7">
+      <div className="flex items-start justify-between gap-4 flex-wrap">
+        <div>
+          <p className="font-mono text-[11px] uppercase tracking-widest text-em">Diagrama</p>
+          <h3 className="mt-1 font-display text-2xl font-bold text-ink">Cómo viaja tu plata</h3>
+          <p className="mt-1 text-muted">Seguí el recorrido de tu dinero cuando invertís y cuando cobrás.</p>
+        </div>
+        <Segmented idBase="flujo" label="Recorrido" value={dir} onChange={switchDir} options={[["ida", "Cuando invertís"], ["vuelta", "Cuando cobrás"]]} />
+      </div>
+      <ol className="no-gloss mt-6 flex flex-col sm:flex-row items-stretch gap-1 sm:gap-0">
+        {FLOW_NODES.map(([ic, l], i) => {
+          const active = i === node, visited = path.includes(i);
+          const showArrow = i < FLOW_NODES.length - 1;
+          return (
+            <React.Fragment key={l}>
+              <li className={"flex-1 flex sm:flex-col items-center gap-3 sm:gap-2 rounded-2xl border p-3 sm:py-4 text-left sm:text-center transition duration-300 " + (active ? "border-em bg-em text-white shadow-lg sm:scale-105" : visited ? "border-em/50 bg-emsoft text-ink" : "border-line text-muted")}>
+                <span className={"grid place-items-center w-10 h-10 rounded-xl shrink-0 " + (active ? "bg-white/20" : visited ? "bg-em/15 text-em" : "bg-soft")}><Icon name={ic} /></span>
+                <span className="text-sm font-semibold leading-tight">{l}</span>
+              </li>
+              {showArrow && (
+                <li aria-hidden="true" className={"grid place-items-center sm:px-1 " + (path.includes(i) && path.includes(i + 1) ? "text-em" : "text-line")}>
+                  <Icon name={back ? "ArrowUp" : "ArrowDown"} className="w-4 h-4 sm:hidden" />
+                  <Icon name={back ? "ArrowLeft" : "ArrowRight"} className="w-5 h-5 hidden sm:block" />
+                </li>
+              )}
+            </React.Fragment>
+          );
+        })}
+      </ol>
+      <div key={dir + step} className="pop-in mt-5 rounded-2xl bg-soft p-4 sm:p-5 flex gap-4 items-start">
+        <span className="grid place-items-center w-9 h-9 rounded-full bg-em text-white font-mono font-bold shrink-0">{step + 1}</span>
+        <div className="min-w-0">
+          <p className="font-mono text-[11px] uppercase tracking-widest text-muted">Paso {step + 1} de {steps.length} · {FLOW_NODES[node][1]}</p>
+          <p className="mt-1 text-ink text-lg leading-snug">{text}</p>
+        </div>
+      </div>
+      <div className="mt-4 flex flex-wrap items-center gap-2">
+        <button type="button" onClick={() => { setPlay(false); setStep(Math.max(0, step - 1)); }} disabled={step === 0} className="inline-flex items-center gap-1.5 rounded-xl border border-line px-4 py-2 text-sm font-semibold text-ink hover:bg-soft disabled:opacity-40 transition"><Icon name="ArrowLeft" className="w-4 h-4" />Anterior</button>
+        <button type="button" onClick={() => { setPlay(false); setStep(Math.min(steps.length - 1, step + 1)); }} disabled={step === steps.length - 1} className="inline-flex items-center gap-1.5 rounded-xl bg-em px-4 py-2 text-sm font-semibold text-white hover:brightness-110 disabled:opacity-40 transition">Siguiente<Icon name="ArrowRight" className="w-4 h-4" /></button>
+        <button type="button" onClick={() => { if (!play && step === steps.length - 1) setStep(0); setPlay(!play); }} className="inline-flex items-center gap-1.5 rounded-xl border border-line px-4 py-2 text-sm font-semibold text-ink hover:bg-soft transition"><Icon name={play ? "Pause" : "Play"} className="w-4 h-4" />{play ? "Pausar" : "Ver animado"}</button>
+      </div>
+      <p className="mt-4 text-sm text-muted flex gap-2"><Icon name="Info" className="w-4 h-4 shrink-0 mt-0.5 text-em" />Todo el recorrido está supervisado por la Superintendencia de Valores del BCP. Si comprás un título que ya existe (mercado secundario), tu dinero va al inversor que te lo vende, no al emisor.</p>
+    </div>
+  );
+}
+
+/* ---------- 5. caso de punta a punta: María ---------- */
+function CasoMaria() {
+  const fm = instById("fm").ratePYG, bc = instById("bc").ratePYG;
+  const cup = (3000000 * bc) / 100 / 2, tax = cup * 0.08, net = cup - tax;
+  const f6 = 2000000 * Math.pow(1 + fm / 100, 0.5), f24 = 2000000 * Math.pow(1 + fm / 100, 2);
+  const G = (v) => fmtMoney(v, "PYG");
+  const stages = [
+    { when: "Mes 0", icon: "Lightbulb", title: "Define su objetivo", go: "guia",
+      text: "María tiene 32 años y ahorró Gs. 5.000.000 en su caja de ahorro. Quiere tener una reserva para imprevistos y hacer crecer el resto durante 2 años.",
+      tip: "Antes de elegir un producto, definí para qué invertís, por cuánto tiempo y en qué moneda.", mix: { caja: 5e6 } },
+    { when: "Semana 1", icon: "ShieldCheck", title: "Elige una Casa de Bolsa", go: "casas",
+      text: "Compara tres Casas de Bolsa. Verifica que estén en el registro de la Superintendencia de Valores del BCP y que sean miembros de la BVA, y pide el tarifario de cada una.",
+      tip: "Desconfiá de quien te pida transferir a una cuenta personal.", mix: { caja: 5e6 } },
+    { when: "Semana 2", icon: "FileText", title: "Abre su cuenta comitente", go: "perfil",
+      text: "Presenta su cédula y un comprobante de ingresos, y completa el test de perfil de inversionista. Le sale un perfil moderado.",
+      tip: "Respondé el test de perfil con sinceridad: define qué productos te pueden ofrecer.", mix: { caja: 5e6 } },
+    { when: "Semana 3", icon: "Smartphone", title: "Transfiere y compra", go: "prospecto",
+      text: "Transfiere por SIPAP a la cuenta oficial de la Casa de Bolsa. Pone Gs. 2.000.000 en un fondo mutuo (su reserva: la puede retirar en pocos días) y Gs. 3.000.000 en un bono corporativo AApy a 2 años, al " + pct(bc) + " anual con cupón semestral.",
+      tip: "Antes de comprar, leé el prospecto: tasa, plazo, calificación y fechas de pago.", mix: { fondo: 2e6, bono: 3e6 } },
+    { when: "Mes 6", icon: "Coins", title: "Cobra su primer cupón", go: "linea",
+      text: "El bono le paga " + G(cup) + " (3.000.000 × " + pct(bc) + " ÷ 2). Separa el 8 % de IRP sobre esos intereses (" + G(tax) + ") y le quedan " + G(net) + ". Su fondo mutuo ya vale " + G(f6) + ".",
+      tip: "El impuesto depende de tu situación y puede haber exenciones: confirmalo con un contador.", mix: { fondo: f6, bono: 3e6, cobrado: net } },
+    { when: "Mes 24", icon: "Trophy", title: "Vence el bono", go: "simulador",
+      text: "Recibe sus Gs. 3.000.000 de capital y el cuarto cupón. En total cobró " + G(4 * net) + " de intereses netos, y su fondo vale " + G(f24) + ".",
+      tip: "Si hubiera dejado la plata quieta, seguiría teniendo Gs. 5.000.000, pero con la inflación le alcanzaría para menos.", mix: { fondo: f24, cobrado: 3e6 + 4 * net } },
+    { when: "Lo que aprendió", icon: "GraduationCap", title: "Sus 4 lecciones", go: "checklist",
+      list: ["Separar una reserva que se pueda retirar rápido antes de invertir a plazo.", "Verificar siempre que la Casa de Bolsa esté habilitada.", "Leer el prospecto y saber cuándo cobra.", "Tener en cuenta los impuestos y los costos en el resultado final."],
+      tip: "Usá el checklist para preparar tu propia primera inversión.", mix: { fondo: f24, cobrado: 3e6 + 4 * net } },
+  ];
+  const [i, setI] = useState(0);
+  const s = stages[i];
+  const parts = [["caja", "Caja de ahorro", "bg-muted/50"], ["fondo", "Fondo mutuo", "bg-em"], ["bono", "Bono", "bg-amber"], ["cobrado", "Ya cobrado", "bg-gold"]];
+  const total = parts.reduce((a, [k]) => a + (s.mix[k] || 0), 0);
+  const gain = total - 5e6;
+  return (
+    <Section id="maria" eyebrow="Un caso de punta a punta" title="El caso de María: de cero a su primer cupón"
+      intro="Un ejemplo con números para ver todo junto: desde que María decide invertir hasta que cobra. Avanzá etapa por etapa y mirá dónde está su dinero en cada momento.">
+      <div className="grid lg:grid-cols-[17rem_1fr] gap-5 items-start">
+        <ol className="flex lg:flex-col gap-2 overflow-x-auto pb-1 -mx-1 px-1">
+          {stages.map((x, k) => (
+            <li key={k} className="shrink-0">
+              <button type="button" onClick={() => setI(k)} aria-current={i === k ? "step" : undefined}
+                className={"w-full flex items-center gap-3 text-left rounded-xl border px-3 py-2.5 transition " + (i === k ? "border-em bg-emsoft" : "border-line bg-card hover:bg-soft")}>
+                <span className={"grid place-items-center w-8 h-8 rounded-lg shrink-0 " + (k < i ? "bg-em text-white" : i === k ? "bg-em/15 text-em" : "bg-soft text-muted")}>{k < i ? <Icon name="Check" className="w-4 h-4" /> : <Icon name={x.icon} className="w-4 h-4" />}</span>
+                <span className="min-w-0"><span className="block font-mono text-[11px] uppercase tracking-wider text-muted whitespace-nowrap">{x.when}</span><span className="block text-sm font-semibold text-ink whitespace-nowrap">{x.title}</span></span>
+              </button>
+            </li>
+          ))}
+        </ol>
+        <div key={i} className="fade-in rounded-2xl border border-line bg-card p-5 sm:p-7 min-w-0">
+          <div className="flex items-center gap-3">
+            <span className="grid place-items-center w-12 h-12 rounded-2xl bg-em text-white shrink-0"><Icon name={s.icon} /></span>
+            <div><p className="font-mono text-xs uppercase tracking-widest text-em">{s.when}</p><h3 className="font-display text-2xl font-bold text-ink">{s.title}</h3></div>
+          </div>
+          {s.text && <p className="mt-4 text-lg text-ink leading-relaxed">{s.text}</p>}
+          {s.list && <ul className="mt-4 space-y-2">{s.list.map((l) => <li key={l} className="flex gap-2.5 text-ink"><Icon name="CheckCircle2" className="w-5 h-5 shrink-0 text-em" />{l}</li>)}</ul>}
+          <p className="mt-4 rounded-xl bg-ambersoft px-4 py-3 text-sm text-ink flex gap-2"><Icon name="Lightbulb" className="w-4 h-4 shrink-0 mt-0.5 text-amber" />{s.tip}</p>
+          <div className="mt-6">
+            <div className="flex items-end justify-between gap-3 flex-wrap">
+              <p className="font-mono text-[11px] uppercase tracking-widest text-muted">Dónde está su dinero</p>
+              <p className="font-mono text-sm num text-ink"><strong>{G(total)}</strong>{gain > 1 && <span className="ml-2 text-em">▲ {fmtShort(gain, "PYG")}</span>}</p>
+            </div>
+            <div className="mt-2 flex h-4 rounded-full overflow-hidden bg-soft">
+              {parts.map(([k, , c]) => (s.mix[k] ? <div key={k} className={c + " transition-all duration-700"} style={{ width: (s.mix[k] / Math.max(total, 1)) * 100 + "%" }} /> : null))}
+            </div>
+            <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted">
+              {parts.filter(([k]) => s.mix[k]).map(([k, l, c]) => <span key={k} className="inline-flex items-center gap-1.5"><span className={"w-2.5 h-2.5 rounded-sm " + c} />{l}: <span className="num text-ink">{fmtShort(s.mix[k], "PYG")}</span></span>)}
+            </div>
+          </div>
+          <div className="mt-6 flex flex-wrap items-center gap-2">
+            <button type="button" onClick={() => setI(Math.max(0, i - 1))} disabled={i === 0} className="inline-flex items-center gap-1.5 rounded-xl border border-line px-4 py-2 text-sm font-semibold text-ink hover:bg-soft disabled:opacity-40 transition"><Icon name="ArrowLeft" className="w-4 h-4" />Anterior</button>
+            {i < stages.length - 1 ? (
+              <button type="button" onClick={() => setI(i + 1)} className="inline-flex items-center gap-1.5 rounded-xl bg-em px-4 py-2 text-sm font-semibold text-white hover:brightness-110 transition">Siguiente etapa<Icon name="ArrowRight" className="w-4 h-4" /></button>
+            ) : (
+              <button type="button" onClick={() => setI(0)} className="inline-flex items-center gap-1.5 rounded-xl bg-em px-4 py-2 text-sm font-semibold text-white hover:brightness-110 transition"><Icon name="RotateCcw" className="w-4 h-4" />Ver de nuevo</button>
+            )}
+            <button type="button" onClick={() => scrollTo(s.go)} className="ml-auto inline-flex items-center gap-1 text-sm font-semibold text-em hover:underline">Aprender más sobre esto <Icon name="ArrowRight" className="w-3.5 h-3.5" /></button>
+          </div>
+        </div>
+      </div>
+      <p className="mt-4 text-xs text-muted">Ejemplo ilustrativo. Supone un fondo mutuo que rinde {pct(fm)} anual (no está garantizado) y un bono al {pct(bc)}. Para simplificar, no incluye comisiones ni impuestos sobre el fondo.</p>
+    </Section>
+  );
+}
+
+/* ---------- 8. asistente: tu ruta en 3 preguntas ---------- */
+const openWizard = () => window.dispatchEvent(new CustomEvent("bpy-wizard"));
+const SEC_LABEL = {};
+VIEWS.forEach((v) => v.sections.forEach(([id, l]) => { SEC_LABEL[id] = [l, v.label]; }));
+const GOAL_DESC = { emergencia: "Tener plata disponible para imprevistos.", meta: "Juntar para un auto, un viaje o estudios.", ingreso: "Recibir intereses cada cierto tiempo.", largo: "Hacer crecer mi dinero por muchos años.", dolar: "Ahorrar en dólares." };
+const WZ = [
+  { id: "level", q: "¿Cuánto sabés de inversiones?", o: [["nuevo", "Nunca invertí", "Sprout", "Recién empiezo y quiero entender lo básico."], ["banco", "Ahorro en el banco", "Landmark", "Tengo caja de ahorro o un plazo fijo."], ["bolsa", "Ya invertí en la bolsa", "TrendingUp", "Conozco los bonos, los CDA o los fondos."]] },
+  { id: "goal", q: "¿Qué querés lograr?", o: GOALS.map((g) => [g.id, g.label, g.icon, GOAL_DESC[g.id] || ""]) },
+  { id: "amount", q: "¿Con cuánto pensás empezar?", o: [["chico", "Menos de Gs. 1 millón", "Coins", ""], ["medio", "Entre Gs. 1 y 10 millones", "Wallet", ""], ["grande", "Más de Gs. 10 millones", "Landmark", ""], ["nose", "Todavía no sé", "HelpCircle", ""]] },
+];
+const ROUTE_BASE = { nuevo: ["basico", "mitos", "guia", "maria", "estafas"], banco: ["basico", "instrumentos", "riesgos", "guia", "estafas"], bolsa: ["estrategias", "fondos", "precios", "experto", "profesional"] };
+const ROUTE_GOAL = { emergencia: "fondos", meta: "simulador", ingreso: "linea", largo: "estrategias", dolar: "riesgos" };
+const AMOUNT_NOTE = {
+  chico: "Con menos de Gs. 1 millón, un fondo mutuo suele ser la forma más simple de empezar: muchos aceptan montos desde Gs. 100.000 aproximadamente.",
+  medio: "Te alcanza para combinar un fondo mutuo con un CDA o un bono, cuyos mínimos suelen rondar Gs. 1.000.000.",
+  grande: "Podés repartir entre varios emisores y plazos. La sección Estrategias te muestra cómo diversificar.",
+  nose: "Usá la calculadora de metas para saber cuánto necesitás ahorrar por mes.",
+};
+function buildRoute(r) {
+  if (!r) return [];
+  const ids = (ROUTE_BASE[r.level] || ROUTE_BASE.nuevo).concat(["donde", ROUTE_GOAL[r.goal]]).concat(r.amount === "nose" ? ["simulador"] : []);
+  return ids.filter((x, k) => x && SEC_LABEL[x] && ids.indexOf(x) === k).slice(0, 7);
+}
+const goRoute = (id, goal) => { if (id === "donde" && goal) { PENDING.goal = goal; window.dispatchEvent(new CustomEvent("bpy-goal", { detail: goal })); } scrollTo(id); };
+
+function WizardHost() {
+  const [open, setOpen] = useState(false);
+  const [step, setStep] = useState(0);
+  const [ans, setAns] = useState({});
+  useEffect(() => {
+    const f = () => { setOpen(true); setStep(0); setAns({}); };
+    window.addEventListener("bpy-wizard", f);
+    return () => window.removeEventListener("bpy-wizard", f);
+  }, []);
+  useEffect(() => {
+    if (!open) return;
+    const k = (e) => { if (e.key === "Escape") setOpen(false); };
+    window.addEventListener("keydown", k);
+    return () => window.removeEventListener("keydown", k);
+  }, [open]);
+  if (!open) return null;
+  const done = step >= WZ.length;
+  const pickOpt = (qid, v) => {
+    const next = Object.assign({}, ans, { [qid]: v });
+    setAns(next);
+    if (step === WZ.length - 1) {
+      store.set("bpy-ruta", next);
+      setMode(next.level === "bolsa" ? "experto" : "simple");
+      window.dispatchEvent(new CustomEvent("bpy-ruta"));
+    }
+    setStep(step + 1);
+  };
+  const route = done ? buildRoute(ans) : [];
+  const goal = done && GOALS.find((g) => g.id === ans.goal);
+  const close = () => setOpen(false);
+  return ReactDOM.createPortal(
+    <div className="fixed inset-0 z-[80] grid place-items-center p-3 sm:p-6 bg-navy/60 backdrop-blur-sm" onClick={close}>
+      <div role="dialog" aria-modal="true" aria-label="Armá tu ruta" onClick={(e) => e.stopPropagation()} className="pop-in w-full max-w-xl max-h-[92vh] overflow-y-auto rounded-3xl border border-line bg-card shadow-2xl">
+        <div className="sticky top-0 bg-card/95 backdrop-blur px-5 sm:px-7 pt-5 pb-3 border-b border-line flex items-center justify-between gap-3">
+          <div className="min-w-0">
+            <p className="font-mono text-[11px] uppercase tracking-widest text-em flex items-center gap-1.5"><Icon name="Route" className="w-3.5 h-3.5" />Tu ruta en 3 preguntas</p>
+            <div className="mt-2 flex gap-1.5">{WZ.map((_, k) => <span key={k} className={"h-1.5 w-10 rounded-full transition " + (k < step ? "bg-em" : k === step ? "bg-em/40" : "bg-line")} />)}</div>
+          </div>
+          <button type="button" onClick={close} aria-label="Cerrar" className="grid place-items-center w-9 h-9 rounded-lg text-muted hover:text-ink hover:bg-soft"><Icon name="X" className="w-5 h-5" /></button>
+        </div>
+        {!done ? (
+          <div key={step} className="slide-in px-5 sm:px-7 py-6">
+            <p className="font-mono text-xs text-muted">Pregunta {step + 1} de {WZ.length}</p>
+            <h2 className="mt-1 font-display text-2xl font-bold text-ink">{WZ[step].q}</h2>
+            <div className="mt-5 grid gap-2">
+              {WZ[step].o.map(([v, l, ic, d]) => (
+                <button key={v} type="button" onClick={() => pickOpt(WZ[step].id, v)} className={"group flex items-center gap-3 text-left rounded-2xl border p-3.5 transition " + (ans[WZ[step].id] === v ? "border-em bg-emsoft" : "border-line hover:border-em hover:bg-soft")}>
+                  <span className="grid place-items-center w-10 h-10 rounded-xl bg-emsoft text-em shrink-0 group-hover:bg-em group-hover:text-white transition"><Icon name={ic} /></span>
+                  <span className="min-w-0 flex-1"><span className="block font-semibold text-ink">{l}</span>{d && <span className="block text-sm text-muted leading-snug">{d}</span>}</span>
+                  <Icon name="ArrowRight" className="w-4 h-4 text-em opacity-0 group-hover:opacity-100 transition" />
+                </button>
+              ))}
+            </div>
+            {step > 0 && <button type="button" onClick={() => setStep(step - 1)} className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-muted hover:text-ink"><Icon name="ArrowLeft" className="w-4 h-4" />Volver</button>}
+          </div>
+        ) : (
+          <div className="slide-in px-5 sm:px-7 py-6">
+            <h2 className="font-display text-2xl font-bold text-ink">¡Listo! Esta es tu ruta</h2>
+            <p className="mt-1 text-muted">Leela en este orden. Los temas que veas se marcan solos.</p>
+            <ol className="mt-4 space-y-2">
+              {route.map((id, k) => (
+                <li key={id}>
+                  <button type="button" onClick={() => { close(); goRoute(id, ans.goal); }} className="group w-full flex items-center gap-3 text-left rounded-xl border border-line p-3 hover:border-em hover:bg-soft transition">
+                    <span className="grid place-items-center w-8 h-8 rounded-full bg-em text-white font-mono text-sm font-bold shrink-0">{k + 1}</span>
+                    <span className="min-w-0 flex-1"><span className="block font-semibold text-ink">{SEC_LABEL[id][0]}</span><span className="block text-xs text-muted">{SEC_LABEL[id][1]}</span></span>
+                    <Icon name="ArrowRight" className="w-4 h-4 text-em group-hover:translate-x-0.5 transition" />
+                  </button>
+                </li>
+              ))}
+            </ol>
+            {goal && (
+              <div className="mt-5 rounded-2xl bg-soft p-4">
+                <p className="font-mono text-[11px] uppercase tracking-widest text-muted">Instrumentos para conocer primero</p>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {[goal.main, goal.alt].map((id) => instById(id)).filter(Boolean).map((x) => <Pill key={x.id} className="bg-card border border-line text-ink">{x.name} · riesgo {x.risk.toLowerCase()}</Pill>)}
+                </div>
+                <p className="mt-3 text-sm text-ink">{AMOUNT_NOTE[ans.amount]}</p>
+              </div>
+            )}
+            <p className="mt-4 text-sm text-muted flex gap-2"><Icon name="Info" className="w-4 h-4 shrink-0 mt-0.5 text-em" />{ans.level === "bolsa" ? "Activamos el modo Experto: vas a ver todos los temas." : "Activamos el modo Simple: los temas avanzados quedan plegados. Podés cambiarlo con el botón Aa del menú."}</p>
+            <p className="mt-2 text-xs text-muted">Es una guía educativa, no una recomendación personal de inversión.</p>
+            <div className="mt-5 flex flex-wrap gap-2">
+              <button type="button" onClick={() => { close(); goRoute(route[0], ans.goal); }} className="shine inline-flex items-center gap-2 rounded-xl bg-em px-5 py-2.5 font-semibold text-white hover:brightness-110 transition">Empezar la ruta <Icon name="ArrowRight" className="w-4 h-4" /></button>
+              <button type="button" onClick={() => { setStep(0); setAns({}); }} className="inline-flex items-center gap-2 rounded-xl border border-line px-5 py-2.5 font-semibold text-ink hover:bg-soft transition"><Icon name="RotateCcw" className="w-4 h-4" />Responder de nuevo</button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>,
+    document.body
+  );
+}
+
+function RutaBar() {
+  const [r, setR] = useState(() => store.get("bpy-ruta", null));
+  const seen = useSeen();
+  useEffect(() => { const f = () => setR(store.get("bpy-ruta", null)); window.addEventListener("bpy-ruta", f); return () => window.removeEventListener("bpy-ruta", f); }, []);
+  if (!r) {
+    return (
+      <div className="mt-2 sm:mt-3 rounded-2xl bg-navy text-navyfg p-4 flex flex-col sm:flex-row sm:items-center gap-3">
+        <span className="grid place-items-center w-11 h-11 rounded-xl bg-up/15 text-up shrink-0"><Icon name="Route" /></span>
+        <div className="flex-1 min-w-0"><p className="font-bold">¿No sabés por dónde empezar?</p><p className="text-sm opacity-80">Respondé 3 preguntas y te armamos una ruta a tu medida.</p></div>
+        <button type="button" onClick={openWizard} className="shine inline-flex items-center justify-center gap-2 rounded-xl bg-em px-5 py-2.5 font-semibold text-white hover:brightness-110 transition shrink-0">Armar mi ruta <Icon name="ArrowRight" className="w-4 h-4" /></button>
+      </div>
+    );
+  }
+  const steps = buildRoute(r);
+  const n = steps.filter((id) => seen[id]).length;
+  return (
+    <div className="mt-2 sm:mt-3 rounded-2xl border border-line bg-soft/60 p-4">
+      <div className="flex items-center justify-between gap-3 flex-wrap">
+        <p className="font-bold text-ink flex items-center gap-2"><Icon name="Route" className="w-4 h-4 text-em" />Tu ruta <span className="font-mono text-xs font-normal text-muted num">{n} de {steps.length} temas vistos</span></p>
+        <button type="button" onClick={openWizard} className="inline-flex items-center gap-1 text-sm font-semibold text-em hover:underline"><Icon name="RotateCcw" className="w-3.5 h-3.5" />Rehacer</button>
+      </div>
+      <div className="mt-3 flex flex-wrap gap-2">
+        {steps.map((id, k) => (
+          <button key={id} type="button" onClick={() => goRoute(id, r.goal)}
+            className={"inline-flex items-center gap-2 rounded-full border px-3.5 py-1.5 text-sm font-medium transition hover:-translate-y-0.5 " + (seen[id] ? "border-em/40 bg-emsoft text-ink" : "border-line bg-card text-ink hover:border-em")}>
+            {seen[id] ? <Icon name="CheckCircle2" className="w-4 h-4 text-em" /> : <span className="font-mono text-xs text-em">{k + 1}</span>}{SEC_LABEL[id][0]}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* ---------- 6 + 9. menú de lectura (modo y tamaño de letra) ---------- */
+function ReadingMenu() {
+  const [open, setOpen] = useState(false);
+  const mode = useMode();
+  const [font, setFont] = useState(() => clampFont(store.get("bpy-font", 0)));
+  const btn = React.useRef(null);
+  const [pos, setPos] = useState({ top: 64, right: 12 });
+  const toggle = () => {
+    if (!open && btn.current) { const r = btn.current.getBoundingClientRect(); setPos({ top: r.bottom + 8, right: Math.max(8, window.innerWidth - r.right) }); }
+    setOpen(!open);
+  };
+  const changeFont = (i) => { setFont(i); applyFont(i); store.set("bpy-font", i); if (btn.current) { const r = btn.current.getBoundingClientRect(); setPos({ top: r.bottom + 8, right: Math.max(8, window.innerWidth - r.right) }); } };
+  useEffect(() => {
+    if (!open) return;
+    const k = (e) => { if (e.key === "Escape") setOpen(false); };
+    window.addEventListener("keydown", k);
+    return () => window.removeEventListener("keydown", k);
+  }, [open]);
+  return (
+    <>
+      <button ref={btn} type="button" onClick={toggle} aria-expanded={open} aria-label={"Opciones de lectura. Modo " + (mode === "simple" ? "Simple" : "Experto")} title="Modo de lectura y tamaño de letra"
+        className={"inline-flex items-center gap-1.5 h-9 px-2.5 shrink-0 rounded-lg border transition " + (open ? "border-em bg-emsoft text-em" : "border-line text-ink hover:bg-soft")}>
+        <span className="font-display font-extrabold text-sm leading-none">Aa</span>
+        <span className={"hidden sm:inline rounded px-1.5 py-0.5 text-[10px] font-mono uppercase tracking-wider " + (mode === "simple" ? "bg-emsoft text-em" : "bg-navy text-up")}>{mode === "simple" ? "Simple" : "Experto"}</span>
+      </button>
+      {open && ReactDOM.createPortal(
+        <div className="fixed inset-0 z-[70]" onClick={() => setOpen(false)}>
+          <div role="dialog" aria-label="Opciones de lectura" onClick={(e) => e.stopPropagation()} style={{ top: pos.top, right: pos.right }}
+            className="pop-in absolute w-[min(22rem,calc(100vw-16px))] max-h-[calc(100vh-80px)] overflow-y-auto rounded-2xl border border-line bg-card shadow-2xl p-4">
+            <p className="font-mono text-[11px] uppercase tracking-widest text-muted">Modo de lectura</p>
+            <div className="mt-2 grid grid-cols-2 gap-2">
+              {[["simple", "Simple", "Sprout", "Lo esencial. Los temas avanzados quedan plegados."], ["experto", "Experto", "GraduationCap", "Todos los temas, incluidos los niveles 4 y 5."]].map(([id, l, ic, d]) => (
+                <button key={id} type="button" onClick={() => setMode(id)} aria-pressed={mode === id}
+                  className={"text-left rounded-xl border p-3 transition " + (mode === id ? "border-em bg-emsoft" : "border-line hover:bg-soft")}>
+                  <span className="flex items-center gap-1.5 font-bold text-ink"><Icon name={ic} className="w-4 h-4 text-em" />{l}{mode === id && <Icon name="Check" className="ml-auto w-4 h-4 text-em" />}</span>
+                  <span className="block mt-1 text-xs text-muted leading-snug">{d}</span>
+                </button>
+              ))}
+            </div>
+            <p className="mt-4 font-mono text-[11px] uppercase tracking-widest text-muted">Tamaño de letra</p>
+            <div className="mt-2 grid grid-cols-3 gap-2">
+              {FONT_STEPS.map((_, i) => (
+                <button key={i} type="button" onClick={() => changeFont(i)} aria-pressed={font === i} aria-label={"Letra " + FONT_LABELS[i].toLowerCase()}
+                  className={"rounded-xl border py-2 transition " + (font === i ? "border-em bg-emsoft text-em" : "border-line text-ink hover:bg-soft")}>
+                  <span className={"block font-display font-bold leading-none " + ["text-sm", "text-lg", "text-2xl"][i]}>A</span>
+                  <span className="block mt-1 text-[11px] text-muted">{FONT_LABELS[i]}</span>
+                </button>
+              ))}
+            </div>
+            <button type="button" onClick={() => { setOpen(false); openWizard(); }} className="mt-4 w-full inline-flex items-center justify-center gap-2 rounded-xl bg-em text-white font-semibold py-2.5 hover:brightness-110 transition"><Icon name="Route" className="w-4 h-4" />Armar mi ruta en 3 preguntas</button>
+            <ul className="mt-3 space-y-1.5 text-xs text-muted">
+              {HL && <li className="flex gap-2"><Icon name="MousePointerClick" className="w-4 h-4 shrink-0 text-em" />Tocá las palabras subrayadas para ver qué significan.</li>}
+              {canSpeak && <li className="flex gap-2"><Icon name="Volume2" className="w-4 h-4 shrink-0 text-em" />Usá «Escuchar» en cada sección para oírla en voz alta.</li>}
+            </ul>
+          </div>
+        </div>,
+        document.body
+      )}
+    </>
+  );
+}
+
+
 function App() {
   const [view, setView] = useState(readHash);
   useEffect(() => {
@@ -4284,6 +5126,7 @@ function App() {
   }, []);
   useEffect(() => { window.scrollTo({ top: 0 }); }, [view]);
   useExperience(view);
+  useEffect(() => { stopSpeak(); }, [view]);
   const [busca, setBusca] = useState(false);
   useSearchShortcut(setBusca);
   currentView = view;
@@ -4292,7 +5135,7 @@ function App() {
     instrumentos: [<Instrumentos key="i" />, <Fondos key="f" />, <Riesgos key="r" />],
     invertir: [<DondeInvertir key="d" />, <Casos key="c" />, <Estrategias key="es" />, <Casas key="cb" />],
     mercado: [<Ecosistema key="e" />, <Mapa key="m" />, <Negociacion key="n" />, <Precios key="pr" />, <Prospecto key="p" />, <LineaTiempo key="l" />],
-    empezar: [<Mitos key="mi" />, <Stepper key="s" />, <Estafas key="es" />, <ChecklistPre key="ch" />, <Perfil key="pf" />],
+    empezar: [<Basico key="b" />, <Mitos key="mi" />, <Stepper key="s" />, <CasoMaria key="ma" />, <Estafas key="es" />, <ChecklistPre key="ch" />, <Perfil key="pf" />],
     herramientas: [<Herramientas key="h" />],
     aprender: [<Aprender key="a" />, <Experto key="x" />, <Profesional key="pro" />, <Quiz key="q" />, <GlosarioFAQ key="g" />, <DatosOficiales key="o" />, <Acerca key="ac" />],
   };
@@ -4316,6 +5159,8 @@ function App() {
       <Footer />
       <BackToTop />
       <Toasts />
+      <GlossHost />
+      <WizardHost />
       {busca && <Buscador onClose={() => setBusca(false)} />}
     </>
   );
