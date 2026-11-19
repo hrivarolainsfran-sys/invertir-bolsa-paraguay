@@ -54,8 +54,8 @@ const VIEWS = [
     desc: "Simulá tu inversión, calculá cuánto ahorrar para una meta, armá el calendario de cupones de un bono y compará monedas y costos.",
     sections: [["simulador", "Calculadoras"]] },
   { id: "aprender", label: "Aprender", icon: "GraduationCap", title: "Aprender",
-    desc: "Tu ruta de aprendizaje, mini-cursos, temas de nivel experto, un quiz, el glosario, las fuentes oficiales y quiénes hacemos esta guía.",
-    sections: [["aprender", "Ruta y mini-cursos"], ["experto", "Nivel experto"], ["quiz", "Quiz"], ["glosario", "Glosario y FAQ"], ["oficial", "Fuentes oficiales"], ["acerca", "Sobre esta guía"]] },
+    desc: "Tu ruta de aprendizaje en 5 niveles, mini-cursos, temas de nivel experto y profesional, un quiz, el glosario, las fuentes oficiales y quiénes hacemos esta guía.",
+    sections: [["aprender", "Ruta y mini-cursos"], ["experto", "Nivel experto"], ["profesional", "Nivel profesional"], ["quiz", "Quiz"], ["glosario", "Glosario y FAQ"], ["oficial", "Fuentes oficiales"], ["acerca", "Sobre esta guía"]] },
 ];
 const VIEW_IDS = VIEWS.map((v) => v.id);
 const SECTION_VIEW = {};
@@ -160,6 +160,17 @@ const GLOSSARY = [
   ["Valor cuota", "Valor de cada cuota de un fondo: su patrimonio dividido por la cantidad de cuotas. Se publica todos los días."],
   ["Hecho relevante", "Información que un emisor debe comunicar al mercado porque puede afectar el valor de sus títulos."],
   ["Escalera de vencimientos", "Estrategia de repartir la inversión en títulos que vencen en años distintos para tener liquidez periódica."],
+  ["Duración", "Medida, en años, de la sensibilidad del precio de un bono a los cambios de tasa. Con duración modificada de 4, si la tasa sube 1 punto el precio cae cerca de 4 %."],
+  ["Convexidad", "Corrige la estimación de la duración cuando el cambio de tasa es grande. Más convexidad es mejor para el inversor."],
+  ["Curva de rendimientos", "Gráfico de las tasas que paga el mercado según el plazo. Normalmente es creciente: a más plazo, más tasa."],
+  ["Spread de crédito", "Tasa adicional que paga un bono corporativo sobre un bono del Tesoro del mismo plazo. Se mide en puntos básicos (100 pb = 1 %)."],
+  ["Covenant (resguardo)", "Compromiso que asume un emisor en el prospecto, como no superar cierto nivel de deuda."],
+  ["Volatilidad", "Cuánto varía el rendimiento de una inversión. Es la medida más usada del riesgo de mercado."],
+  ["Índice de Sharpe", "Rendimiento por encima de la tasa libre de riesgo dividido por la volatilidad. Cuanto más alto, mejor la relación riesgo-retorno."],
+  ["Drawdown (caída máxima)", "La mayor pérdida desde un máximo hasta el punto más bajo de una inversión o cartera."],
+  ["Tasa de política monetaria", "Tasa de referencia que fija el BCP para guiar las tasas de interés de la economía y controlar la inflación."],
+  ["Formador de mercado", "Participante que publica de forma continua precios de compra y venta de un título para darle liquidez."],
+  ["Titularización", "Proceso de convertir activos que generan flujos (préstamos, alquileres) en títulos negociables en bolsa."],
   ["Custodia", "Servicio de guarda y registro de tus títulos. En Paraguay la realiza la Caja de Valores del Paraguay (CAVAPY) y se refleja en tu cuenta comitente."],
 ];
 
@@ -305,7 +316,7 @@ function ShareButtons({ text }) {
 function Ticker() {
   const items = [
     ...INSTRUMENTS.filter((x) => x.ratePYG > 0).map((x) => [x.name.toUpperCase(), x.currencies.includes("PYG") ? "PYG " + pct(x.ratePYG) : null, x.currencies.includes("USD") && x.rateUSD ? "USD " + pct(x.rateUSD) : null]),
-    ["META DE INFLACIÓN BCP", "4 %", null],
+    ["META DE INFLACIÓN BCP", "3,5 %", null], ["TASA DE POLÍTICA MONETARIA", "5,50 %", null],
     ["CASAS DE BOLSA HABILITADAS", "24", null],
   ];
   const row = (prefix) => items.map(([k, a, b], i) => (
@@ -607,7 +618,7 @@ function Beneficios() {
   const [caja, setCaja] = useState(1);
   const [inst, setInst] = useState("cda");
   const [inv, setInv] = useState(7.5);
-  const [infl, setInfl] = useState(4);
+  const [infl, setInfl] = useState(3.5);
   const [years, setYears] = useState(5);
   const changeCur = (c) => { setCur(c); setAmount(c === "PYG" ? 10000000 : 2000); setCaja(c === "PYG" ? 1 : 0.5); setInv(rateOf(instById(inst), c)); };
   const changeInst = (id) => { setInst(id); setInv(rateOf(instById(id), cur)); };
@@ -643,7 +654,7 @@ function Beneficios() {
           <div className="prose-w">
             <p className="eyebrow">Calculadora</p>
             <h3 className="mt-1 text-2xl font-bold text-ink">Caja de ahorro vs. invertir</h3>
-            <p className="mt-2 text-sm text-muted">Compará lo que pasa con tu dinero si lo dejás en la caja de ahorro o si lo invertís, frente a la inflación. La meta de inflación del BCP es 4 % anual.</p>
+            <p className="mt-2 text-sm text-muted">Compará lo que pasa con tu dinero si lo dejás en la caja de ahorro o si lo invertís, frente a la inflación. La meta de inflación del BCP es 3,5 % anual; en octubre de 2026 la inflación interanual fue 1,7 %.</p>
           </div>
           <CurToggle id="ben-cur" cur={cur} setCur={changeCur} />
         </div>
@@ -2129,6 +2140,7 @@ const ROUTE = [
   { level: "Intermedio", icon: "TrendingUp", items: [["donde", "Dónde invertir según tu objetivo"], ["instrumentos", "Instrumentos financieros"], ["fondos", "Fondos por dentro"], ["casas", "Cómo elegir una Casa de Bolsa"], ["estafas", "Señales de estafa"]] },
   { level: "Avanzado", icon: "LineChart", items: [["riesgos", "Los 6 riesgos"], ["estrategias", "Estrategias de cartera"], ["prospecto", "Cómo leer un prospecto"], ["linea", "Ciclo de vida de una inversión"], ["simulador", "Calculadoras"]] },
   { level: "Experto", icon: "GraduationCap", items: [["negociacion", "Cómo se negocia"], ["precios", "Precio de un bono"], ["mapa", "Mapa del mercado"], ["experto", "Emisores, derechos e impuestos"], ["quiz", "Quiz final"]] },
+  { level: "Profesional", icon: "Award", items: [["pro-rf", "Duración, convexidad y curva"], ["pro-credito", "Spread y análisis de crédito"], ["pro-valuacion", "Valuación de acciones"], ["pro-carteras", "Carteras, volatilidad y Sharpe"], ["pro-macro", "Macroeconomía y el BCP"], ["pro-derivados", "Futuros, opciones y fideicomisos"], ["pro-micro", "Subastas y formadores de mercado"], ["pro-psico", "Psicología del inversor"], ["pro-practica", "Cartera de práctica y quiz profesional"]] },
 ];
 
 function MiniCursos() {
@@ -2263,21 +2275,21 @@ function Aprender() {
           <p className="num text-sm font-semibold text-em">{n} de {all.length} temas · {Math.round((n / all.length) * 100)} %</p>
         </div>
         <div className="mt-3 h-2.5 rounded-full bg-soft overflow-hidden"><div className="h-full bg-em rounded-full transition-all duration-500" style={{ width: (n / all.length) * 100 + "%" }} /></div>
-        <div className="mt-6 grid md:grid-cols-2 xl:grid-cols-4 gap-4">
+        <div className="mt-6 grid md:grid-cols-2 xl:grid-cols-3 gap-4">
           {ROUTE.map((l, li) => {
             const ld = l.items.filter(([id]) => done[id]).length;
             return (
-              <div key={l.level} className="rounded-xl border border-line bg-bg p-4">
+              <div key={l.level} className={"rounded-xl border p-4 " + (li === 4 ? "md:col-span-2 border-navy/40 bg-navy/5" : "border-line bg-bg")}>
                 <div className="flex items-center justify-between gap-2">
                   <p className="flex items-center gap-2 font-bold text-ink"><span className="grid place-items-center w-8 h-8 rounded-lg bg-navy text-navyfg"><Icon name={l.icon} className="w-4 h-4" /></span>Nivel {li + 1}: {l.level}</p>
                   {ld === l.items.length && <Icon name="Trophy" className="w-5 h-5 text-amber" />}
                 </div>
-                <ul className="mt-3 space-y-1">
+                <ul className={"mt-3 gap-x-4 " + (li === 4 ? "grid sm:grid-cols-2 gap-y-1" : "space-y-1")}>
                   {l.items.map(([id, label]) => (
                     <li key={id} className="flex items-center gap-2 rounded-lg px-1 py-1.5 hover:bg-soft">
                       <input id={"ruta-" + id} type="checkbox" checked={!!done[id]} onChange={(e) => setDone({ ...done, [id]: e.target.checked })} className="w-4 h-4 accent-[rgb(var(--em))] shrink-0" />
                       <label htmlFor={"ruta-" + id} className={"flex-1 text-sm cursor-pointer " + (done[id] ? "text-muted line-through" : "text-ink")}>{label}</label>
-                      <button onClick={() => scrollTo(id)} className="text-xs font-semibold text-em hover:underline shrink-0" aria-label={"Ir a " + label}>Ir</button>
+                      <button onClick={() => goTo(id)} className="text-xs font-semibold text-em hover:underline shrink-0" aria-label={"Ir a " + label}>Ir</button>
                     </li>
                   ))}
                 </ul>
@@ -3110,6 +3122,637 @@ function Experto() {
   );
 }
 
+/* =====================================================================
+   NIVEL PROFESIONAL (v6): renta fija avanzada, crédito, valuación,
+   carteras, macro, derivados, microestructura, psicología y práctica.
+   ===================================================================== */
+const goTo = (id) => {
+  if (id.startsWith("pro-")) { scrollTo("profesional"); setTimeout(() => window.dispatchEvent(new CustomEvent("bpy-pro", { detail: id.slice(4) })), 120); }
+  else scrollTo(id);
+};
+const Card = ({ icon, title, children, tone = "em" }) => (
+  <div className="rounded-2xl border border-line bg-bg p-5 min-w-0">
+    {icon && <span className={"grid place-items-center w-10 h-10 rounded-xl " + (tone === "em" ? "bg-emsoft text-em" : tone === "amber" ? "bg-ambersoft text-amber" : tone === "danger" ? "bg-dangersoft text-danger" : "bg-navy text-up")}><Icon name={icon} className="w-5 h-5" /></span>}
+    <p className="mt-3 font-bold text-ink">{title}</p>
+    <div className="mt-1 text-sm text-muted space-y-2">{children}</div>
+  </div>
+);
+const Slider = ({ id, label, value, onChange, min, max, step, fmt }) => (
+  <div>
+    <label htmlFor={id} className="flex justify-between text-sm font-semibold text-ink">{label} <span className="font-mono text-em">{fmt ? fmt(value) : value}</span></label>
+    <input id={id} type="range" min={min} max={max} step={step} value={value} onChange={(e) => onChange(Number(e.target.value))} className="w-full mt-2" />
+  </div>
+);
+const fmtNum = (v, d = 2) => toNum(v).toLocaleString("es-PY", { maximumFractionDigits: d, minimumFractionDigits: d });
+
+/* ---------- 1. renta fija avanzada ---------- */
+const bondMetrics = (cpn, f, years, ytm) => {
+  const n = Math.max(1, Math.round(years * f)); const c = cpn / 100 / f * 100; const y = ytm / 100 / f;
+  let p = 0, t = 0, cx = 0;
+  for (let k = 1; k <= n; k++) { const cf = c + (k === n ? 100 : 0); const pv = cf / Math.pow(1 + y, k); p += pv; t += (k / f) * pv; cx += (k * (k + 1)) * pv / Math.pow(1 + y, 2) / (f * f); }
+  const mac = t / p; const mod = mac / (1 + y); const conv = cx / p;
+  return { p, mac, mod, conv };
+};
+function ProRentaFija() {
+  const [cpn, setCpn] = useState(8.5);
+  const [years, setYears] = useState(6);
+  const [f, setF] = useState(2);
+  const [ytm, setYtm] = useState(8.5);
+  const [dy, setDy] = useState(1);
+  const [shape, setShape] = useState("normal");
+  const m = bondMetrics(toNum(cpn), f, Math.max(0.5, toNum(years)), toNum(ytm));
+  const pNew = bondMetrics(toNum(cpn), f, Math.max(0.5, toNum(years)), toNum(ytm) + dy).p;
+  const approx = (-m.mod * dy / 100 + 0.5 * m.conv * Math.pow(dy / 100, 2)) * 100;
+  const real = (pNew / m.p - 1) * 100;
+  const plazos = [1, 2, 3, 5, 7, 10];
+  const shapes = { normal: [6.2, 6.8, 7.3, 8.0, 8.5, 9.0], plana: [7.6, 7.7, 7.7, 7.8, 7.8, 7.9], invertida: [9.0, 8.6, 8.2, 7.6, 7.2, 6.9] };
+  const curve = plazos.map((pl, i) => ({ pl, t: shapes[shape][i] }));
+  const { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, ReferenceDot } = RC || {};
+  return (
+    <div className="space-y-8">
+      <div>
+        <h4 className="text-lg font-bold text-ink">Duración y convexidad</h4>
+        <p className="mt-1 text-sm text-muted prose-w">La <strong>duración modificada</strong> te dice cuánto cae (en %) el precio de un bono si la tasa de mercado sube 1 punto. La <strong>convexidad</strong> corrige esa estimación cuando el cambio de tasa es grande. Cuanto más largo el plazo y menor el cupón, mayor la duración y el riesgo de tasa.</p>
+        <div className="mt-4 grid lg:grid-cols-[320px_1fr] gap-6">
+          <div className="grid gap-4 content-start">
+            <div className="grid grid-cols-2 gap-3">
+              <NumField id="dur-cpn" label="Cupón" value={cpn} onChange={setCpn} suffix="%" step={0.1} />
+              <NumField id="dur-years" label="Plazo" value={years} onChange={setYears} suffix="años" min={0.5} max={30} step={0.5} />
+              <NumField id="dur-ytm" label="TIR actual" value={ytm} onChange={setYtm} suffix="%" step={0.1} />
+              <div><label htmlFor="dur-f" className="text-sm font-semibold text-ink block mb-1.5">Cupones</label>
+                <select id="dur-f" value={f} onChange={(e) => setF(Number(e.target.value))} className={FIELD}><option value={12}>Mensual</option><option value={4}>Trimestral</option><option value={2}>Semestral</option><option value={1}>Anual</option></select></div>
+            </div>
+            <Slider id="dur-dy" label="Cambio en la tasa de mercado" value={dy} onChange={setDy} min={-3} max={3} step={0.25} fmt={(v) => (v > 0 ? "+" : "") + fmtNum(v) + " pp"} />
+          </div>
+          <div className="min-w-0 grid sm:grid-cols-2 gap-3 content-start">
+            <Stat tone="navy" label="Duración modificada" value={fmtNum(m.mod) + " años"} sub={"Macaulay: " + fmtNum(m.mac) + " años"} />
+            <Stat label="Convexidad" value={fmtNum(m.conv, 1)} />
+            <Stat tone={real >= 0 ? "em" : "danger"} label="Cambio real del precio" value={(real >= 0 ? "+" : "") + fmtNum(real) + " %"} sub={"Precio: " + fmtNum(m.p) + " % → " + fmtNum(pNew) + " %"} />
+            <Stat label="Estimación duración + convexidad" value={(approx >= 0 ? "+" : "") + fmtNum(approx) + " %"} sub={"Solo duración: " + fmtNum(-m.mod * dy) + " %"} />
+          </div>
+        </div>
+      </div>
+      <div className="grid lg:grid-cols-[1fr_1.2fr] gap-6 items-start">
+        <div className="min-w-0">
+          <h4 className="text-lg font-bold text-ink">Curva de rendimientos</h4>
+          <p className="mt-1 text-sm text-muted">Muestra cuánto paga el mercado según el plazo. Su forma anticipa qué espera el mercado:</p>
+          <ul className="mt-3 space-y-2">
+            <Bullet><strong>Normal (creciente):</strong> más plazo, más tasa. Es lo habitual.</Bullet>
+            <Bullet><strong>Plana:</strong> el mercado espera pocos cambios.</Bullet>
+            <Bullet><strong>Invertida:</strong> los plazos cortos pagan más; suele anticipar bajas de tasas o desaceleración.</Bullet>
+          </ul>
+          <div className="mt-4"><TabBar idBase="curva" label="Forma de la curva" value={shape} onChange={setShape} tabs={[["normal", "Normal"], ["plana", "Plana"], ["invertida", "Invertida"]]} /></div>
+          <p className="mt-3 text-xs text-muted">Curvas ilustrativas. El punto azul es un dato real: en septiembre de 2026 la renta fija en guaraníes se negoció en la BVA a una tasa promedio de 8,45 % con un plazo promedio de 5,7 años.</p>
+        </div>
+        <div className="h-64 rounded-xl border border-line bg-bg p-3">
+          {ResponsiveContainer && (
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={curve} margin={{ top: 10, right: 16, left: 0, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                <XAxis dataKey="pl" type="number" domain={[0, 10]} ticks={[1, 2, 3, 5, 7, 10]} tickLine={false} axisLine={false} tickFormatter={(v) => v + " a"} />
+                <YAxis tickLine={false} axisLine={false} width={44} domain={[5.5, 9.5]} tickFormatter={(v) => v + "%"} />
+                <Tooltip formatter={(v) => [pct(v, 2), "Tasa"]} labelFormatter={(l) => l + " años"} contentStyle={TOOLTIP_STYLE} />
+                <Line type="monotone" dataKey="t" stroke="rgb(var(--em))" strokeWidth={3} dot={{ r: 3, fill: "rgb(var(--em))" }} isAnimationActive={false} />
+                <ReferenceDot x={5.74} y={8.45} r={6} fill="rgb(var(--navy))" stroke="rgb(var(--card))" strokeWidth={2} />
+              </LineChart>
+            </ResponsiveContainer>
+          )}
+        </div>
+      </div>
+      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
+        <Card icon="CalendarRange" title="Bonos amortizables">Devuelven el capital en cuotas durante su vida, no todo al final. Tienen menor duración y menor riesgo de tasa que un bono «bullet» del mismo plazo.</Card>
+        <Card icon="Layers" title="Bonos subordinados">En caso de quiebra cobran después de los demás acreedores. Por eso pagan más tasa. Son comunes en bancos.</Card>
+        <Card icon="Undo2" title="Con rescate anticipado">El emisor puede devolverte el capital antes. Suele hacerlo cuando bajan las tasas, justo cuando a vos te convenía seguir cobrando.</Card>
+        <Card icon="ShieldCheck" title="Con garantía o fideicomiso">Están respaldados por bienes o flujos específicos (hipotecas, cobranzas). Bajan el riesgo de crédito, pero leé bien qué cubre la garantía.</Card>
+      </div>
+    </div>
+  );
+}
+
+/* ---------- 2. análisis de crédito ---------- */
+const ISSUERS = [["Tesoro (Estado)", "Soberano", 7.8], ["Emisor A", "AAApy", 8.4], ["Emisor B", "AApy", 9.0], ["Emisor C", "Apy", 9.9], ["Emisor D", "BBBpy", 11.2]];
+function ProCredito() {
+  const [corp, setCorp] = useState(9.5);
+  const [gov, setGov] = useState(7.8);
+  const spread = (toNum(corp) - toNum(gov)) * 100;
+  const { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, Cell, LabelList } = RC || {};
+  const data = ISSUERS.map(([n, r, t]) => ({ n: n + " · " + r, s: Math.round((t - ISSUERS[0][2]) * 100) }));
+  return (
+    <div className="space-y-8">
+      <div className="grid lg:grid-cols-[1fr_1.2fr] gap-6 items-start">
+        <div>
+          <h4 className="text-lg font-bold text-ink">Spread de crédito</h4>
+          <p className="mt-1 text-sm text-muted">Es la tasa extra que paga un bono corporativo frente a un bono del Tesoro del mismo plazo y moneda. Se mide en puntos básicos (100 pb = 1 %). Es el «premio» por asumir el riesgo de ese emisor.</p>
+          <div className="mt-4 grid grid-cols-2 gap-3">
+            <NumField id="sp-corp" label="Tasa bono corporativo" value={corp} onChange={setCorp} suffix="%" step={0.05} />
+            <NumField id="sp-gov" label="Tasa Tesoro mismo plazo" value={gov} onChange={setGov} suffix="%" step={0.05} />
+          </div>
+          <div className="mt-3"><Stat tone="navy" label="Spread" value={Math.round(spread) + " pb"} sub={spread <= 0 ? "No paga premio: revisá los datos" : "Comparalo con emisores de la misma calificación y plazo"} /></div>
+        </div>
+        <div className="rounded-xl border border-line bg-bg p-4">
+          <p className="text-sm font-semibold text-ink">Spread según calificación (ejemplo ficticio)</p>
+          <div className="h-56 mt-2">
+            {ResponsiveContainer && (
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={data.slice(1)} layout="vertical" margin={{ top: 0, right: 40, left: 0, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" horizontal={false} />
+                  <XAxis type="number" tickLine={false} axisLine={false} tickFormatter={(v) => v + " pb"} />
+                  <YAxis type="category" dataKey="n" tickLine={false} axisLine={false} width={120} />
+                  <Tooltip formatter={(v) => [v + " pb", "Spread sobre el Tesoro"]} contentStyle={TOOLTIP_STYLE} cursor={{ fill: "rgb(var(--soft))" }} />
+                  <Bar dataKey="s" radius={[0, 6, 6, 0]}>{data.slice(1).map((d, i) => <Cell key={d.n} fill={["rgb(var(--em))", "rgb(var(--em))", "rgb(var(--amber))", "rgb(var(--red))"][i]} />)}<LabelList dataKey="s" position="right" formatter={(v) => v + " pb"} style={{ fill: "rgb(var(--ink))", fontSize: 12 }} /></Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            )}
+          </div>
+          <p className="text-xs text-muted">A menor calificación, mayor spread. Si un emisor paga mucho más que otros de su misma nota, preguntate por qué.</p>
+        </div>
+      </div>
+      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
+        <Card icon="FileSearch" title="Leer un informe de calificación">Buscá tres cosas: los <strong>fundamentos</strong> (fortalezas y debilidades), la <strong>tendencia</strong> (fuerte, estable, sensible) y los <strong>factores</strong> que podrían subir o bajar la nota.</Card>
+        <Card icon="Lock" title="Resguardos (covenants)">Compromisos del emisor en el prospecto: no superar cierto endeudamiento, mantener liquidez mínima, no repartir dividendos si incumple. Si los rompe, los bonistas pueden exigir medidas.</Card>
+        <Card icon="Landmark" title="Bancos y financieras">Se analizan distinto: <strong>morosidad</strong> de la cartera, <strong>solvencia</strong> (capital frente a riesgos), <strong>liquidez</strong> y <strong>rentabilidad</strong>. El BCP publica estos datos de cada entidad.</Card>
+        <Card icon="Banknote" title="Flujo de caja (NIIF)">Una empresa puede tener ganancias contables y quedarse sin efectivo. Mirá el <strong>flujo de caja operativo</strong>: si es negativo varios años, la empresa depende de deuda nueva para pagar la vieja.</Card>
+      </div>
+    </div>
+  );
+}
+
+/* ---------- 3. valuación de acciones ---------- */
+function ProValuacion() {
+  const [d1, setD1] = useState(90000);
+  const [k, setK] = useState(12);
+  const [g, setG] = useState(3);
+  const [price, setPrice] = useState(1000000);
+  const [fcf, setFcf] = useState(10000);
+  const [gr, setGr] = useState(6);
+  const [wacc, setWacc] = useState(12);
+  const [tg, setTg] = useState(3);
+  const [shares, setShares] = useState(100);
+  const [debt, setDebt] = useState(20000);
+  const gordon = toNum(k) > toNum(g) ? toNum(d1) / ((toNum(k) - toNum(g)) / 100) : NaN;
+  let pv = 0, cf = toNum(fcf);
+  const rows = [];
+  for (let y = 1; y <= 5; y++) { cf = cf * (1 + toNum(gr) / 100); const v = cf / Math.pow(1 + toNum(wacc) / 100, y); pv += v; rows.push([y, cf, v]); }
+  const tv = toNum(wacc) > toNum(tg) ? (cf * (1 + toNum(tg) / 100)) / ((toNum(wacc) - toNum(tg)) / 100) : NaN;
+  const pvTv = tv / Math.pow(1 + toNum(wacc) / 100, 5);
+  const ev = pv + pvTv; const eq = ev - toNum(debt); const perShare = toNum(shares) > 0 ? (eq * 1e6) / (toNum(shares) * 1e3) : NaN;
+  return (
+    <div className="space-y-8">
+      <div className="grid lg:grid-cols-2 gap-6">
+        <div className="rounded-xl border border-line bg-bg p-5">
+          <h4 className="text-lg font-bold text-ink">Modelo de dividendos (Gordon)</h4>
+          <p className="mt-1 text-sm text-muted">Útil para acciones que pagan dividendos estables, como muchas preferidas locales. Valor = dividendo próximo ÷ (rendimiento exigido − crecimiento).</p>
+          <div className="mt-4 grid grid-cols-2 gap-3">
+            <NumField id="gd-d1" label="Dividendo próximo (Gs.)" value={d1} onChange={setD1} step={1000} />
+            <NumField id="gd-price" label="Precio de mercado (Gs.)" value={price} onChange={setPrice} step={10000} />
+            <NumField id="gd-k" label="Rendimiento exigido" value={k} onChange={setK} suffix="%" step={0.5} />
+            <NumField id="gd-g" label="Crecimiento anual" value={g} onChange={setG} suffix="%" step={0.5} />
+          </div>
+          <div className="mt-4 grid grid-cols-2 gap-3">
+            <Stat tone="navy" label="Valor estimado" value={isFinite(gordon) ? fmtMoney(gordon, "PYG") : "—"} sub={isFinite(gordon) ? "" : "El rendimiento exigido debe superar al crecimiento"} />
+            <Stat tone={isFinite(gordon) && gordon >= toNum(price) ? "em" : "danger"} label={isFinite(gordon) && gordon >= toNum(price) ? "Margen a favor" : "Cotiza por encima"} value={isFinite(gordon) ? pct(((gordon / toNum(price)) - 1) * 100) : "—"} />
+          </div>
+        </div>
+        <div className="rounded-xl border border-line bg-bg p-5">
+          <h4 className="text-lg font-bold text-ink">Flujo de caja descontado (simplificado)</h4>
+          <p className="mt-1 text-sm text-muted">Proyecta el flujo de caja libre 5 años, le suma un valor terminal y trae todo a valor de hoy. Cifras en millones de Gs.</p>
+          <div className="mt-4 grid grid-cols-3 gap-3">
+            <NumField id="dcf-fcf" label="Flujo hoy" value={fcf} onChange={setFcf} step={500} />
+            <NumField id="dcf-gr" label="Crece 5 años" value={gr} onChange={setGr} suffix="%" step={0.5} />
+            <NumField id="dcf-wacc" label="Tasa descuento" value={wacc} onChange={setWacc} suffix="%" step={0.5} />
+            <NumField id="dcf-tg" label="Crec. perpetuo" value={tg} onChange={setTg} suffix="%" step={0.5} />
+            <NumField id="dcf-debt" label="Deuda neta" value={debt} onChange={setDebt} step={1000} />
+            <NumField id="dcf-shares" label="Acciones (miles)" value={shares} onChange={setShares} step={10} />
+          </div>
+          <div className="mt-4 grid grid-cols-2 gap-3">
+            <Stat label="Valor de la empresa" value={isFinite(ev) ? "Gs. " + Math.round(ev).toLocaleString("es-PY") + " M" : "—"} sub={isFinite(pvTv) && ev > 0 ? "Valor terminal: " + pct((pvTv / ev) * 100, 0) + " del total" : ""} />
+            <Stat tone="navy" label="Valor por acción" value={isFinite(perShare) && perShare > 0 ? fmtMoney(perShare, "PYG") : "—"} />
+          </div>
+        </div>
+      </div>
+      <div className="grid sm:grid-cols-3 gap-3">
+        <Card icon="Scale" title="Comparables">Compará el <strong>precio/utilidad</strong>, <strong>precio/valor libro</strong> y <strong>rendimiento por dividendo</strong> con empresas similares del mismo sector. Un múltiplo mucho menor puede ser una oportunidad… o una señal de problemas.</Card>
+        <Card icon="AlertTriangle" title="Sensibilidad" tone="amber">Pequeños cambios en la tasa de descuento o el crecimiento mueven mucho el resultado. Un buen analista prueba varios escenarios y nunca confía en un único número.</Card>
+        <Card icon="Droplets" title="En Paraguay" tone="amber">El mercado de acciones local es poco líquido: aunque calcules un buen valor, puede costar comprar o vender al precio que querés.</Card>
+      </div>
+    </div>
+  );
+}
+
+/* ---------- 4. carteras y riesgo ---------- */
+function ProCarteras() {
+  const [w, setW] = useState(60);
+  const [rA, setRA] = useState(8.5);
+  const [vA, setVA] = useState(4);
+  const [rB, setRB] = useState(12);
+  const [vB, setVB] = useState(20);
+  const [rho, setRho] = useState(0.2);
+  const [rf, setRf] = useState(6);
+  const a = w / 100, b = 1 - a;
+  const ret = a * toNum(rA) + b * toNum(rB);
+  const vol = Math.sqrt(a * a * toNum(vA) ** 2 + b * b * toNum(vB) ** 2 + 2 * a * b * rho * toNum(vA) * toNum(vB));
+  const sharpe = vol > 0 ? (ret - toNum(rf)) / vol : 0;
+  const front = Array.from({ length: 11 }, (_, i) => { const x = i / 10, y = 1 - x; return { v: Math.sqrt(x * x * toNum(vA) ** 2 + y * y * toNum(vB) ** 2 + 2 * x * y * rho * toNum(vA) * toNum(vB)), r: x * toNum(rA) + y * toNum(rB), w: i * 10 }; });
+  const { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, ReferenceDot } = RC || {};
+  return (
+    <div className="space-y-8">
+      <div className="grid lg:grid-cols-[320px_1fr] gap-6">
+        <div className="grid gap-4 content-start">
+          <p className="text-sm text-muted">Combiná un activo de <strong>renta fija</strong> (A) y uno de <strong>renta variable</strong> (B). La <strong>volatilidad</strong> mide cuánto varía el rendimiento; la <strong>correlación</strong>, si se mueven juntos.</p>
+          <Slider id="pf-w" label="Peso en renta fija (A)" value={w} onChange={setW} min={0} max={100} step={5} fmt={(v) => v + " %"} />
+          <div className="grid grid-cols-2 gap-3">
+            <NumField id="pf-ra" label="Rend. A" value={rA} onChange={setRA} suffix="%" step={0.5} />
+            <NumField id="pf-va" label="Volatilidad A" value={vA} onChange={setVA} suffix="%" step={0.5} />
+            <NumField id="pf-rb" label="Rend. B" value={rB} onChange={setRB} suffix="%" step={0.5} />
+            <NumField id="pf-vb" label="Volatilidad B" value={vB} onChange={setVB} suffix="%" step={0.5} />
+          </div>
+          <Slider id="pf-rho" label="Correlación A-B" value={rho} onChange={setRho} min={-1} max={1} step={0.1} fmt={(v) => fmtNum(v, 1)} />
+          <NumField id="pf-rf" label="Tasa libre de riesgo (ref.)" value={rf} onChange={setRf} suffix="%" step={0.25} hint="Por ejemplo, la de un instrumento del Tesoro de corto plazo." />
+        </div>
+        <div className="min-w-0 space-y-4">
+          <div className="grid sm:grid-cols-3 gap-3">
+            <Stat tone="em" label="Rendimiento esperado" value={pct(ret, 2)} />
+            <Stat label="Volatilidad de la cartera" value={pct(vol, 2)} sub={"Promedio simple: " + pct(a * toNum(vA) + b * toNum(vB), 2)} />
+            <Stat tone="navy" label="Índice de Sharpe" value={fmtNum(sharpe)} sub="Rendimiento extra por unidad de riesgo" />
+          </div>
+          <div className="h-60 rounded-xl border border-line bg-bg p-3">
+            {ResponsiveContainer && (
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={front} margin={{ top: 10, right: 16, left: 0, bottom: 4 }}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="v" type="number" domain={["auto", "auto"]} tickLine={false} axisLine={false} tickFormatter={(v) => fmtNum(v, 0) + "%"} />
+                  <YAxis dataKey="r" type="number" domain={["auto", "auto"]} tickLine={false} axisLine={false} width={44} tickFormatter={(v) => fmtNum(v, 1) + "%"} />
+                  <Tooltip formatter={(v, n) => [pct(v, 2), n === "r" ? "Rendimiento" : "Volatilidad"]} labelFormatter={() => ""} contentStyle={TOOLTIP_STYLE} />
+                  <Line type="monotone" dataKey="r" stroke="rgb(var(--em))" strokeWidth={3} dot={{ r: 2 }} isAnimationActive={false} />
+                  <ReferenceDot x={vol} y={ret} r={7} fill="rgb(var(--navy))" stroke="rgb(var(--card))" strokeWidth={2} />
+                </LineChart>
+              </ResponsiveContainer>
+            )}
+          </div>
+          <p className="text-xs text-muted">Cada punto es una mezcla de A y B (eje horizontal: volatilidad; vertical: rendimiento). Con correlación baja, la volatilidad de la mezcla es menor que el promedio: ese es el beneficio de diversificar.</p>
+        </div>
+      </div>
+      <div className="grid sm:grid-cols-3 gap-3">
+        <Card icon="TrendingDown" title="Caída máxima (drawdown)" tone="danger">La mayor pérdida desde un pico hasta el punto más bajo. Preguntate: ¿soportaría ver mi cartera caer un 20 % sin vender? Si no, tenés demasiado riesgo.</Card>
+        <Card icon="PieChart" title="Asignación de activos">Más del 80 % del resultado de largo plazo depende de cuánto pusiste en cada tipo de activo, no de qué título puntual elegiste.</Card>
+        <Card icon="Target" title="Compará contra una referencia">Medí tu cartera contra algo simple, por ejemplo la tasa promedio de renta fija de la BVA. Si después de costos no la superás, simplificá.</Card>
+      </div>
+    </div>
+  );
+}
+
+/* ---------- 5. macroeconomía ---------- */
+const MACRO = [
+  ["Percent", "Tasa de política monetaria", "5,50 %", "Mantenida por el BCP en su reunión del 23 de octubre de 2026, tras dos recortes a comienzos de año.", "Si el BCP sube la tasa, suben las tasas de los bonos y CDA nuevos y bajan los precios de los bonos que ya existen. Si la baja, ocurre lo contrario."],
+  ["TrendingUp", "Inflación", "1,7 %", "Interanual a octubre de 2026. La meta del BCP es 3,5 % (con un rango de tolerancia).", "Es el piso que tu inversión debe superar. Con inflación baja, una tasa de 8 % en guaraníes deja un rendimiento real alto."],
+  ["Award", "Calificación del país", "Grado de inversión", "Moody's (Baa3) y S&P (BBB-) otorgan grado de inversión; Fitch está un escalón abajo (BB+).", "Mejora el acceso del Estado y las empresas al financiamiento, baja sus costos y atrae inversores del exterior al mercado local."],
+  ["ArrowLeftRight", "Tipo de cambio", "Guaraní / dólar", "Lo determina el mercado; el BCP interviene para moderar movimientos bruscos.", "Afecta a quien invierte en otra moneda y a las empresas con deudas o ventas en dólares."],
+  ["Wheat", "Exportaciones", "Soja, carne, energía", "Gran parte de la economía depende del agro y de la energía de las binacionales.", "Una mala cosecha o precios bajos golpean a emisores del agro y a toda la cadena: transporte, comercio y bancos."],
+  ["Building2", "Finanzas públicas", "Deuda y déficit", "El Ministerio de Economía es el mayor emisor de la BVA.", "Un déficit alto obliga al Estado a emitir más deuda, lo que puede subir las tasas para todos."],
+];
+function ProMacro() {
+  return (
+    <div className="space-y-6">
+      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        {MACRO.map(([ic, t, v, now, eff]) => (
+          <div key={t} className="rounded-2xl border border-line bg-bg p-5 flex flex-col">
+            <div className="flex items-center gap-3"><span className="grid place-items-center w-10 h-10 rounded-xl bg-navy text-up"><Icon name={ic} className="w-5 h-5" /></span><p className="font-bold text-ink">{t}</p></div>
+            <p className="mt-3 font-mono text-2xl font-semibold text-em">{v}</p>
+            <p className="mt-1 text-xs text-muted">{now}</p>
+            <div className="mt-3 pt-3 border-t border-line text-sm text-ink"><span className="font-semibold">Cómo te afecta: </span>{eff}</div>
+          </div>
+        ))}
+      </div>
+      <Notice tone="em">Datos a noviembre de 2026, según el Banco Central del Paraguay y comunicados de las calificadoras citados por la prensa. Consultá los valores vigentes en <a className="underline" href="https://www.bcp.gov.py" target="_blank" rel="noopener">bcp.gov.py</a>.</Notice>
+    </div>
+  );
+}
+
+/* ---------- 6. derivados ---------- */
+function ProDerivados() {
+  const [usd, setUsd] = useState(10000);
+  const [fut, setFut] = useState(7550);
+  const [spotEnd, setSpotEnd] = useState(7900);
+  const [opt, setOpt] = useState("call");
+  const noHedge = toNum(usd) * toNum(spotEnd);
+  const hedge = toNum(usd) * toNum(fut);
+  const strike = 100, prem = 5;
+  const payoff = Array.from({ length: 13 }, (_, i) => { const S = 70 + i * 5; return { S, v: opt === "call" ? Math.max(S - strike, 0) - prem : Math.max(strike - S, 0) - prem }; });
+  const { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, ReferenceLine } = RC || {};
+  return (
+    <div className="space-y-8">
+      <div className="grid lg:grid-cols-[320px_1fr] gap-6">
+        <div className="grid gap-4 content-start">
+          <h4 className="text-lg font-bold text-ink">Cobertura con futuro de divisas</h4>
+          <p className="text-sm text-muted">Un importador debe pagar dólares en 3 meses. Con un futuro fija hoy el tipo de cambio y elimina la incertidumbre.</p>
+          <NumField id="fx-usd" label="Dólares a pagar" value={usd} onChange={setUsd} step={1000} />
+          <NumField id="fx-fut" label="Tipo de cambio del futuro (Gs.)" value={fut} onChange={setFut} step={10} />
+          <Slider id="fx-end" label="Tipo de cambio al vencimiento" value={spotEnd} onChange={setSpotEnd} min={6800} max={8400} step={25} fmt={(v) => "Gs. " + v.toLocaleString("es-PY")} />
+        </div>
+        <div className="min-w-0 space-y-3">
+          <div className="grid sm:grid-cols-2 gap-3">
+            <Stat label="Sin cobertura pagaría" value={fmtMoney(noHedge, "PYG")} />
+            <Stat tone="navy" label="Con futuro paga" value={fmtMoney(hedge, "PYG")} sub="Fijo, pase lo que pase" />
+          </div>
+          <div className={"rounded-xl p-4 text-sm " + (noHedge > hedge ? "bg-emsoft text-ink" : "bg-ambersoft text-ink")}>
+            {noHedge > hedge ? <>El dólar subió: la cobertura le <strong>ahorró {fmtMoney(noHedge - hedge, "PYG")}</strong>.</> : <>El dólar bajó: sin cobertura habría pagado <strong>{fmtMoney(hedge - noHedge, "PYG")} menos</strong>. Es el costo de la tranquilidad: la cobertura no busca ganar, busca no sorprenderse.</>}
+          </div>
+        </div>
+      </div>
+      <div className="grid lg:grid-cols-[1fr_1.2fr] gap-6 items-start">
+        <div className="min-w-0">
+          <h4 className="text-lg font-bold text-ink">Opciones</h4>
+          <p className="mt-1 text-sm text-muted">Dan el <strong>derecho, pero no la obligación</strong>, de comprar (call) o vender (put) un activo a un precio fijado (precio de ejercicio), pagando una prima. Casi no se negocian en Paraguay, pero son centrales en los mercados del exterior.</p>
+          <div className="mt-4"><TabBar idBase="opt" label="Tipo de opción" value={opt} onChange={setOpt} tabs={[["call", "Opción de compra (call)"], ["put", "Opción de venta (put)"]]} /></div>
+          <p className="mt-3 text-xs text-muted">Ejemplo: precio de ejercicio 100, prima 5. La pérdida máxima del comprador es la prima.</p>
+        </div>
+        <div className="h-56 rounded-xl border border-line bg-bg p-3">
+          {ResponsiveContainer && (
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={payoff} margin={{ top: 10, right: 16, left: 0, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="S" tickLine={false} axisLine={false} />
+                <YAxis tickLine={false} axisLine={false} width={36} />
+                <Tooltip formatter={(v) => [v, "Resultado"]} labelFormatter={(l) => "Precio del activo: " + l} contentStyle={TOOLTIP_STYLE} />
+                <ReferenceLine y={0} stroke="rgb(var(--muted))" />
+                <Line type="linear" dataKey="v" stroke="rgb(var(--em))" strokeWidth={3} dot={false} isAnimationActive={false} />
+              </LineChart>
+            </ResponsiveContainer>
+          )}
+        </div>
+      </div>
+      <div className="grid sm:grid-cols-2 gap-3">
+        <Card icon="Repeat" title="Forwards">Como un futuro, pero es un contrato privado a medida entre dos partes (por ejemplo, con tu banco). Más flexible, pero con riesgo de que la contraparte no cumpla.</Card>
+        <Card icon="Package" title="Titularización y fideicomisos">Se agrupan activos que generan flujos (préstamos, alquileres, cobranzas) en un fideicomiso que emite títulos en bolsa. Quien invierte cobra de esos flujos, no del patrimonio general de la empresa.</Card>
+      </div>
+    </div>
+  );
+}
+
+/* ---------- 7. cómo funciona por dentro ---------- */
+const BIDS = [[8.6, 3000], [8.8, 2500], [9.0, 4000], [9.2, 3500], [9.5, 2000]];
+function ProMicro() {
+  const [amount, setAmount] = useState(10000);
+  let acc = 0, cut = null; const rows = BIDS.map(([t, m]) => { const before = acc; acc += m; const ok = before < toNum(amount); if (ok && cut === null && acc >= toNum(amount)) cut = t; return { t, m, acc, ok }; });
+  const covered = acc >= toNum(amount);
+  if (cut === null && covered) cut = BIDS[BIDS.length - 1][0];
+  return (
+    <div className="space-y-8">
+      <div className="grid lg:grid-cols-[320px_1fr] gap-6">
+        <div className="space-y-4">
+          <h4 className="text-lg font-bold text-ink">Subasta de una emisión nueva</h4>
+          <p className="text-sm text-muted">En una colocación por subasta, los inversores ofrecen montos a distintas tasas. El emisor acepta primero las ofertas de menor tasa hasta cubrir lo que necesita: la última aceptada es la <strong>tasa de corte</strong>.</p>
+          <Slider id="sub-amount" label="Monto a colocar" value={amount} onChange={setAmount} min={2000} max={15000} step={500} fmt={(v) => "Gs. " + v.toLocaleString("es-PY") + " M"} />
+          <Stat tone="navy" label="Tasa de corte" value={covered ? pct(cut, 2) : "Sin cubrir"} sub={covered ? "Todas las ofertas aceptadas cobran esta tasa (subasta de precio único)" : "La demanda no alcanza: el emisor coloca menos o declara desierta la subasta"} />
+        </div>
+        <div className="overflow-x-auto rounded-xl border border-line">
+          <table className="w-full text-sm min-w-[380px]">
+            <thead className="bg-soft text-left text-muted"><tr><th className="p-3">Tasa ofrecida</th><th className="p-3 text-right">Monto (Gs. M)</th><th className="p-3 text-right">Acumulado</th><th className="p-3 text-right">Resultado</th></tr></thead>
+            <tbody className="divide-y divide-line font-mono">
+              {rows.map((r) => <tr key={r.t} className={r.ok ? "bg-emsoft" : ""}><td className="p-3 text-ink">{pct(r.t, 2)}</td><td className="p-3 text-right text-ink">{r.m.toLocaleString("es-PY")}</td><td className="p-3 text-right text-muted">{r.acc.toLocaleString("es-PY")}</td><td className={"p-3 text-right font-sans font-semibold " + (r.ok ? "text-em" : "text-muted")}>{r.ok ? "Aceptada" : "Rechazada"}</td></tr>)}
+            </tbody>
+          </table>
+          <p className="p-3 text-xs text-muted">Ofertas ficticias. El mecanismo exacto de cada colocación figura en su prospecto.</p>
+        </div>
+      </div>
+      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
+        <Card icon="ArrowLeftRight" title="Formadores de mercado">Entidades que publican precios de compra y venta de forma continua para un título. Le dan liquidez y achican el spread.</Card>
+        <Card icon="Repeat" title="Reportos, lado profesional">Las Casas de Bolsa y empresas los usan para financiarse o colocar liquidez por días. La tasa refleja el plazo y la calidad del título en garantía, al que se le aplica un descuento (aforo).</Card>
+        <Card icon="EyeOff" title="Información privilegiada" tone="danger">Está prohibido operar con información que no es pública y que puede mover el precio (por ejemplo, saber antes que una empresa va a incumplir). Es una infracción grave.</Card>
+        <Card icon="Ban" title="Manipulación de mercado" tone="danger">Crear precios o volumen artificiales, difundir rumores falsos o pactar operaciones ficticias está prohibido y es sancionado por la Superintendencia de Valores.</Card>
+      </div>
+    </div>
+  );
+}
+
+/* ---------- 8. psicología del inversor ---------- */
+const BIASES = [
+  ["Exceso de confianza", "Creer que sabés más que el mercado y operar de más.", "Llevá registro de tus decisiones y comparalas con una estrategia simple."],
+  ["Aversión a las pérdidas", "Una pérdida duele el doble de lo que alegra una ganancia: te aferrás a lo que pierde.", "Antes de comprar, definí en qué caso venderías."],
+  ["Efecto manada", "Comprar porque «todos compran» y vender en pánico cuando todos venden.", "Si te enterás por un grupo de WhatsApp, probablemente ya es tarde."],
+  ["Anclaje", "Quedarte fijo en un número: «lo compré a 100, no vendo a menos».", "El precio de compra no le importa al mercado: evaluá la inversión hoy."],
+  ["Sesgo de confirmación", "Buscar solo lo que confirma lo que ya pensás.", "Antes de decidir, escribí tres argumentos en contra."],
+  ["Sesgo de lo reciente", "Pensar que lo que pasó el último mes seguirá pasando.", "Mirá datos de varios años, no de semanas."],
+];
+const RULES = ["Tengo un objetivo y un plazo escritos para esta inversión.", "Sé cuánto estoy dispuesto a perder antes de vender.", "No invierto más del 20 % en un solo emisor.", "Reviso mi cartera en fechas fijas, no cada vez que leo una noticia.", "Si algo suena demasiado bueno, verifico antes de invertir.", "No tomo decisiones el mismo día que leo una noticia alarmante."];
+function ProPsico() {
+  const [rules, setRules] = usePersisted("bpy-reglas", {});
+  return (
+    <div className="space-y-6">
+      <p className="text-ink prose-w">La mayoría de los errores no vienen de no saber, sino de las emociones. Conocer tus sesgos es la mejor protección.</p>
+      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        {BIASES.map(([t, d, fix]) => (
+          <div key={t} className="rounded-2xl border border-line bg-bg p-5">
+            <p className="font-bold text-ink flex items-center gap-2"><Icon name="Brain" className="w-4 h-4 text-amber" />{t}</p>
+            <p className="mt-1 text-sm text-muted">{d}</p>
+            <p className="mt-3 text-sm text-ink"><span className="font-semibold text-em">Antídoto: </span>{fix}</p>
+          </div>
+        ))}
+      </div>
+      <div className="rounded-2xl board-bg bg-navy text-navyfg p-6">
+        <p className="font-mono text-xs uppercase tracking-widest text-up">Mis reglas de inversión</p>
+        <p className="mt-1 text-sm opacity-80">Marcá las que ya cumplís. Se guardan en tu navegador.</p>
+        <ul className="mt-4 grid sm:grid-cols-2 gap-2">
+          {RULES.map((r, k) => (
+            <li key={k}><label htmlFor={"regla-" + k} className="flex gap-3 cursor-pointer rounded-lg p-2 hover:bg-navyfg/10">
+              <input id={"regla-" + k} type="checkbox" checked={!!rules[k]} onChange={(e) => setRules((o) => ({ ...o, [k]: e.target.checked }))} className="mt-1 w-4 h-4 accent-[rgb(var(--em))] shrink-0" />
+              <span className="text-sm">{r}</span>
+            </label></li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  );
+}
+
+/* ---------- 9. práctica: rutina, cartera de práctica, diario y quiz ---------- */
+const PRACTICE = [
+  ["fm", "Fondo mutuo", 6, 0.2, 0, 0],
+  ["cda", "CDA", 7.5, 1.5, -1, 0],
+  ["bc", "Bonos corporativos", 9.5, 3.5, -5, 0],
+  ["bt", "Bonos del Tesoro", 8.5, 5, 0, 0],
+  ["usd", "Bonos en USD", 6, 4, -3, 1],
+  ["ap", "Acciones preferidas", 9.5, 0, -10, 0],
+  ["ao", "Acciones ordinarias", 11, 0, -25, 0],
+];
+const SCEN = [["base", "Escenario base"], ["tasas", "Tasas +2 pp"], ["baja", "Tasas −1 pp"], ["credito", "Crisis de crédito"], ["dolar", "Dólar +10 %"]];
+const QUIZ_PRO = [
+  ["Un bono tiene duración modificada de 5. Si la tasa de mercado sube 1 punto, su precio aproximadamente…", ["Sube 5 %", "Baja 5 %", "No cambia"], 1, "La duración modificada estima el cambio porcentual del precio por cada punto de tasa, con signo opuesto."],
+  ["La curva de rendimientos invertida suele anticipar…", ["Subas fuertes de tasas", "Bajas de tasas o desaceleración", "Más inflación segura"], 1, "Cuando los plazos cortos pagan más que los largos, el mercado espera tasas más bajas en el futuro."],
+  ["Un bono AApy paga 9 % y el Tesoro al mismo plazo 7,8 %. El spread es…", ["120 pb", "12 pb", "1.200 pb"], 0, "9 − 7,8 = 1,2 puntos porcentuales = 120 puntos básicos."],
+  ["En el modelo de Gordon, si el rendimiento exigido baja, el valor estimado de la acción…", ["Baja", "Sube", "No cambia"], 1, "El denominador (k − g) se achica, por lo que el valor sube."],
+  ["Dos activos con correlación negativa en una cartera…", ["Suman su riesgo", "Reducen la volatilidad total", "No tienen efecto"], 1, "Cuando uno baja el otro tiende a subir, y la volatilidad conjunta cae."],
+  ["Si el BCP sube la tasa de política monetaria, los bonos que ya tenés…", ["Suben de precio", "Bajan de precio", "No se afectan"], 1, "Los bonos nuevos pagarán más, así que los existentes valen menos en el mercado secundario."],
+  ["Un importador compra un futuro de dólar. Si el dólar baja al vencimiento…", ["Igual paga el tipo de cambio pactado", "Paga el tipo de cambio nuevo", "Se cancela el contrato"], 0, "La cobertura fija el precio pase lo que pase: pierde el ahorro posible, pero elimina la incertidumbre."],
+  ["Operar con información no pública que puede mover el precio es…", ["Una ventaja legítima", "Uso de información privilegiada, prohibido", "Permitido si el monto es chico"], 1, "Es una infracción grave sancionada por el regulador."],
+];
+
+function ProPractica() {
+  const [mix, setMix] = usePersisted("bpy-cartera", { fm: 20, cda: 25, bc: 25, bt: 20, usd: 0, ap: 10, ao: 0 });
+  const [amount, setAmount] = usePersisted("bpy-cartera-monto", 50000000);
+  const [scen, setScen] = useState("base");
+  const [routine, setRoutine] = usePersisted("bpy-rutina", {});
+  const [journal, setJournal] = usePersisted("bpy-diario", []);
+  const [draft, setDraft] = useState({ inst: "", why: "", expect: "" });
+  const [qi, setQi] = useState(0); const [qa, setQa] = useState([]); const [qp, setQp] = useState(null);
+  const total = PRACTICE.reduce((s, [id]) => s + toNum(mix[id]), 0);
+  const w = (id) => (total > 0 ? toNum(mix[id]) / total : 0);
+  const rate = PRACTICE.reduce((s, [id, , r]) => s + w(id) * r, 0);
+  const dur = PRACTICE.reduce((s, [id, , , d]) => s + w(id) * d, 0);
+  const impact = PRACTICE.reduce((s, [id, , , d, cr, fx]) => {
+    const x = w(id); if (scen === "tasas") return s + x * (-d * 2); if (scen === "baja") return s + x * (d * 1);
+    if (scen === "credito") return s + x * cr; if (scen === "dolar") return s + x * (fx * 10); return s;
+  }, 0);
+  const riskScore = PRACTICE.reduce((s, [id], i) => s + w(id) * [1, 1, 2, 1, 2, 3, 4][i], 0);
+  const addEntry = () => { if (!draft.inst.trim()) return; setJournal((j) => [{ ...draft, date: new Date().toLocaleDateString("es-PY") }, ...j].slice(0, 20)); setDraft({ inst: "", why: "", expect: "" }); };
+  const qDone = qa.length === QUIZ_PRO.length; const qScore = qa.filter((a, k) => a === QUIZ_PRO[k][2]).length;
+  return (
+    <div className="space-y-10">
+      <div>
+        <h4 className="text-lg font-bold text-ink">Cartera de práctica</h4>
+        <p className="mt-1 text-sm text-muted">Armá una cartera ficticia, mirá su rendimiento y su riesgo, y probá cómo le iría en distintos escenarios. Se guarda en tu navegador.</p>
+        <div className="mt-4 grid lg:grid-cols-[340px_1fr] gap-6">
+          <div className="space-y-3">
+            <NumField id="pc-amount" label="Monto de práctica (Gs.)" value={amount} onChange={setAmount} cur="PYG" step={1000000} />
+            {PRACTICE.map(([id, name]) => (
+              <div key={id}>
+                <label htmlFor={"pc-" + id} className="flex justify-between text-sm text-ink"><span>{name}</span><span className="font-mono text-muted">{Math.round(w(id) * 100)} %</span></label>
+                <input id={"pc-" + id} type="range" min="0" max="100" step="5" value={toNum(mix[id])} onChange={(e) => { const v = Number(e.target.value); setMix((m) => ({ ...m, [id]: v })); }} className="w-full" />
+              </div>
+            ))}
+            <p className="text-xs text-muted">Los porcentajes se ajustan solos para sumar 100 %.</p>
+          </div>
+          <div className="min-w-0 space-y-4">
+            <div className="grid sm:grid-cols-3 gap-3">
+              <Stat tone="em" label="Rendimiento esperado" value={pct(rate, 2)} sub={fmtMoney(toNum(amount) * rate / 100, "PYG") + " por año"} />
+              <Stat label="Duración aprox. (renta fija)" value={fmtNum(dur, 1) + " años"} />
+              <Stat tone="navy" label="Nivel de riesgo" value={riskScore < 1.5 ? "Conservador" : riskScore < 2.3 ? "Moderado" : "Dinámico"} sub={"Puntaje " + fmtNum(riskScore, 1) + " de 4"} />
+            </div>
+            <TabBar idBase="esc" label="Escenarios" value={scen} onChange={setScen} tabs={SCEN} />
+            <div className={"rounded-2xl p-5 " + (impact < 0 ? "bg-dangersoft" : impact > 0 ? "bg-emsoft" : "bg-soft")}>
+              <p className="font-mono text-xs uppercase tracking-widest text-muted">Impacto inmediato estimado</p>
+              <p className={"mt-1 font-mono text-3xl font-semibold " + (impact < 0 ? "text-danger" : impact > 0 ? "text-em" : "text-ink")}>{impact > 0 ? "+" : ""}{fmtNum(impact)} %</p>
+              <p className="text-sm text-ink">{scen === "base" ? "Sin cambios en el mercado: tu cartera rinde lo esperado." : fmtMoney(toNum(amount) * impact / 100, "PYG") + " sobre el valor de tu cartera."}</p>
+            </div>
+            <p className="text-xs text-muted">Simulación muy simplificada: usa duraciones aproximadas y caídas ilustrativas para crédito y acciones. Sirve para entender sensibilidades, no para predecir.</p>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid lg:grid-cols-2 gap-6 items-start">
+        <div className="rounded-2xl border border-line bg-bg p-5">
+          <h4 className="text-lg font-bold text-ink flex items-center gap-2"><Icon name="CalendarCheck" className="w-5 h-5 text-em" /> Rutina del inversor</h4>
+          <ul className="mt-3 space-y-1">
+            {["Semanal: leer el boletín y las emisiones nuevas de la BVA.", "Mensual: revisar el estado de cuenta de tu Casa de Bolsa.", "Mensual: mirar inflación y decisiones de tasa del BCP.", "Trimestral: revisar hechos relevantes de tus emisores.", "Anual: rebalancear y revisar tus metas."].map((r, k) => (
+              <li key={k}><label htmlFor={"rut-" + k} className="flex gap-3 cursor-pointer rounded-lg p-2 hover:bg-soft">
+                <input id={"rut-" + k} type="checkbox" checked={!!routine[k]} onChange={(e) => setRoutine((o) => ({ ...o, [k]: e.target.checked }))} className="mt-1 w-4 h-4 accent-[rgb(var(--em))] shrink-0" /><span className="text-sm text-ink">{r}</span>
+              </label></li>
+            ))}
+          </ul>
+          <div className="mt-4 pt-4 border-t border-line">
+            <p className="font-semibold text-ink text-sm">Formación</p>
+            <ul className="mt-2 space-y-2">
+              <Bullet>Material educativo de la <a className="text-em underline" href="https://www.bolsadevalores.com.py" target="_blank" rel="noopener">BVA</a> y cursos de las Casas de Bolsa.</Bullet>
+              <Bullet>Certificación internacional <a className="text-em underline" href="https://www.cfainstitute.org" target="_blank" rel="noopener">CFA</a> para quien quiera dedicarse profesionalmente.</Bullet>
+            </ul>
+          </div>
+        </div>
+        <div className="rounded-2xl border border-line bg-bg p-5">
+          <h4 className="text-lg font-bold text-ink flex items-center gap-2"><Icon name="NotebookPen" className="w-5 h-5 text-em" /> Diario de inversiones</h4>
+          <p className="mt-1 text-sm text-muted">Anotá por qué invertís y qué esperás. Al revisarlo, vas a aprender de tus aciertos y errores. Se guarda solo en tu navegador.</p>
+          <div className="mt-3 grid gap-2">
+            <input id="dia-inst" value={draft.inst} onChange={(e) => setDraft({ ...draft, inst: e.target.value })} placeholder="Instrumento (por ejemplo: bono AApy 9 % a 3 años)" className={FIELD + " font-sans"} />
+            <input id="dia-why" value={draft.why} onChange={(e) => setDraft({ ...draft, why: e.target.value })} placeholder="¿Por qué lo elegís?" className={FIELD + " font-sans"} />
+            <input id="dia-exp" value={draft.expect} onChange={(e) => setDraft({ ...draft, expect: e.target.value })} placeholder="¿Qué esperás que pase?" className={FIELD + " font-sans"} />
+            <button onClick={addEntry} className="justify-self-start inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-em text-white font-semibold hover:brightness-110"><Icon name="Plus" className="w-4 h-4" /> Agregar al diario</button>
+          </div>
+          {journal.length > 0 && (
+            <ul className="mt-4 space-y-2 max-h-60 overflow-y-auto">
+              {journal.map((j, k) => (
+                <li key={k} className="rounded-lg border border-line bg-card p-3 text-sm">
+                  <div className="flex justify-between gap-2"><p className="font-semibold text-ink">{j.inst}</p><button onClick={() => setJournal((x) => x.filter((_, i) => i !== k))} className="text-muted hover:text-danger shrink-0" aria-label="Borrar entrada"><Icon name="X" className="w-4 h-4" /></button></div>
+                  <p className="text-xs text-muted font-mono">{j.date}</p>
+                  {j.why && <p className="mt-1 text-ink"><span className="text-muted">Por qué: </span>{j.why}</p>}
+                  {j.expect && <p className="text-ink"><span className="text-muted">Espero: </span>{j.expect}</p>}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      </div>
+
+      <div className="rounded-2xl border border-line bg-bg p-5 sm:p-6 max-w-3xl">
+        <h4 className="text-lg font-bold text-ink flex items-center gap-2"><Icon name="Trophy" className="w-5 h-5 text-amber" /> Quiz nivel profesional</h4>
+        {!qDone ? (
+          <div key={qi} className="fade-in mt-3">
+            <p className="font-mono text-xs text-em">PREGUNTA {qi + 1} DE {QUIZ_PRO.length}</p>
+            <p className="mt-2 font-bold text-ink">{QUIZ_PRO[qi][0]}</p>
+            <div className="mt-3 grid gap-2">
+              {QUIZ_PRO[qi][1].map((o, k) => {
+                const right = k === QUIZ_PRO[qi][2];
+                const cls = qp === null ? "border-line hover:border-em hover:bg-soft" : right ? "border-em bg-emsoft" : qp === k ? "border-danger bg-dangersoft" : "border-line opacity-60";
+                return <button key={k} id={"qpro-" + qi + "-" + k} disabled={qp !== null} onClick={() => setQp(k)} className={"text-left rounded-xl border px-4 py-3 text-sm font-medium text-ink transition " + cls}>{o}</button>;
+              })}
+            </div>
+            {qp !== null && (
+              <div className="fade-in mt-3 rounded-xl bg-soft p-3 text-sm">
+                <p className={"font-bold " + (qp === QUIZ_PRO[qi][2] ? "text-em" : "text-danger")}>{qp === QUIZ_PRO[qi][2] ? "¡Correcto!" : "Incorrecto"}</p>
+                <p className="mt-1 text-ink">{QUIZ_PRO[qi][3]}</p>
+                <button onClick={() => { setQa((a) => [...a, qp]); setQp(null); setQi(qi + 1); }} className="mt-3 inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-em text-white font-semibold">{qi === QUIZ_PRO.length - 1 ? "Ver resultado" : "Siguiente"} <Icon name="ArrowRight" className="w-4 h-4" /></button>
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="fade-in mt-3">
+            <p className="font-mono text-4xl font-semibold text-ink">{qScore}/{QUIZ_PRO.length}</p>
+            <p className="mt-1 font-bold text-em">{qScore >= 7 ? "¡Nivel profesional!" : qScore >= 5 ? "Muy bien, casi experto" : "Repasá los temas de este nivel"}</p>
+            <div className="mt-4 flex flex-wrap gap-3 items-start">
+              <button onClick={() => { setQi(0); setQa([]); setQp(null); }} className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-line font-semibold text-ink hover:bg-soft"><Icon name="RotateCcw" className="w-4 h-4" /> Repetir</button>
+              <ShareButtons text={"Saqué " + qScore + "/" + QUIZ_PRO.length + " en el quiz de nivel profesional sobre la Bolsa de Paraguay."} />
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+const PRO_TABS = [
+  ["rf", "Renta fija avanzada", "LineChart"], ["credito", "Análisis de crédito", "FileSearch"], ["valuacion", "Valuación de acciones", "Calculator"],
+  ["carteras", "Carteras y riesgo", "PieChart"], ["macro", "Macroeconomía", "Globe"], ["derivados", "Derivados", "ArrowLeftRight"],
+  ["micro", "El mercado por dentro", "Building2"], ["psico", "Psicología", "Brain"], ["practica", "Práctica y quiz", "Trophy"],
+];
+function Profesional() {
+  const [tab, setTab] = useState("rf");
+  useEffect(() => { const on = (e) => setTab(e.detail); window.addEventListener("bpy-pro", on); return () => window.removeEventListener("bpy-pro", on); }, []);
+  const t = PRO_TABS.find((x) => x[0] === tab);
+  const i = PRO_TABS.findIndex((x) => x[0] === tab);
+  return (
+    <Section id="profesional" eyebrow="Nivel 5 · Profesional" title="Lo que sabe un experto en la bolsa"
+      intro="Nueve temas avanzados, con herramientas para practicar. Recorrelos en orden o elegí el que te interese.">
+      <TabBar idBase="pro" label="Temas profesionales" value={tab} onChange={setTab} tabs={PRO_TABS.map(([id, l, ic], k) => [id, (k + 1) + ". " + l, ic])} />
+      <div key={tab} className="fade-in mt-5 rounded-2xl border border-line bg-card p-5 sm:p-7">
+        <div className="flex items-center justify-between gap-3 flex-wrap mb-6">
+          <h3 className="text-2xl font-bold text-ink flex items-center gap-3"><span className="font-mono text-sm rounded-md bg-navy text-up px-2 py-0.5">{String(i + 1).padStart(2, "0")}</span>{t[1]}</h3>
+          <div className="flex gap-2">
+            <button disabled={i === 0} onClick={() => setTab(PRO_TABS[i - 1][0])} className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-line text-sm text-ink disabled:opacity-40 hover:bg-soft"><Icon name="ChevronLeft" className="w-4 h-4" /> Anterior</button>
+            <button disabled={i === PRO_TABS.length - 1} onClick={() => setTab(PRO_TABS[i + 1][0])} className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-line text-sm text-ink disabled:opacity-40 hover:bg-soft">Siguiente <Icon name="ChevronRight" className="w-4 h-4" /></button>
+          </div>
+        </div>
+        {tab === "rf" && <ProRentaFija />}
+        {tab === "credito" && <ProCredito />}
+        {tab === "valuacion" && <ProValuacion />}
+        {tab === "carteras" && <ProCarteras />}
+        {tab === "macro" && <ProMacro />}
+        {tab === "derivados" && <ProDerivados />}
+        {tab === "micro" && <ProMicro />}
+        {tab === "psico" && <ProPsico />}
+        {tab === "practica" && <ProPractica />}
+      </div>
+    </Section>
+  );
+}
+
 function App() {
   const [view, setView] = useState(readHash);
   useEffect(() => {
@@ -3126,7 +3769,7 @@ function App() {
     mercado: [<Ecosistema key="e" />, <Mapa key="m" />, <Negociacion key="n" />, <Precios key="pr" />, <Prospecto key="p" />, <LineaTiempo key="l" />],
     empezar: [<Mitos key="mi" />, <Stepper key="s" />, <Estafas key="es" />, <ChecklistPre key="ch" />, <Perfil key="pf" />],
     herramientas: [<Herramientas key="h" />],
-    aprender: [<Aprender key="a" />, <Experto key="x" />, <Quiz key="q" />, <GlosarioFAQ key="g" />, <DatosOficiales key="o" />, <Acerca key="ac" />],
+    aprender: [<Aprender key="a" />, <Experto key="x" />, <Profesional key="pro" />, <Quiz key="q" />, <GlosarioFAQ key="g" />, <DatosOficiales key="o" />, <Acerca key="ac" />],
   };
   return (
     <>

@@ -14,7 +14,7 @@ La guía está ordenada en siete secciones, de lo más simple a lo más avanzado
 | **Dónde invertir** | Según tu objetivo, casos de ejemplo, estrategias de cartera y las 24 Casas de Bolsa habilitadas |
 | **El mercado** | Ecosistema, mapa de sectores, cómo se negocia, precio de un bono, prospecto y línea de tiempo |
 | **Calculadoras** | Simulador, meta de ahorro, bono y cupones, PYG vs. USD y costo real |
-| **Aprender** | Ruta en 4 niveles, mini-cursos, nivel experto, quiz, glosario, fuentes oficiales y "Sobre esta guía" |
+| **Aprender** | Ruta en 5 niveles, mini-cursos, nivel experto, **nivel profesional** (duración y convexidad, curva de rendimientos, spread de crédito, valuación de acciones, carteras y Sharpe, macroeconomía, derivados, subastas, psicología del inversor, cartera de práctica, diario y quiz profesional), quiz, glosario, fuentes oficiales y "Sobre esta guía" |
 
 Datos de mercado actualizados a noviembre de 2026.
 
