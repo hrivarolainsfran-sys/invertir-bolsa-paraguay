@@ -2,11 +2,19 @@
 
 const { useState, useMemo, useEffect } = React;
 const RC = window.Recharts;
-const Lucide = window.LucideReact || {};
+const ICONS = window.__ICONS__ || {};
+const camel = (k) => k.replace(/-([a-z])/g, (_, c) => c.toUpperCase());
 const Icon = ({ name, className = "w-5 h-5", ...rest }) => {
-  const C = Lucide[name];
-  return C ? <C className={className} aria-hidden="true" {...rest} /> : <span className={className} />;
+  const node = ICONS[name];
+  if (!node) return <span className={className} aria-hidden="true" />;
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true" {...rest}>
+      {node.map(([tag, attrs], i) => React.createElement(tag, Object.fromEntries(Object.entries(attrs).filter(([k]) => k !== "key").map(([k, v]) => [camel(k), v]).concat([["key", i]]))))}
+    </svg>
+  );
 };
+const DATA_DATE = "noviembre de 2026";
+const REPO_URL = "https://github.com/hrivarolainsfran-sys/invertir-bolsa-paraguay";
 
 /* ---------- utilidades ---------- */
 const fmtMoney = (v, cur) => {
@@ -30,21 +38,24 @@ const scrollTo = (id) => {
 /* ---------- datos ---------- */
 const VIEWS = [
   { id: "inicio", label: "Inicio", icon: "Home", title: "Inicio", desc: "", sections: [["beneficios", "Beneficios"], ["explorar", "Mapa de la guía"]] },
-  { id: "invertir", label: "Dónde invertir", icon: "Target", title: "Dónde invertir",
-    desc: "Qué instrumento conviene según tu objetivo, qué podés comprar, cómo funcionan los fondos, qué riesgos hay, cómo armar tu cartera y dónde invertir.",
-    sections: [["donde", "Según tu objetivo"], ["casos", "Casos de ejemplo"], ["instrumentos", "Instrumentos"], ["fondos", "Fondos por dentro"], ["riesgos", "Riesgos"], ["estrategias", "Estrategias"], ["casas", "Casas de Bolsa"]] },
-  { id: "mercado", label: "El mercado", icon: "Landmark", title: "Cómo funciona el mercado",
-    desc: "Quiénes participan, qué sectores emiten, cómo se negocia, cómo se mueve el precio de un bono y cómo se lee una emisión de principio a fin.",
-    sections: [["ecosistema", "Cómo funciona"], ["mapa", "Mapa del mercado"], ["negociacion", "Cómo se negocia"], ["precios", "Precio de un bono"], ["prospecto", "Leer un prospecto"], ["linea", "Línea de tiempo"]] },
   { id: "empezar", label: "Empezar", icon: "Rocket", title: "Empezá a invertir",
     desc: "Derribá los mitos, seguí los pasos para tu primera inversión, aprendé a detectar estafas, completá el checklist y conocé tu perfil.",
     sections: [["mitos", "Mitos y realidades"], ["guia", "Paso a paso"], ["estafas", "Señales de estafa"], ["checklist", "Checklist"], ["perfil", "Tu perfil"]] },
+  { id: "instrumentos", label: "Instrumentos", icon: "Layers", title: "Instrumentos y riesgos",
+    desc: "Qué podés comprar en la bolsa paraguaya, cómo funcionan los fondos por dentro y qué riesgos tiene cada inversión.",
+    sections: [["instrumentos", "Instrumentos"], ["fondos", "Fondos por dentro"], ["riesgos", "Riesgos"]] },
+  { id: "invertir", label: "Dónde invertir", icon: "Target", title: "Dónde invertir",
+    desc: "Qué instrumento conviene según tu objetivo, cómo invierten otras personas, cómo armar tu cartera y con qué Casa de Bolsa operar.",
+    sections: [["donde", "Según tu objetivo"], ["casos", "Casos de ejemplo"], ["estrategias", "Estrategias"], ["casas", "Casas de Bolsa"]] },
+  { id: "mercado", label: "El mercado", icon: "Landmark", title: "Cómo funciona el mercado",
+    desc: "Quiénes participan, qué sectores emiten, cómo se negocia, cómo se mueve el precio de un bono y cómo se lee una emisión de principio a fin.",
+    sections: [["ecosistema", "Cómo funciona"], ["mapa", "Mapa del mercado"], ["negociacion", "Cómo se negocia"], ["precios", "Precio de un bono"], ["prospecto", "Leer un prospecto"], ["linea", "Línea de tiempo"]] },
   { id: "herramientas", label: "Calculadoras", icon: "Calculator", title: "Calculadoras",
     desc: "Simulá tu inversión, calculá cuánto ahorrar para una meta, armá el calendario de cupones de un bono y compará monedas y costos.",
     sections: [["simulador", "Calculadoras"]] },
   { id: "aprender", label: "Aprender", icon: "GraduationCap", title: "Aprender",
-    desc: "Tu ruta de aprendizaje, mini-cursos, temas de nivel experto, un quiz para ponerte a prueba, el glosario y las fuentes oficiales.",
-    sections: [["aprender", "Ruta y mini-cursos"], ["experto", "Nivel experto"], ["quiz", "Quiz"], ["glosario", "Glosario y FAQ"], ["oficial", "Fuentes oficiales"]] },
+    desc: "Tu ruta de aprendizaje, mini-cursos, temas de nivel experto, un quiz, el glosario, las fuentes oficiales y quiénes hacemos esta guía.",
+    sections: [["aprender", "Ruta y mini-cursos"], ["experto", "Nivel experto"], ["quiz", "Quiz"], ["glosario", "Glosario y FAQ"], ["oficial", "Fuentes oficiales"], ["acerca", "Sobre esta guía"]] },
 ];
 const VIEW_IDS = VIEWS.map((v) => v.id);
 const SECTION_VIEW = {};
@@ -162,11 +173,17 @@ const FAQ = [
 ];
 
 /* ---------- componentes base ---------- */
-const Section = ({ id, eyebrow, title, intro, children, alt }) => (
+const sectionIndex = (id) => {
+  const v = VIEWS.find((x) => x.id === SECTION_VIEW[id]);
+  if (!v || v.id === "inicio" || v.sections.length < 2) return null;
+  const i = v.sections.findIndex(([sid]) => sid === id);
+  return String(i + 1).padStart(2, "0") + " / " + String(v.sections.length).padStart(2, "0");
+};
+const Section = ({ id, eyebrow, title, intro, children }) => (
   <section id={id} className="py-16 sm:py-20">
     <div className="wrap">
       <div className="mb-10 prose-w">
-        {eyebrow && <p className="eyebrow mb-2">{eyebrow}</p>}
+        {eyebrow && <p className="eyebrow mb-3 flex items-center gap-3">{sectionIndex(id) && <span className="rounded-md bg-navy text-up px-2 py-0.5 tracking-normal">{sectionIndex(id)}</span>}<span>{eyebrow}</span></p>}
         <h2 className="text-3xl sm:text-4xl font-bold text-ink">{title}</h2>
         {intro && <p className="mt-4 text-muted text-lg">{intro}</p>}
       </div>
@@ -308,28 +325,108 @@ function Ticker() {
   );
 }
 
+function useTheme() {
+  const [theme, setTheme] = useState(() => store.get("bpy-theme", null));
+  useEffect(() => {
+    const root = document.documentElement;
+    if (theme) root.setAttribute("data-theme", theme); else root.removeAttribute("data-theme");
+    store.set("bpy-theme", theme);
+  }, [theme]);
+  const isDark = theme ? theme === "dark" : (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+  return [isDark, () => setTheme(isDark ? "light" : "dark")];
+}
+
+function useActiveSection(ids) {
+  const [active, setActive] = useState(ids[0]);
+  useEffect(() => {
+    let raf = 0;
+    const onScroll = () => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => {
+        let cur = ids[0];
+        ids.forEach((id) => { const el = document.getElementById(id); if (el && el.getBoundingClientRect().top < 200) cur = id; });
+        setActive(cur);
+      });
+    };
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => { window.removeEventListener("scroll", onScroll); cancelAnimationFrame(raf); };
+  }, [ids.join(",")]);
+  return active;
+}
+
+function ReadingProgress() {
+  const [p, setP] = useState(0);
+  useEffect(() => {
+    const on = () => { const h = document.documentElement; const max = h.scrollHeight - h.clientHeight; setP(max > 0 ? (h.scrollTop / max) * 100 : 0); };
+    on(); window.addEventListener("scroll", on, { passive: true }); window.addEventListener("resize", on);
+    return () => { window.removeEventListener("scroll", on); window.removeEventListener("resize", on); };
+  }, []);
+  return <div className="absolute left-0 bottom-0 h-0.5 bg-em transition-[width] duration-150" style={{ width: p + "%" }} aria-hidden="true" />;
+}
+
+function BackToTop() {
+  const [show, setShow] = useState(false);
+  useEffect(() => { const on = () => setShow(window.scrollY > 900); on(); window.addEventListener("scroll", on, { passive: true }); return () => window.removeEventListener("scroll", on); }, []);
+  if (!show) return null;
+  return (
+    <button onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })} aria-label="Volver arriba"
+      className="fade-in fixed z-40 grid place-items-center w-11 h-11 rounded-full bg-navy text-navyfg shadow-lg border border-navyfg/15 hover:bg-em transition"
+      style={{ right: "calc(16px + env(safe-area-inset-right, 0px))", bottom: "calc(16px + env(safe-area-inset-bottom, 0px))" }}>
+      <Icon name="ArrowUp" className="w-5 h-5" />
+    </button>
+  );
+}
+
+function SubNav({ v }) {
+  const ids = v.sections.map(([id]) => id);
+  const active = useActiveSection(ids);
+  if (v.sections.length < 2) return null;
+  return (
+    <nav className="hidden lg:block border-t border-line bg-bg/95" aria-label={"En " + v.label}>
+      <div className="wrap flex items-center gap-1 h-11 overflow-x-auto">
+        <span className="font-mono text-[11px] uppercase tracking-widest text-muted mr-2 shrink-0">En esta sección</span>
+        {v.sections.map(([id, l], k) => (
+          <button key={id} onClick={() => scrollTo(id)} aria-current={active === id ? "location" : undefined}
+            className={"shrink-0 inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-sm transition " + (active === id ? "bg-emsoft text-em font-semibold" : "text-muted hover:text-ink hover:bg-soft")}>
+            <span className="font-mono text-[11px] opacity-70">{String(k + 1).padStart(2, "0")}</span>{l}
+          </button>
+        ))}
+      </div>
+    </nav>
+  );
+}
+
 function Nav({ view }) {
-  const tab = (v, compact) => (
-    <a key={v.id} href={"#" + v.id} aria-current={view === v.id ? "page" : undefined}
-      className={"inline-flex items-center gap-1.5 rounded-lg font-semibold transition whitespace-nowrap " + (compact ? "px-3 py-1.5 text-sm " : "px-3 py-2 text-sm ") +
-        (view === v.id ? "bg-navy text-navyfg" : "text-muted hover:text-ink hover:bg-soft")}>
-      <Icon name={v.icon} className="w-4 h-4" />{v.label}
+  const [isDark, toggleTheme] = useTheme();
+  const v = VIEWS.find((x) => x.id === view);
+  const tab = (x, compact) => (
+    <a key={x.id} href={"#" + x.id} aria-current={view === x.id ? "page" : undefined}
+      className={"inline-flex items-center gap-1.5 rounded-lg font-semibold transition whitespace-nowrap text-sm " + (compact ? "px-3 py-1.5 " : "px-2.5 py-2 ") +
+        (view === x.id ? "bg-navy text-navyfg" : "text-muted hover:text-ink hover:bg-soft")}>
+      <Icon name={x.icon} className="w-4 h-4" />{x.label}
     </a>
   );
   return (
     <header className="sticky z-50" style={{ top: "env(safe-area-inset-top, 0px)" }}>
       <Ticker />
-      <div className="bg-card/95 backdrop-blur border-b border-line">
-        <div className="wrap flex items-center justify-between h-14 gap-4">
+      <div className="relative bg-card/95 backdrop-blur border-b border-line">
+        <div className="wrap flex items-center justify-between h-14 gap-3">
           <a href="#inicio" className="flex items-center gap-2 font-display font-extrabold text-ink shrink-0">
             <span className="grid place-items-center w-8 h-8 rounded-lg bg-navy text-up"><Icon name="CandlestickChart" className="w-4 h-4" /></span>
             <span>Bolsa<span className="text-em">PY</span> Aprende</span>
           </a>
-          <nav className="hidden lg:flex items-center gap-1" aria-label="Secciones">{VIEWS.map((v) => tab(v, false))}</nav>
+          <nav className="hidden xl:flex items-center gap-0.5" aria-label="Secciones">{VIEWS.map((x) => tab(x, false))}</nav>
+          <button onClick={toggleTheme} aria-label={isDark ? "Cambiar a tema claro" : "Cambiar a tema oscuro"} title={isDark ? "Tema claro" : "Tema oscuro"}
+            className="grid place-items-center w-9 h-9 shrink-0 rounded-lg border border-line text-ink hover:bg-soft transition">
+            <Icon name={isDark ? "Sun" : "Moon"} className="w-4 h-4" />
+          </button>
         </div>
-        <nav className="lg:hidden border-t border-line overflow-x-auto" aria-label="Secciones">
-          <div className="wrap flex gap-1 py-1.5 min-w-max">{VIEWS.map((v) => tab(v, true))}</div>
+        <nav className="xl:hidden border-t border-line overflow-x-auto" aria-label="Secciones">
+          <div className="wrap flex gap-1 py-1.5 min-w-max">{VIEWS.map((x) => tab(x, true))}</div>
         </nav>
+        {view !== "inicio" && <SubNav v={v} />}
+        <ReadingProgress />
       </div>
     </header>
   );
@@ -345,8 +442,9 @@ function ViewHeader({ v }) {
         </p>
         <h1 className="mt-3 text-3xl sm:text-5xl font-extrabold">{v.title}</h1>
         <p className="mt-3 max-w-2xl text-lg opacity-80">{v.desc}</p>
+        <p className="mt-4 hidden lg:flex items-center gap-2 font-mono text-xs opacity-70"><Icon name="ListOrdered" className="w-4 h-4" />{v.sections.length} {v.sections.length === 1 ? "tema" : "temas"} · usá la barra «En esta sección» para moverte</p>
         {v.sections.length > 1 && (
-          <div className="mt-7 flex flex-wrap gap-2">
+          <div className="mt-7 flex flex-wrap gap-2 lg:hidden">
             {v.sections.map(([id, l], k) => (
               <button key={id} onClick={() => scrollTo(id)}
                 className="inline-flex items-center gap-2 rounded-full border border-navyfg/20 bg-navyfg/5 px-3.5 py-1.5 text-sm font-medium hover:bg-navyfg/15 transition">
@@ -385,8 +483,8 @@ function ViewPager({ view }) {
 function Explorar() {
   return (
     <Section id="explorar" eyebrow="Mapa de la guía" title="Todo lo que vas a encontrar"
-      intro="La guía está ordenada en cinco secciones. Recorrelas en orden o andá directo a lo que necesitás.">
-      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      intro="La guía está ordenada en seis secciones, de lo más simple a lo más avanzado. Recorrelas en orden o andá directo a lo que necesitás.">
+      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {VIEWS.slice(1).map((v, i) => (
           <a key={v.id} href={"#" + v.id} className="group rounded-2xl border border-line bg-card p-6 hover:border-em hover:-translate-y-0.5 transition flex flex-col">
             <div className="flex items-center justify-between">
@@ -401,7 +499,7 @@ function Explorar() {
             <span className="mt-5 inline-flex items-center gap-1 text-sm font-semibold text-em">Entrar <Icon name="ArrowRight" className="w-4 h-4 group-hover:translate-x-0.5 transition" /></span>
           </a>
         ))}
-        <div className="board-bg rounded-2xl bg-navy text-navyfg p-6 flex flex-col">
+        <div className="board-bg rounded-2xl bg-navy text-navyfg p-6 flex flex-col sm:col-span-2">
           <span className="grid place-items-center w-11 h-11 rounded-xl bg-em text-white"><Icon name="Compass" /></span>
           <h3 className="mt-4 text-xl font-bold">¿No sabés por dónde empezar?</h3>
           <p className="mt-1 text-sm opacity-80 flex-1">Hacé el test de perfil en menos de un minuto y recibí una cartera de ejemplo con instrumentos paraguayos.</p>
@@ -449,20 +547,20 @@ function Hero() {
         <div className="min-w-0 rounded-2xl border border-navyfg/15 bg-navyfg/5 backdrop-blur shadow-2xl overflow-hidden">
           <div className="flex items-center justify-between gap-3 px-5 py-3 border-b border-navyfg/15 bg-navyfg/5">
             <p className="font-mono text-xs tracking-widest uppercase">Pizarra de tasas referenciales</p>
-            <span className="font-mono text-[10px] uppercase tracking-wider rounded border border-gold/50 text-gold px-1.5 py-0.5">Orientativo</span>
+            <span className="font-mono text-[10px] uppercase tracking-wider rounded border border-gold/50 text-gold px-1.5 py-0.5">Orientativo · {DATA_DATE.replace("noviembre de ", "nov. ")}</span>
           </div>
           <div className="overflow-x-auto">
-            <table className="w-full font-mono text-sm min-w-[380px] text-navyfg">
+            <table className="w-full font-mono text-[13px] sm:text-sm text-navyfg">
               <thead><tr className="text-[11px] uppercase tracking-wider opacity-60 text-left">
-                <th className="px-5 py-2 font-medium">Instrumento</th><th className="px-3 py-2 font-medium text-right">PYG</th><th className="px-3 py-2 font-medium text-right">USD</th><th className="px-5 py-2 font-medium text-right">Riesgo</th>
+                <th className="pl-4 pr-2 sm:px-5 py-2 font-medium">Instrumento</th><th className="px-2 sm:px-3 py-2 font-medium text-right">PYG</th><th className="px-2 sm:px-3 py-2 font-medium text-right">USD</th><th className="pl-2 pr-4 sm:px-5 py-2 font-medium text-right">Riesgo</th>
               </tr></thead>
               <tbody>
                 {board.map((x) => (
                   <tr key={x.id} className="border-t border-navyfg/10 hover:bg-navyfg/5">
-                    <td className="px-5 py-2.5 font-sans font-medium">{x.name}</td>
-                    <td className="px-3 py-2.5 text-right text-up">{x.currencies.includes("PYG") ? pct(x.ratePYG) : "—"}</td>
-                    <td className="px-3 py-2.5 text-right text-up">{x.currencies.includes("USD") && x.rateUSD ? pct(x.rateUSD) : "—"}</td>
-                    <td className="px-5 py-2.5 text-right"><span className="inline-flex items-center gap-1.5 text-xs"><span className={"w-2 h-2 rounded-full " + dot[x.risk]} />{x.risk}</span></td>
+                    <td className="pl-4 pr-2 sm:px-5 py-2.5 font-sans font-medium">{x.name}</td>
+                    <td className="px-2 sm:px-3 py-2.5 text-right text-up whitespace-nowrap">{x.currencies.includes("PYG") ? pct(x.ratePYG) : "—"}</td>
+                    <td className="px-2 sm:px-3 py-2.5 text-right text-up whitespace-nowrap">{x.currencies.includes("USD") && x.rateUSD ? pct(x.rateUSD) : "—"}</td>
+                    <td className="pl-2 pr-4 sm:px-5 py-2.5 text-right"><span className="inline-flex items-center gap-1.5 text-xs" title={"Riesgo " + x.risk.toLowerCase()}><span className={"w-2 h-2 rounded-full " + dot[x.risk]} /><span className="hidden sm:inline">{x.risk}</span></span></td>
                   </tr>
                 ))}
               </tbody>
@@ -484,7 +582,7 @@ function Hero() {
               )}
             </div>
           </div>
-          <p className="px-5 py-3 text-xs opacity-70 border-t border-navyfg/15">Rangos con fines educativos, no son cotizaciones en tiempo real. Consultá las tasas vigentes en tu Casa de Bolsa.</p>
+          <p className="px-5 py-3 text-xs opacity-70 border-t border-navyfg/15">Actualizado a {DATA_DATE}. Rangos con fines educativos, no son cotizaciones en tiempo real. Consultá las tasas vigentes en tu Casa de Bolsa.</p>
         </div>
       </div>
     </section>
@@ -712,25 +810,97 @@ function DondeInvertir() {
 
 /* ---------- 8. footer ---------- */
 function Footer() {
+  const col = "font-mono text-xs uppercase tracking-widest text-up";
+  const link = "text-sm opacity-80 hover:opacity-100 hover:underline underline-offset-2 text-left";
   return (
-    <footer className="bg-navy text-navyfg">
-      <div className="wrap py-12 grid md:grid-cols-[1fr_1.4fr] gap-10">
-        <div>
-          <p className="font-display font-extrabold text-lg">Bolsa<span className="text-em">PY</span> Aprende</p>
-          <p className="mt-2 text-sm opacity-75 max-w-sm">Guía educativa para dar los primeros pasos en el mercado de valores paraguayo.</p>
-          <div className="mt-4 flex flex-col gap-1 text-sm">
-            <a href="https://www.bcp.gov.py" target="_blank" rel="noopener" className="inline-flex items-center gap-1.5 opacity-90 hover:opacity-100 underline-offset-2 hover:underline">Banco Central del Paraguay <Icon name="ExternalLink" className="w-3.5 h-3.5" /></a>
-            <a href="https://www.bolsadevalores.com.py" target="_blank" rel="noopener" className="inline-flex items-center gap-1.5 opacity-90 hover:opacity-100 underline-offset-2 hover:underline">Bolsa de Valores de Asunción <Icon name="ExternalLink" className="w-3.5 h-3.5" /></a>
+    <footer className="board-bg bg-navy text-navyfg">
+      <div className="wrap pt-14 pb-8">
+        <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-[1.3fr_1fr_1fr_1fr]">
+          <div>
+            <p className="flex items-center gap-2 font-display font-extrabold text-lg">
+              <span className="grid place-items-center w-8 h-8 rounded-lg bg-em text-white"><Icon name="CandlestickChart" className="w-4 h-4" /></span>Bolsa<span className="text-up -ml-2">PY</span> Aprende
+            </p>
+            <p className="mt-3 text-sm opacity-75 max-w-xs">Guía educativa e independiente para aprender a invertir en el mercado de valores del Paraguay.</p>
+            <p className="mt-4 inline-flex items-center gap-2 rounded-full border border-navyfg/20 px-3 py-1 font-mono text-xs"><span className="w-2 h-2 rounded-full bg-up" />Datos actualizados a {DATA_DATE}</p>
+          </div>
+          <div>
+            <p className={col}>Secciones</p>
+            <ul className="mt-3 space-y-2">{VIEWS.map((v) => <li key={v.id}><a href={"#" + v.id} className={link}>{v.label}</a></li>)}</ul>
+          </div>
+          <div>
+            <p className={col}>Recursos</p>
+            <ul className="mt-3 space-y-2">
+              {[["simulador", "Simulador"], ["glosario", "Glosario"], ["quiz", "Quiz"], ["oficial", "Fuentes oficiales"]].map(([id, l]) => <li key={id}><button onClick={() => scrollTo(id)} className={link}>{l}</button></li>)}
+              <li><a href="https://www.bolsadevalores.com.py" target="_blank" rel="noopener" className={link + " inline-flex items-center gap-1"}>BVA <Icon name="ExternalLink" className="w-3 h-3" /></a></li>
+              <li><a href="https://www.bcp.gov.py" target="_blank" rel="noopener" className={link + " inline-flex items-center gap-1"}>BCP <Icon name="ExternalLink" className="w-3 h-3" /></a></li>
+            </ul>
+          </div>
+          <div>
+            <p className={col}>Sobre la guía</p>
+            <ul className="mt-3 space-y-2">
+              <li><button onClick={() => scrollTo("acerca")} className={link}>Quiénes somos</button></li>
+              <li><button onClick={() => scrollTo("acerca")} className={link}>Privacidad</button></li>
+              <li><a href={REPO_URL + "/issues/new"} target="_blank" rel="noopener" className={link + " inline-flex items-center gap-1"}>Enviar una sugerencia <Icon name="ExternalLink" className="w-3 h-3" /></a></li>
+            </ul>
           </div>
         </div>
-        <div className="rounded-2xl border border-white/15 p-5">
-          <p className="flex items-center gap-2 font-semibold"><Icon name="AlertTriangle" className="w-4 h-4 text-amber" /> Aviso legal</p>
+        <div className="mt-10 rounded-2xl border border-navyfg/15 bg-navyfg/5 p-5">
+          <p className="flex items-center gap-2 font-semibold"><Icon name="AlertTriangle" className="w-4 h-4 text-gold" /> Aviso legal</p>
           <p className="mt-2 text-sm opacity-80">
             Todo el contenido de este sitio es exclusivamente educativo e informativo. No constituye asesoría financiera, legal ni tributaria, ni una recomendación de compra o venta de ningún valor o instrumento. Las tasas, montos mínimos y entidades mencionadas son ilustrativas y pueden no estar vigentes. Toda inversión implica riesgos, incluida la posible pérdida del capital, y los rendimientos pasados no garantizan resultados futuros. Antes de invertir, consultá con una Casa de Bolsa autorizada por la Superintendencia de Valores del Banco Central del Paraguay y leé el prospecto de cada emisión.
           </p>
         </div>
+        <p className="mt-6 text-xs opacity-60 font-mono">BolsaPY Aprende · Proyecto educativo · No es una Casa de Bolsa ni una entidad regulada</p>
       </div>
     </footer>
+  );
+}
+
+/* ---------- sobre esta guía: quiénes somos, privacidad, contacto ---------- */
+function Acerca() {
+  const [cleared, setCleared] = useState(false);
+  const clearData = () => {
+    try { Object.keys(localStorage).filter((k) => k.startsWith("bpy-")).forEach((k) => localStorage.removeItem(k)); } catch (e) { /* sin almacenamiento */ }
+    document.documentElement.removeAttribute("data-theme");
+    setCleared(true);
+  };
+  return (
+    <Section id="acerca" eyebrow="Sobre esta guía" title="Quiénes somos, privacidad y contacto"
+      intro={"Información sobre este sitio. Los datos de mercado están actualizados a " + DATA_DATE + "."}>
+      <div className="grid lg:grid-cols-3 gap-4">
+        <article className="rounded-2xl border border-line bg-card p-6">
+          <span className="grid place-items-center w-11 h-11 rounded-xl bg-navy text-up"><Icon name="Users" /></span>
+          <h3 className="mt-4 text-lg font-bold text-ink">Quiénes somos</h3>
+          <p className="mt-2 text-sm text-muted">BolsaPY Aprende es un proyecto educativo independiente, hecho para que cualquier persona en Paraguay pueda entender cómo invertir en la bolsa, desde cero.</p>
+          <ul className="mt-4 space-y-2">
+            <Bullet>No es una Casa de Bolsa ni una entidad regulada.</Bullet>
+            <Bullet>No ofrece, vende ni recomienda productos financieros.</Bullet>
+            <Bullet>Los datos se toman de fuentes oficiales y se revisan periódicamente.</Bullet>
+          </ul>
+        </article>
+        <article className="rounded-2xl border border-line bg-card p-6">
+          <span className="grid place-items-center w-11 h-11 rounded-xl bg-navy text-up"><Icon name="Lock" /></span>
+          <h3 className="mt-4 text-lg font-bold text-ink">Privacidad</h3>
+          <p className="mt-2 text-sm text-muted">Este sitio no pide registro ni recolecta datos personales. Tus respuestas y cálculos no se envían a ningún servidor.</p>
+          <ul className="mt-4 space-y-2">
+            <Bullet>El progreso del checklist y de la ruta, y el tema elegido, se guardan solo en tu navegador.</Bullet>
+            <Bullet>Para mostrarse, la página usa GitHub Pages (alojamiento), Google Fonts (tipografías) y cdnjs (librerías). Esos servicios pueden registrar datos técnicos de la conexión, como la dirección IP.</Bullet>
+          </ul>
+          <button onClick={clearData} className="mt-5 inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-line text-sm font-semibold text-ink hover:bg-soft">
+            <Icon name={cleared ? "Check" : "Trash2"} className="w-4 h-4" /> {cleared ? "Datos borrados" : "Borrar mis datos guardados"}
+          </button>
+        </article>
+        <article className="rounded-2xl border border-line bg-card p-6">
+          <span className="grid place-items-center w-11 h-11 rounded-xl bg-navy text-up"><Icon name="MessageCircle" /></span>
+          <h3 className="mt-4 text-lg font-bold text-ink">Contacto y sugerencias</h3>
+          <p className="mt-2 text-sm text-muted">¿Encontraste un dato desactualizado, un error o querés proponer un tema? Escribinos.</p>
+          <a href={REPO_URL + "/issues/new"} target="_blank" rel="noopener" className="mt-5 inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-em text-white font-semibold hover:brightness-110 transition">
+            Enviar una sugerencia <Icon name="ExternalLink" className="w-4 h-4" />
+          </a>
+          <p className="mt-3 text-xs text-muted">Se abre en GitHub; necesitás una cuenta gratuita para escribir. También podés ver el código del sitio en <a href={REPO_URL} target="_blank" rel="noopener" className="text-em underline">el repositorio</a>.</p>
+        </article>
+      </div>
+    </Section>
   );
 }
 
@@ -1018,7 +1188,7 @@ function ChecklistPre() {
             </li>
           ))}
         </ul>
-        <aside className="rounded-2xl border border-line bg-card p-6 text-center lg:sticky lg:top-24">
+        <aside className="rounded-2xl border border-line bg-card p-6 text-center lg:sticky lg:top-48 xl:top-36">
           <div className="relative mx-auto w-32 h-32">
             <svg viewBox="0 0 120 120" className="w-full h-full -rotate-90" aria-hidden="true">
               <circle cx="60" cy="60" r="52" fill="none" stroke="rgb(var(--soft))" strokeWidth="12" />
@@ -1114,7 +1284,7 @@ function Casas() {
           </div>
           <div className="mt-4">
             <Notice>
-              <strong>Lista de Casas de Bolsa habilitadas según el sitio de la BVA, consultado en noviembre de 2026.</strong> Es informativa y no constituye una recomendación. La lista puede cambiar. Verificá siempre la lista vigente en el sitio oficial del Banco Central del Paraguay (<a className="underline text-em" href="https://www.bcp.gov.py" target="_blank" rel="noopener">bcp.gov.py</a>) y de la Bolsa de Valores de Asunción (<a className="underline text-em" href="https://www.bolsadevalores.com.py" target="_blank" rel="noopener">bolsadevalores.com.py</a>).
+              <strong>Lista de Casas de Bolsa habilitadas según el sitio de la BVA, consultado en {DATA_DATE}.</strong> Es informativa y no constituye una recomendación. La lista puede cambiar. Verificá siempre la lista vigente en el sitio oficial del Banco Central del Paraguay (<a className="underline text-em" href="https://www.bcp.gov.py" target="_blank" rel="noopener">bcp.gov.py</a>) y de la Bolsa de Valores de Asunción (<a className="underline text-em" href="https://www.bolsadevalores.com.py" target="_blank" rel="noopener">bolsadevalores.com.py</a>).
             </Notice>
           </div>
         </div>
@@ -1310,7 +1480,7 @@ function Prospecto() {
             ))}
           </dl>
         </div>
-        <aside className="rounded-2xl border border-em/40 bg-card p-6 lg:sticky lg:top-24">
+        <aside className="rounded-2xl border border-em/40 bg-card p-6 lg:sticky lg:top-48 xl:top-36">
           <p className="flex items-center gap-2 text-sm font-semibold text-em"><Icon name="HelpCircle" className="w-4 h-4" /> ¿Qué significa?</p>
           <h3 className="mt-2 text-xl font-bold text-ink">{k}</h3>
           <p className="mt-1 text-sm text-muted num">En este ejemplo: <span className="text-ink font-semibold">{v}</span></p>
@@ -1777,7 +1947,7 @@ function Herramientas() {
     costo: ["Costo real de invertir", "Descontá comisiones, custodia e impuestos para ver tu rendimiento neto."],
   };
   return (
-    <Section id="simulador" eyebrow="Herramientas" title="Calculadoras para decidir mejor"
+    <Section id="simulador" eyebrow="Herramientas" title="Elegí una herramienta"
       intro="Cinco herramientas prácticas para planificar tus inversiones en guaraníes o en dólares.">
       <div className="overflow-x-auto -mx-1 px-1 pb-1">
         <div role="tablist" aria-label="Calculadoras" className="inline-flex gap-2 min-w-max">
@@ -2951,11 +3121,12 @@ function App() {
   currentView = view;
   const v = VIEWS.find((x) => x.id === view);
   const pages = {
-    invertir: [<DondeInvertir key="d" />, <Casos key="c" />, <Instrumentos key="i" />, <Fondos key="f" />, <Riesgos key="r" />, <Estrategias key="es" />, <Casas key="cb" />],
+    instrumentos: [<Instrumentos key="i" />, <Fondos key="f" />, <Riesgos key="r" />],
+    invertir: [<DondeInvertir key="d" />, <Casos key="c" />, <Estrategias key="es" />, <Casas key="cb" />],
     mercado: [<Ecosistema key="e" />, <Mapa key="m" />, <Negociacion key="n" />, <Precios key="pr" />, <Prospecto key="p" />, <LineaTiempo key="l" />],
     empezar: [<Mitos key="mi" />, <Stepper key="s" />, <Estafas key="es" />, <ChecklistPre key="ch" />, <Perfil key="pf" />],
     herramientas: [<Herramientas key="h" />],
-    aprender: [<Aprender key="a" />, <Experto key="x" />, <Quiz key="q" />, <GlosarioFAQ key="g" />, <DatosOficiales key="o" />],
+    aprender: [<Aprender key="a" />, <Experto key="x" />, <Quiz key="q" />, <GlosarioFAQ key="g" />, <DatosOficiales key="o" />, <Acerca key="ac" />],
   };
   return (
     <>
@@ -2974,6 +3145,7 @@ function App() {
       )}
       <ViewPager view={view} />
       <Footer />
+      <BackToTop />
     </>
   );
 }

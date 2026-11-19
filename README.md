@@ -4,20 +4,24 @@ Guía educativa e interactiva para aprender a invertir en la Bolsa de Valores de
 
 ## Contenido
 
-La guía está ordenada en seis secciones, cada una con su propio enlace (`#invertir`, `#mercado`, etc.):
+La guía está ordenada en siete secciones, de lo más simple a lo más avanzado. Cada una tiene su propio enlace (`#empezar`, `#mercado`, etc.):
 
 | Sección | Qué incluye |
 |---|---|
 | **Inicio** | Portada con pizarra de tasas, beneficios, caja de ahorro vs. invertir y mapa de la guía |
-| **Dónde invertir** | Según tu objetivo, casos de ejemplo, instrumentos, fondos por dentro, los 6 riesgos, estrategias de cartera y las 24 Casas de Bolsa habilitadas |
-| **El mercado** | Ecosistema, mapa de sectores, cómo se negocia (libro de órdenes), precio de un bono (TIR e intereses corridos), prospecto y línea de tiempo |
 | **Empezar** | Mitos y realidades, paso a paso, señales de estafa, checklist y test de perfil |
+| **Instrumentos** | Instrumentos con filtros y comparador, fondos por dentro y los 6 riesgos |
+| **Dónde invertir** | Según tu objetivo, casos de ejemplo, estrategias de cartera y las 24 Casas de Bolsa habilitadas |
+| **El mercado** | Ecosistema, mapa de sectores, cómo se negocia, precio de un bono, prospecto y línea de tiempo |
 | **Calculadoras** | Simulador, meta de ahorro, bono y cupones, PYG vs. USD y costo real |
-| **Aprender** | Ruta en 4 niveles, mini-cursos, nivel experto (analizar emisores, derechos, impuestos, mercado en cifras), quiz, glosario y fuentes oficiales |
+| **Aprender** | Ruta en 4 niveles, mini-cursos, nivel experto, quiz, glosario, fuentes oficiales y "Sobre esta guía" |
+
+Datos de mercado actualizados a noviembre de 2026.
 
 ## Archivos
 
-- `index.html`: la página lista para abrir en el navegador o publicar con GitHub Pages. Usa React, Tailwind CSS, Lucide React y Recharts desde CDN.
+- `index.html`: la página lista para abrir en el navegador o publicar con GitHub Pages. Incluye el CSS ya generado (Tailwind) y los íconos (Lucide) que usa; carga React y Recharts desde cdnjs.
+- `og-image.png` y `apple-touch-icon.png`: imagen de vista previa al compartir el enlace e ícono para el celular.
 - `App.jsx`: el código fuente React (JSX) de la aplicación.
 
 ## Ver la página
