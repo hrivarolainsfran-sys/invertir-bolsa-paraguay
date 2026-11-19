@@ -1,0 +1,35 @@
+/* BolsaPY Aprende — Azul Capital */
+:root{--bg:246 249 253;--card:255 255 255;--ink:19 38 64;--muted:76 95 119;--line:210 221 235;--soft:233 240 249;--em:37 99 235;--em-soft:235 243 255;--amber:146 64 14;--amber-soft:255 247 230;--navy:13 34 62;--navy-fg:248 251 255;--red:185 28 48;--red-soft:255 241 243;--up:52 211 153;--gold:251 191 36;--on-em:248 251 255;}
+:root[data-theme="dark"]{--bg:8 15 28;--card:15 26 44;--ink:235 242 252;--muted:162 179 202;--line:54 73 99;--soft:22 37 59;--em:96 165 250;--em-soft:20 43 77;--amber:251 191 36;--amber-soft:53 38 16;--navy:9 23 45;--navy-fg:241 247 255;--red:253 145 157;--red-soft:61 24 36;--up:110 231 183;--gold:252 211 77;--on-em:9 23 45;}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:8 15 28;--card:15 26 44;--ink:235 242 252;--muted:162 179 202;--line:54 73 99;--soft:22 37 59;--em:96 165 250;--em-soft:20 43 77;--amber:251 191 36;--amber-soft:53 38 16;--navy:9 23 45;--navy-fg:241 247 255;--red:253 145 157;--red-soft:61 24 36;--up:110 231 183;--gold:252 211 77;--on-em:9 23 45;}}
+
+body{background:rgb(var(--bg));color:rgb(var(--ink));-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:var(--font-display);letter-spacing:-.035em;text-wrap:balance}
+p{line-height:1.7}button,a,input,select,textarea{transition-duration:200ms}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid rgb(var(--em));outline-offset:4px}
+button,input,select{min-height:44px}input[type=range]{min-height:32px;accent-color:rgb(var(--em))}
+input:not([type=range]):not([type=checkbox]),select,textarea{border-color:rgb(var(--muted)/.6);border-radius:12px}
+.bg-em{color:rgb(var(--on-em))}.bpy-tab-active{background:rgb(var(--em-soft));color:rgb(var(--em))}
+nav[aria-label=Secciones] a{min-height:44px;gap:8px;border-radius:12px}
+.bpy-brand-mark{display:grid;place-items:center;width:42px;height:42px;border-radius:12px;color:rgb(var(--em));background:rgb(var(--em-soft));flex-shrink:0}
+.bpy-wordmark{font-size:20px;line-height:1.1;letter-spacing:-.04em}.bpy-wordmark small{display:block;font:500 11px/1.5 var(--font-body);letter-spacing:.13em;color:rgb(var(--muted))}
+.bpy-hero{background:radial-gradient(ellipse at 90% 25%,rgb(var(--em)/.09),transparent 60%),rgb(var(--bg));color:rgb(var(--ink));border-bottom:1px solid rgb(var(--line))}
+.bpy-hero>.orb{display:none}.bpy-hero>.wrap{padding-top:64px;padding-bottom:90px;gap:48px;align-items:center}
+.bpy-hero h1{font-size:clamp(2.25rem,4.3vw,3.7rem);line-height:1.14;letter-spacing:-.05em}
+.bpy-hero-copy>p:not(:first-child){color:rgb(var(--muted));opacity:1}.bpy-hero-copy .text-up,.bpy-hero-copy .text-gold{color:rgb(var(--em))}
+.bpy-hero-copy button{min-height:50px}.bpy-hero-copy dl{margin-top:32px}.bpy-hero-copy dt{opacity:1;color:rgb(var(--muted))}
+.bpy-market-card{border:1px solid rgb(var(--navy-fg)/.16);border-top:3px solid rgb(var(--gold));box-shadow:0 24px 65px -24px rgb(var(--navy)/.4);border-radius:24px}
+.bpy-market-card tr:hover{background:rgb(var(--navy-fg)/.08)}.bpy-market-card .opacity-60{opacity:.8}
+.bpy-section{padding-top:72px;padding-bottom:72px}.bpy-section:nth-of-type(even){background:rgb(var(--card)/.55)}
+.bpy-section h2{line-height:1.2}.bpy-section .eyebrow{color:rgb(var(--em))}.bpy-section .eyebrow>span:first-child{background:rgb(var(--em-soft));color:rgb(var(--em));font-variant-numeric:tabular-nums}
+.bpy-section .bg-card.rounded-2xl{box-shadow:0 6px 22px -16px rgb(var(--navy)/.25);border-radius:20px}
+a.bg-card:hover{box-shadow:0 14px 32px -18px rgb(var(--em)/.3)}
+[role=radiogroup]{max-width:100%;flex-wrap:wrap;gap:3px;border-radius:14px}
+[role=radio]{min-height:44px;border-radius:10px}[role=radio][aria-checked=true]{box-shadow:0 2px 8px rgb(var(--navy)/.12)}
+.recharts-tooltip-wrapper .recharts-default-tooltip{border-radius:12px!important;border-color:rgb(var(--line))!important;background:rgb(var(--card))!important;color:rgb(var(--ink))!important}
+@media(min-width:1280px){header .wrap.h-14{height:76px}nav[aria-label=Secciones] a{font-size:12px;padding-left:9px;padding-right:9px}}
+@media(max-width:639px){.wrap{padding-left:20px;padding-right:20px}.bpy-hero>.wrap{padding-top:36px;padding-bottom:56px;gap:32px}.bpy-hero-copy>p:first-child{font-size:10px;letter-spacing:.06em}.bpy-hero-copy button{width:100%;justify-content:center}.bpy-market-card{border-radius:18px}.bpy-market-card table{font-size:11px}.bpy-market-card th,.bpy-market-card td{padding-left:8px;padding-right:8px}.bpy-market-card table button{gap:4px}.bpy-section{padding-top:48px;padding-bottom:48px}.bpy-wordmark{font-size:17px}.bpy-brand-mark{width:32px;height:36px}.bpy-brand-mark svg{width:28px}header .wrap.h-14{gap:6px}header .wrap.h-14>div{gap:3px}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}[data-reveal]{opacity:1!important;transform:none!important}}
+
+.bpy-market-card table button{min-height:24px}.bpy-market-card table td{padding-top:10px;padding-bottom:10px}
+header a[aria-label="BolsaPY Aprende, inicio"]{flex-shrink:0}header .wrap.h-14{max-width:1400px}

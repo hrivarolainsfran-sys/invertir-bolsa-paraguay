@@ -13,6 +13,8 @@ const Icon = ({ name, className = "w-5 h-5", ...rest }) => {
     </svg>
   );
 };
+const BrandMark = ({ name = "brand", className = "w-5 h-5" }) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">{{"brand": <><path d="M3 5h4a5 5 0 0 1 5 3 5 5 0 0 1 5-3h4v14h-4a6 6 0 0 0-5 2 6 6 0 0 0-5-2H3Z"/><path d="M12 8v13M7 8v8M17 7v8M6 11h2v3H6ZM16 9h2v3h-2Z"/></>,"inicio": <><path d="m3 10 9-7 9 7M5 9v12h14V9M9 17v-3M12 17v-5M15 17v-7"/></>,"empezar": <><path d="M3 20h6v-6h6V8h6M16 3h5v5"/></>,"instrumentos": <><path d="M7 3v4M7 15v6M17 3v8M17 19v2"/><rect x="4" y="7" width="6" height="8" rx="1"/><rect x="14" y="11" width="6" height="8" rx="1"/></>,"invertir": <><circle cx="12" cy="12" r="9"/><path d="m16 8-2 6-6 2 2-6Z"/></>,"mercado": <><path d="m3 8 9-5 9 5H3ZM6 11v7M12 11v7M18 11v7M3 21h18"/></>,"herramientas": <><rect x="5" y="3" width="14" height="18" rx="3"/><path d="M8 7h8M8 12h2M14 12h2M8 16h2M14 16h2"/></>,"aprender": <><path d="m2 9 10-5 10 5-10 5ZM6 11v6c3 3 9 3 12 0v-6M22 9v7"/></>}[name]}</svg>;
+const SECTION_ICONS = {"beneficios": "TrendingUp", "explorar": "Compass", "basico": "Lightbulb", "mitos": "MessageCircleQuestion", "guia": "ListOrdered", "maria": "UserRound", "estafas": "ShieldAlert", "checklist": "ClipboardCheck", "perfil": "SlidersHorizontal", "instrumentos": "CandlestickChart", "fondos": "Layers", "riesgos": "ShieldCheck", "donde": "Target", "casos": "Users", "estrategias": "Route", "casas": "Landmark", "ecosistema": "Network", "mapa": "Map", "negociacion": "ArrowLeftRight", "precios": "LineChart", "prospecto": "FileSearch", "linea": "CalendarClock", "simulador": "Calculator", "aprender": "GraduationCap", "experto": "Award", "profesional": "BriefcaseBusiness", "quiz": "CircleHelp", "glosario": "BookOpen", "oficial": "BadgeCheck", "acerca": "Info"};
 const DATA_DATE = "noviembre de 2026";
 const REPO_URL = "https://github.com/hrivarolainsfran-sys/invertir-bolsa-paraguay";
 
@@ -30,7 +32,7 @@ const fmtShort = (v, cur) => {
   return p + Math.round(v);
 };
 const scrollTo = (id) => {
-  const go = () => { const el = document.getElementById(id); if (el) el.scrollIntoView({ behavior: "smooth", block: "start" }); };
+  const go = () => { const el = document.getElementById(id); if (el) el.scrollIntoView({ behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" }); };
   const v = SECTION_VIEW[id];
   if (v && v !== currentView) { window.location.hash = v; setTimeout(go, 150); } else go();
 };
@@ -195,10 +197,10 @@ const Section = ({ id, eyebrow, title, intro, children }) => {
   const [show, setShow] = useState(false);
   if (mode === "simple" && ADVANCED[id] && !show) return <AdvancedStub id={id} eyebrow={eyebrow} title={title} onShow={() => setShow(true)} />;
   return (
-    <section id={id} className="py-16 sm:py-20">
+    <section id={id} className="bpy-section py-16 sm:py-20">
       <div className="wrap">
         <div className="mb-10 prose-w">
-          {eyebrow && <p className="eyebrow mb-3 flex items-center gap-3">{sectionIndex(id) && <span className="rounded-md bg-navy text-up px-2 py-0.5 tracking-normal">{sectionIndex(id)}</span>}<span>{eyebrow}</span></p>}
+          {eyebrow && <p className="eyebrow mb-3 flex items-center gap-3">{sectionIndex(id) && <span className="rounded-md bg-navy text-up px-2 py-0.5 tracking-normal">{sectionIndex(id)}</span>}<Icon name={SECTION_ICONS[id] || "BookOpen"} className="w-5 h-5" /><span>{eyebrow}</span></p>}
           <h2 className="text-3xl sm:text-4xl font-bold text-ink">{title}</h2>
           <span aria-hidden="true" className="mt-4 block h-1 w-14 rounded-full bg-gradient-to-r from-em to-gold" />
           {intro && <p className="mt-4 text-muted text-lg">{intro}</p>}
@@ -304,7 +306,7 @@ function ShareButtons({ text }) {
     <div className="min-w-0">
       <div className="flex flex-wrap gap-2">
         <a href={"https://wa.me/?text=" + encodeURIComponent(full)} target="_blank" rel="noopener"
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg font-semibold bg-em text-white hover:brightness-110 transition">
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg font-semibold bg-em text-navyfg hover:brightness-110 transition">
           <Icon name="MessageCircle" className="w-4 h-4" /> Compartir por WhatsApp
         </a>
         <button type="button" onClick={copy} className="inline-flex items-center gap-2 px-4 py-2 rounded-lg font-semibold border border-line text-ink hover:bg-soft transition">
@@ -337,7 +339,7 @@ function Ticker() {
   return (
     <div className="bg-navy text-navyfg text-[11px] font-mono tracking-wide border-b border-navyfg/10" aria-label="Tasas anuales referenciales">
       <div className="flex items-stretch">
-        <span className="shrink-0 bg-em text-white px-3 py-1.5 font-semibold tracking-widest">TASAS REF.</span>
+        <span className="shrink-0 bg-em text-navyfg px-3 py-1.5 font-semibold tracking-widest">TASAS REF.</span>
         <div className="overflow-hidden flex-1 min-w-0"><div className="ticker-track whitespace-nowrap py-1.5">{row("a")}{row("b")}</div></div>
       </div>
     </div>
@@ -389,7 +391,7 @@ function BackToTop() {
   useEffect(() => { const on = () => setShow(window.scrollY > 900); on(); window.addEventListener("scroll", on, { passive: true }); return () => window.removeEventListener("scroll", on); }, []);
   if (!show) return null;
   return (
-    <button onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })} aria-label="Volver arriba"
+    <button onClick={() => window.scrollTo({ top: 0, behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" })} aria-label="Volver arriba"
       className="fade-in fixed z-40 grid place-items-center w-11 h-11 rounded-full bg-navy text-navyfg shadow-lg border border-navyfg/15 hover:bg-em transition"
       style={{ right: "calc(16px + env(safe-area-inset-right, 0px))", bottom: "calc(16px + env(safe-area-inset-bottom, 0px))" }}>
       <Icon name="ArrowUp" className="w-5 h-5" />
@@ -424,13 +426,13 @@ function Nav({ view }) {
   useEffect(() => {
     const box = mref.current; if (!box) return;
     const a = box.querySelector('[aria-current="page"]');
-    if (a) box.scrollTo({ left: Math.max(0, a.offsetLeft - box.clientWidth / 2 + a.offsetWidth / 2), behavior: "smooth" });
+    if (a) box.scrollTo({ left: Math.max(0, a.offsetLeft - box.clientWidth / 2 + a.offsetWidth / 2), behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
   }, [view]);
   const tab = (x, compact) => (
     <a key={x.id} href={"#" + x.id} aria-current={view === x.id ? "page" : undefined}
       className={"inline-flex items-center gap-1.5 rounded-lg font-semibold transition whitespace-nowrap text-sm " + (compact ? "px-3 py-1.5 " : "px-2.5 py-2 ") +
-        (view === x.id ? "bg-navy text-navyfg" : "text-muted hover:text-ink hover:bg-soft")}>
-      <Icon name={x.icon} className={"w-4 h-4" + (compact ? "" : " xl:hidden 2xl:block")} />{x.label}
+        (view === x.id ? "bpy-tab-active" : "text-muted hover:text-ink hover:bg-soft")}>
+      <BrandMark name={x.id} className="w-4 h-4" />{x.label}
     </a>
   );
   return (
@@ -439,8 +441,8 @@ function Nav({ view }) {
       <div className="relative bg-card/95 backdrop-blur border-b border-line">
         <div className="wrap flex items-center justify-between h-14 gap-2 sm:gap-3">
           <a href="#inicio" aria-label="BolsaPY Aprende, inicio" className="flex items-center gap-2 font-display font-extrabold text-ink min-w-0">
-            <span className="grid place-items-center w-8 h-8 rounded-lg bg-navy text-up shrink-0"><Icon name="CandlestickChart" className="w-4 h-4" /></span>
-            <span className="truncate">Bolsa<span className="text-em">PY</span><span className="hidden min-[420px]:inline"> Aprende</span></span>
+            <span className="bpy-brand-mark"><BrandMark className="w-8 h-8" /></span>
+            <span className="bpy-wordmark">Bolsa<span className="text-em">PY</span><small>Aprende</small></span>
           </a>
           <nav className="hidden xl:flex items-center gap-0.5" aria-label="Secciones">{VIEWS.map((x) => tab(x, false))}</nav>
           <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
@@ -475,7 +477,7 @@ function ViewHeader({ v }) {
   return (
     <header className="relative overflow-hidden board-bg bg-navy text-navyfg">
       <div aria-hidden="true" className="orb orb-a" />
-      <span aria-hidden="true" className="hidden md:block absolute right-[5%] top-1/2 -translate-y-1/2 pointer-events-none"><Icon name={v.icon} className="float-slow w-60 h-60 text-up/10" /></span>
+      <span aria-hidden="true" className="hidden md:block absolute right-[5%] top-1/2 -translate-y-1/2 pointer-events-none"><BrandMark name={v.id} className="float-slow w-60 h-60 text-up/10" /></span>
       <div className="wrap relative py-10 sm:py-14">
         <p className="font-mono text-xs tracking-widest uppercase text-up flex items-center gap-2">
           <a href="#inicio" className="hover:underline">Inicio</a><span className="opacity-50">/</span><span>Sección {i} de {VIEWS.length - 1}</span>
@@ -539,7 +541,7 @@ function Explorar() {
         {VIEWS.slice(1).map((v, i) => (
           <a key={v.id} href={"#" + v.id} className="group rounded-2xl border border-line bg-card p-6 hover:border-em hover:-translate-y-0.5 transition flex flex-col">
             <div className="flex items-center justify-between">
-              <span className="grid place-items-center w-11 h-11 rounded-xl bg-navy text-up group-hover:bg-em group-hover:text-white group-hover:-rotate-6 transition"><Icon name={v.icon} /></span>
+              <span className="grid place-items-center w-11 h-11 rounded-xl bg-navy text-up group-hover:bg-em group-hover:text-navyfg group-hover:-rotate-6 transition"><BrandMark name={v.id} /></span>
               <span className="font-mono text-xs text-muted">{String(i + 1).padStart(2, "0")}</span>
             </div>
             <h3 className="mt-4 text-xl font-bold text-ink">{v.label}</h3>
@@ -555,10 +557,10 @@ function Explorar() {
           </a>
         ))}
         <div className="board-bg rounded-2xl bg-navy text-navyfg p-6 flex flex-col sm:col-span-2">
-          <span className="grid place-items-center w-11 h-11 rounded-xl bg-em text-white"><Icon name="Compass" /></span>
+          <span className="grid place-items-center w-11 h-11 rounded-xl bg-em text-navyfg"><Icon name="Compass" /></span>
           <h3 className="mt-4 text-xl font-bold">¿No sabés por dónde empezar?</h3>
           <p className="mt-1 text-sm opacity-80 flex-1">Hacé el test de perfil en menos de un minuto y recibí una cartera de ejemplo con instrumentos paraguayos.</p>
-          <button onClick={() => scrollTo("perfil")} className="mt-5 self-start inline-flex items-center gap-2 rounded-xl bg-em px-4 py-2.5 font-semibold text-white hover:brightness-110 transition">
+          <button onClick={() => scrollTo("perfil")} className="mt-5 self-start inline-flex items-center gap-2 rounded-xl bg-em px-4 py-2.5 font-semibold text-navyfg hover:brightness-110 transition">
             Hacer el test <Icon name="ArrowRight" className="w-4 h-4" />
           </button>
         </div>
@@ -582,12 +584,12 @@ function Hero() {
   const final = spark[months].v;
   const shown = useCountUp(final, 650);
   return (
-    <section className="relative overflow-hidden board-bg bg-navy text-navyfg">
+    <section className="bpy-hero relative overflow-hidden">
       <div aria-hidden="true" className="orb orb-a" />
       <div aria-hidden="true" className="orb orb-b" />
       <div className="wrap relative pt-12 pb-24 sm:pt-16 sm:pb-28 grid lg:grid-cols-[1.05fr_1fr] gap-10 items-center">
-        <div className="min-w-0">
-          <p className="font-mono text-xs tracking-widest uppercase text-up flex items-center gap-2">
+        <div className="bpy-hero-copy min-w-0">
+          <p className="font-mono text-xs tracking-widest uppercase text-em flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-up animate-pulse" aria-hidden="true" />Guía educativa · Mercado de valores del Paraguay
           </p>
           <h1 className="mt-4 text-4xl sm:text-5xl lg:text-6xl font-extrabold">Aprendé a invertir en la Bolsa de Paraguay <Rotator /></h1>
@@ -595,21 +597,21 @@ function Hero() {
             No hace falta ser millonario. Con un fondo mutuo podés empezar con montos accesibles, en guaraníes o en dólares, en un mercado regulado por el Banco Central del Paraguay.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
-            <button onClick={() => scrollTo("guia")} className="shine inline-flex items-center gap-2 rounded-xl bg-em px-5 py-3 font-semibold text-white shadow-lg shadow-em/30 hover:brightness-110 transition">
+            <button onClick={() => scrollTo("guia")} className="shine inline-flex items-center gap-2 rounded-xl bg-em px-5 py-3 font-semibold text-navyfg shadow-lg shadow-em/30 hover:brightness-110 transition">
               Empezar la guía paso a paso <Icon name="ArrowRight" className="w-4 h-4" />
             </button>
-            <button onClick={openWizard} className="inline-flex items-center gap-2 rounded-xl border border-navyfg/25 px-5 py-3 font-semibold hover:bg-navyfg/10 transition">
+            <button onClick={openWizard} className="inline-flex items-center gap-2 rounded-xl border border-line px-5 py-3 font-semibold hover:bg-soft transition">
               <Icon name="Route" className="w-4 h-4" /> Armar mi ruta
             </button>
           </div>
-          <dl className="mt-10 grid grid-cols-3 gap-4 max-w-md border-t border-navyfg/15 pt-6">
+          <dl className="mt-10 grid grid-cols-3 gap-4 max-w-md border-t border-line pt-6">
             {[[9, "instrumentos explicados"], [6, "calculadoras"], [24, "Casas de Bolsa habilitadas"]].map(([n, l]) => (
-              <div key={l}><dd className="font-mono text-3xl font-semibold text-up num"><CountUp to={n} /></dd><dt className="text-xs opacity-70 leading-snug mt-1">{l}</dt></div>
+              <div key={l}><dd className="font-mono text-3xl font-semibold text-em num"><CountUp to={n} /></dd><dt className="text-xs opacity-70 leading-snug mt-1">{l}</dt></div>
             ))}
           </dl>
         </div>
 
-        <div className="min-w-0 rounded-2xl border border-navyfg/15 bg-navyfg/5 backdrop-blur shadow-2xl overflow-hidden">
+        <div className="bpy-market-card min-w-0 rounded-2xl bg-navy text-navyfg overflow-hidden">
           <div className="flex items-center justify-between gap-3 px-5 py-3 border-b border-navyfg/15 bg-navyfg/5">
             <p className="font-mono text-xs tracking-widest uppercase">Pizarra de tasas referenciales</p>
             <span className="font-mono text-[10px] uppercase tracking-wider rounded border border-gold/50 text-gold px-1.5 py-0.5">Orientativo · {DATA_DATE.replace("noviembre de ", "nov. ")}</span>
@@ -876,7 +878,7 @@ function DondeInvertir() {
             <p className="flex items-center gap-2 text-sm font-bold text-ink"><Icon name="Lightbulb" className="w-4 h-4 text-amber" /> Tené en cuenta</p>
             <ul className="mt-3 space-y-2">{goal.tips.map((t) => <li key={t} className="flex gap-2 text-sm text-ink"><Icon name="Check" className="w-4 h-4 text-em shrink-0 mt-0.5" />{t}</li>)}</ul>
           </article>
-          <button onClick={() => scrollTo("simulador")} className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-em px-5 py-3 font-semibold text-white hover:brightness-110 transition">
+          <button onClick={() => scrollTo("simulador")} className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-em px-5 py-3 font-semibold text-navyfg hover:brightness-110 transition">
             <Icon name="Calculator" className="w-4 h-4" /> Simular con aportes mensuales
           </button>
         </div>
@@ -896,7 +898,7 @@ function Footer() {
         <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-[1.3fr_1fr_1fr_1fr]">
           <div>
             <p className="flex items-center gap-2 font-display font-extrabold text-lg">
-              <span className="grid place-items-center w-8 h-8 rounded-lg bg-em text-white"><Icon name="CandlestickChart" className="w-4 h-4" /></span>Bolsa<span className="text-up -ml-2">PY</span> Aprende
+              <span className="grid place-items-center w-8 h-8 rounded-lg bg-em text-navyfg"><Icon name="CandlestickChart" className="w-4 h-4" /></span>Bolsa<span className="text-up -ml-2">PY</span> Aprende
             </p>
             <p className="mt-3 text-sm opacity-75 max-w-xs">Guía educativa e independiente para aprender a invertir en el mercado de valores del Paraguay.</p>
             <p className="mt-4 inline-flex items-center gap-2 rounded-full border border-navyfg/20 px-3 py-1 font-mono text-xs"><span className="w-2 h-2 rounded-full bg-up" />Datos actualizados a {DATA_DATE}</p>
@@ -972,7 +974,7 @@ function Acerca() {
           <span className="grid place-items-center w-11 h-11 rounded-xl bg-navy text-up"><Icon name="MessageCircle" /></span>
           <h3 className="mt-4 text-lg font-bold text-ink">Contacto y sugerencias</h3>
           <p className="mt-2 text-sm text-muted">¿Encontraste un dato desactualizado, un error o querés proponer un tema? Escribinos.</p>
-          <a href={REPO_URL + "/issues/new"} target="_blank" rel="noopener" className="mt-5 inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-em text-white font-semibold hover:brightness-110 transition">
+          <a href={REPO_URL + "/issues/new"} target="_blank" rel="noopener" className="mt-5 inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-em text-navyfg font-semibold hover:brightness-110 transition">
             Enviar una sugerencia <Icon name="ExternalLink" className="w-4 h-4" />
           </a>
           <p className="mt-3 text-xs text-muted">Se abre en GitHub; necesitás una cuenta gratuita para escribir. También podés ver el código del sitio en <a href={REPO_URL} target="_blank" rel="noopener" className="text-em underline">el repositorio</a>.</p>
@@ -1012,7 +1014,7 @@ function Ecosistema() {
         <div className="flex items-center gap-2 min-w-[640px] text-sm">
           {["Vos (inversor)", "Tu Casa de Bolsa", "BVA (negociación)", "Emisor (empresa / Estado)"].map((s, i, arr) => (
             <React.Fragment key={s}>
-              <div className={"flex-1 rounded-xl px-3 py-3 text-center font-semibold " + (i === 0 ? "bg-em text-white" : "bg-card border border-line text-ink")}>{s}</div>
+              <div className={"flex-1 rounded-xl px-3 py-3 text-center font-semibold " + (i === 0 ? "bg-em text-navyfg" : "bg-card border border-line text-ink")}>{s}</div>
               {i < arr.length - 1 && <Icon name="ArrowRight" className="w-4 h-4 text-muted shrink-0" />}
             </React.Fragment>
           ))}
@@ -1075,7 +1077,7 @@ function Stepper() {
           <li key={k}>
             <button id={"step-" + k} onClick={() => setI(k)} aria-current={k === i ? "step" : undefined}
               className={"w-full text-left rounded-xl border p-2 sm:p-3 transition " + (k === i ? "border-em bg-emsoft" : k < i ? "border-line bg-card" : "border-line bg-card hover:border-em/50")}>
-              <span className={"grid place-items-center w-8 h-8 rounded-full text-sm font-bold num " + (k < i ? "bg-em text-white" : k === i ? "bg-navy text-navyfg" : "bg-soft text-muted")}>
+              <span className={"grid place-items-center w-8 h-8 rounded-full text-sm font-bold num " + (k < i ? "bg-em text-navyfg" : k === i ? "bg-navy text-navyfg" : "bg-soft text-muted")}>
                 {k < i ? <Icon name="Check" className="w-4 h-4" /> : k + 1}
               </span>
               <span className="hidden sm:block mt-2 text-sm font-semibold text-ink leading-snug">{st.title}</span>
@@ -1108,11 +1110,11 @@ function Stepper() {
             <Icon name="ArrowLeft" className="w-4 h-4" /> Anterior
           </button>
           {i < STEPS.length - 1 ? (
-            <button onClick={() => setI(i + 1)} className="inline-flex items-center gap-2 px-4 py-2 rounded-lg font-semibold bg-em text-white hover:brightness-110 transition">
+            <button onClick={() => setI(i + 1)} className="inline-flex items-center gap-2 px-4 py-2 rounded-lg font-semibold bg-em text-navyfg hover:brightness-110 transition">
               Siguiente <Icon name="ArrowRight" className="w-4 h-4" />
             </button>
           ) : (
-            <button onClick={() => scrollTo("perfil")} className="inline-flex items-center gap-2 px-4 py-2 rounded-lg font-semibold bg-em text-white hover:brightness-110 transition">
+            <button onClick={() => scrollTo("perfil")} className="inline-flex items-center gap-2 px-4 py-2 rounded-lg font-semibold bg-em text-navyfg hover:brightness-110 transition">
               Descubrí tu perfil <Icon name="ArrowRight" className="w-4 h-4" />
             </button>
           )}
@@ -1189,7 +1191,7 @@ function Casos() {
         {CASES.map((p, k) => (
           <button key={p.name} id={"case-" + k} onClick={() => setSel(k)} aria-pressed={sel === k}
             className={"text-left rounded-2xl border p-4 transition " + (sel === k ? "border-em bg-emsoft" : "border-line bg-card hover:border-em/50")}>
-            <span className={"grid place-items-center w-10 h-10 rounded-full " + (sel === k ? "bg-em text-white" : "bg-soft text-ink")}><Icon name={p.icon} className="w-5 h-5" /></span>
+            <span className={"grid place-items-center w-10 h-10 rounded-full " + (sel === k ? "bg-em text-navyfg" : "bg-soft text-ink")}><Icon name={p.icon} className="w-5 h-5" /></span>
             <p className="mt-2 font-bold text-ink">{p.name}, <span className="num">{p.age}</span></p>
             <p className="text-xs text-muted">{p.who}</p>
           </button>
@@ -1589,7 +1591,7 @@ function LineaTiempo() {
   const [sel, setSel] = useState(1);
   const e = events[sel];
   const totalInt = coupon * ((years * 12) / per);
-  const style = { buy: "bg-navy text-navyfg", coupon: "bg-em text-white", end: "bg-amber text-navy", reinvest: "bg-soft text-ink border border-line" };
+  const style = { buy: "bg-navy text-navyfg", coupon: "bg-em text-navyfg", end: "bg-amber text-navy", reinvest: "bg-soft text-ink border border-line" };
   const icon = { buy: "ShoppingCart", coupon: "Coins", end: "Flag", reinvest: "RefreshCw" };
   return (
     <Section id="linea" eyebrow="Ciclo de vida" title="Línea de tiempo de una inversión"
@@ -1928,13 +1930,13 @@ function CalcMoneda() {
           <div className={"rounded-2xl p-5 border " + (winner === "PYG" ? "border-em bg-emsoft" : "border-line bg-bg")}>
             <p className="text-xs uppercase tracking-wider text-muted">Invirtiendo en guaraníes</p>
             <p className="mt-1 num font-display text-2xl font-bold text-ink break-words">{fmtMoney(pygFinal, "PYG")}</p>
-            {winner === "PYG" && <Pill className="mt-2 bg-em text-white">Mejor resultado</Pill>}
+            {winner === "PYG" && <Pill className="mt-2 bg-em text-navyfg">Mejor resultado</Pill>}
           </div>
           <div className={"rounded-2xl p-5 border " + (winner === "USD" ? "border-em bg-emsoft" : "border-line bg-bg")}>
             <p className="text-xs uppercase tracking-wider text-muted">Invirtiendo en dólares</p>
             <p className="mt-1 num font-display text-2xl font-bold text-ink break-words">{fmtMoney(usdInPyg, "PYG")}</p>
             <p className="text-xs text-muted num">{fmtMoney(usdFinal, "USD")} a Gs. {Math.round(tcFinal).toLocaleString("es-PY")}</p>
-            {winner === "USD" && <Pill className="mt-2 bg-em text-white">Mejor resultado</Pill>}
+            {winner === "USD" && <Pill className="mt-2 bg-em text-navyfg">Mejor resultado</Pill>}
           </div>
         </div>
         <div className="rounded-2xl bg-navy text-navyfg p-5">
@@ -2122,7 +2124,7 @@ function Perfil() {
               </ul>
               <div className="mt-6 flex flex-wrap gap-3">
                 <button onClick={reset} className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-line font-semibold text-ink hover:bg-soft"><Icon name="RotateCcw" className="w-4 h-4" /> Repetir test</button>
-                <button onClick={() => scrollTo("simulador")} className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-em text-white font-semibold hover:brightness-110">Simular con esta idea <Icon name="ArrowRight" className="w-4 h-4" /></button>
+                <button onClick={() => scrollTo("simulador")} className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-em text-navyfg font-semibold hover:brightness-110">Simular con esta idea <Icon name="ArrowRight" className="w-4 h-4" /></button>
               </div>
               <div className="mt-4"><ShareButtons text={"Hice el test de perfil de inversionista y soy " + profile + ". ¿Qué perfil tenés vos?"} /></div>
             </div>
@@ -2432,7 +2434,7 @@ function Quiz() {
               <div className="fade-in mt-5 rounded-xl bg-soft p-4">
                 <p className={"font-bold " + (picked === q[2] ? "text-em" : "text-danger")}>{picked === q[2] ? "¡Correcto!" : "Incorrecto"}</p>
                 <p className="mt-1 text-sm text-ink">{q[3]}</p>
-                <button onClick={next} className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-em text-white font-semibold hover:brightness-110">
+                <button onClick={next} className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-em text-navyfg font-semibold hover:brightness-110">
                   {i === QUIZ.length - 1 ? "Ver resultado" : "Siguiente"} <Icon name="ArrowRight" className="w-4 h-4" />
                 </button>
               </div>
@@ -2484,7 +2486,7 @@ function DatosOficiales() {
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {OFFICIAL.map(([ic, t, d, url]) => (
           <a key={t} href={url} target="_blank" rel="noopener" className="group flex gap-4 rounded-2xl border border-line bg-card p-5 hover:border-em/50 hover:-translate-y-0.5 transition">
-            <span className="grid place-items-center w-11 h-11 shrink-0 rounded-xl bg-soft text-ink group-hover:bg-em group-hover:text-white transition"><Icon name={ic} /></span>
+            <span className="grid place-items-center w-11 h-11 shrink-0 rounded-xl bg-soft text-ink group-hover:bg-em group-hover:text-navyfg transition"><Icon name={ic} /></span>
             <div className="min-w-0">
               <p className="font-bold text-ink flex items-center gap-1.5">{t} <Icon name="ArrowUpRight" className="w-4 h-4 text-muted group-hover:text-em" /></p>
               <p className="mt-1 text-sm text-muted">{d}</p>
@@ -2541,7 +2543,7 @@ function Mitos() {
         {MYTHS.map(([m, r], k) => (
           <button key={k} id={"mito-" + k} onClick={() => setOpen((o) => ({ ...o, [k]: !o[k] }))} aria-expanded={!!open[k]}
             className={"text-left rounded-2xl border p-5 min-h-[170px] flex flex-col transition " + (open[k] ? "border-em bg-emsoft" : "border-line bg-card hover:border-em/50")}>
-            <Pill className={open[k] ? "bg-em text-white self-start" : "bg-dangersoft text-danger self-start"}>{open[k] ? "Realidad" : "Mito"}</Pill>
+            <Pill className={open[k] ? "bg-em text-navyfg self-start" : "bg-dangersoft text-danger self-start"}>{open[k] ? "Realidad" : "Mito"}</Pill>
             <p className={"mt-3 font-bold " + (open[k] ? "text-muted line-through text-sm" : "text-ink text-lg")}>«{m}»</p>
             {open[k] ? <p className="fade-in mt-2 text-ink">{r}</p> : <p className="mt-auto pt-3 text-sm text-em font-semibold inline-flex items-center gap-1">Ver la realidad <Icon name="ArrowRight" className="w-4 h-4" /></p>}
           </button>
@@ -2612,7 +2614,7 @@ function Estafas() {
           <p className="font-mono text-xs uppercase tracking-widest text-up">Qué hacer</p>
           <ol className="mt-4 space-y-4">
             {[["Verificá", "Buscá la entidad en la lista del BCP y de la BVA (sección Fuentes oficiales)."], ["No transfieras", "Nunca envíes dinero a cuentas personales ni compartas claves."], ["Pedí todo por escrito", "Contrato, prospecto, tarifario y datos de la entidad."], ["Denunciá", "Si sospechás una estafa, informá a la Superintendencia de Valores del BCP y a la Policía Nacional."]].map(([t, d], k) => (
-              <li key={t} className="flex gap-3"><span className="grid place-items-center w-7 h-7 shrink-0 rounded-full bg-em text-white font-mono text-sm">{k + 1}</span><div><p className="font-bold">{t}</p><p className="text-sm opacity-80">{d}</p></div></li>
+              <li key={t} className="flex gap-3"><span className="grid place-items-center w-7 h-7 shrink-0 rounded-full bg-em text-navyfg font-mono text-sm">{k + 1}</span><div><p className="font-bold">{t}</p><p className="text-sm opacity-80">{d}</p></div></li>
             ))}
           </ol>
         </aside>
@@ -2920,9 +2922,9 @@ function Estrategias() {
             <div className="min-w-0 space-y-4">
               <div>
                 <p className="text-sm text-muted mb-1">Hoy</p>
-                <div className="flex h-8 rounded-lg overflow-hidden font-mono text-xs"><div className="bg-navy text-navyfg grid place-items-center" style={{ width: curFixed + "%" }}>{Math.round(curFixed)} %</div><div className="bg-amber text-white grid place-items-center flex-1">{Math.round(100 - curFixed)} %</div></div>
+                <div className="flex h-8 rounded-lg overflow-hidden font-mono text-xs"><div className="bg-navy text-navyfg grid place-items-center" style={{ width: curFixed + "%" }}>{Math.round(curFixed)} %</div><div className="bg-amber text-navyfg grid place-items-center flex-1">{Math.round(100 - curFixed)} %</div></div>
                 <p className="text-sm text-muted mt-3 mb-1">Objetivo</p>
-                <div className="flex h-8 rounded-lg overflow-hidden font-mono text-xs"><div className="bg-navy text-navyfg grid place-items-center" style={{ width: toNum(target) + "%" }}>{toNum(target)} %</div><div className="bg-amber text-white grid place-items-center flex-1">{100 - toNum(target)} %</div></div>
+                <div className="flex h-8 rounded-lg overflow-hidden font-mono text-xs"><div className="bg-navy text-navyfg grid place-items-center" style={{ width: toNum(target) + "%" }}>{toNum(target)} %</div><div className="bg-amber text-navyfg grid place-items-center flex-1">{100 - toNum(target)} %</div></div>
                 <div className="flex gap-4 mt-2 text-xs text-muted"><span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-sm bg-navy" />Renta fija</span><span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-sm bg-amber" />Renta variable</span></div>
               </div>
               <div className="rounded-2xl bg-navy text-navyfg p-5">
@@ -3092,7 +3094,7 @@ function ExpDerechos() {
         <p className="font-mono text-xs uppercase tracking-widest text-up">Cómo hacer un reclamo</p>
         <ol className="mt-4 space-y-4">
           {[["Reuní la documentación", "Comprobantes, estados de cuenta, correos y contratos relacionados con el problema."], ["Reclamá por escrito a tu Casa de Bolsa", "Describí el problema, adjuntá la documentación y pedí una respuesta formal con fecha."], ["Si no hay solución, acudí al regulador", "Presentá tu denuncia ante la Superintendencia de Valores del Banco Central del Paraguay."], ["Guardá constancia de todo", "Números de nota, fechas y nombres de quienes te atendieron."]].map(([t, dd], k) => (
-            <li key={t} className="flex gap-3"><span className="grid place-items-center w-7 h-7 shrink-0 rounded-full bg-em text-white font-mono text-sm">{k + 1}</span><div><p className="font-bold">{t}</p><p className="text-sm opacity-80">{dd}</p></div></li>
+            <li key={t} className="flex gap-3"><span className="grid place-items-center w-7 h-7 shrink-0 rounded-full bg-em text-navyfg font-mono text-sm">{k + 1}</span><div><p className="font-bold">{t}</p><p className="text-sm opacity-80">{dd}</p></div></li>
           ))}
         </ol>
       </div>
@@ -3738,7 +3740,7 @@ function ProPractica() {
             <input id="dia-inst" value={draft.inst} onChange={(e) => setDraft({ ...draft, inst: e.target.value })} placeholder="Instrumento (por ejemplo: bono AApy 9 % a 3 años)" className={FIELD + " font-sans"} />
             <input id="dia-why" value={draft.why} onChange={(e) => setDraft({ ...draft, why: e.target.value })} placeholder="¿Por qué lo elegís?" className={FIELD + " font-sans"} />
             <input id="dia-exp" value={draft.expect} onChange={(e) => setDraft({ ...draft, expect: e.target.value })} placeholder="¿Qué esperás que pase?" className={FIELD + " font-sans"} />
-            <button onClick={addEntry} className="justify-self-start inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-em text-white font-semibold hover:brightness-110"><Icon name="Plus" className="w-4 h-4" /> Agregar al diario</button>
+            <button onClick={addEntry} className="justify-self-start inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-em text-navyfg font-semibold hover:brightness-110"><Icon name="Plus" className="w-4 h-4" /> Agregar al diario</button>
           </div>
           {journal.length > 0 && (
             <ul className="mt-4 space-y-2 max-h-60 overflow-y-auto">
@@ -3772,7 +3774,7 @@ function ProPractica() {
               <div className="fade-in mt-3 rounded-xl bg-soft p-3 text-sm">
                 <p className={"font-bold " + (qp === QUIZ_PRO[qi][2] ? "text-em" : "text-danger")}>{qp === QUIZ_PRO[qi][2] ? "¡Correcto!" : "Incorrecto"}</p>
                 <p className="mt-1 text-ink">{QUIZ_PRO[qi][3]}</p>
-                <button onClick={() => { const na = [...qa, qp]; setQa(na); setQp(null); setQi(qi + 1); if (na.length === QUIZ_PRO.length && na.filter((a, k) => a === QUIZ_PRO[k][2]).length >= 7) setTimeout(() => celebrate(), 150); }} className="mt-3 inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-em text-white font-semibold">{qi === QUIZ_PRO.length - 1 ? "Ver resultado" : "Siguiente"} <Icon name="ArrowRight" className="w-4 h-4" /></button>
+                <button onClick={() => { const na = [...qa, qp]; setQa(na); setQp(null); setQi(qi + 1); if (na.length === QUIZ_PRO.length && na.filter((a, k) => a === QUIZ_PRO[k][2]).length >= 7) setTimeout(() => celebrate(), 150); }} className="mt-3 inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-em text-navyfg font-semibold">{qi === QUIZ_PRO.length - 1 ? "Ver resultado" : "Siguiente"} <Icon name="ArrowRight" className="w-4 h-4" /></button>
               </div>
             )}
           </div>
@@ -3838,7 +3840,7 @@ const reduceMotion = () => !!(window.matchMedia && window.matchMedia("(prefers-r
 /* ---------- celebración (confeti) ---------- */
 function celebrate(x, y) {
   if (reduceMotion() || !document.body) return;
-  const colors = ["#059669", "#34D399", "#FBBF24", "#F8FAFC", "#B45309", "#38BDF8"];
+  const colors = ["rgb(var(--em))", "rgb(var(--up))", "rgb(var(--gold))", "rgb(var(--navy-fg))", "rgb(var(--amber))", "rgb(var(--em))"];
   const box = document.createElement("div");
   box.className = "confetti";
   box.setAttribute("aria-hidden", "true");
@@ -4038,7 +4040,7 @@ function ProgressPanel({ onClose }) {
               return (
                 <li key={v.id} className="rounded-xl border border-line p-3">
                   <div className="flex items-center justify-between gap-2">
-                    <a href={"#" + v.id} onClick={onClose} className="flex items-center gap-2 font-semibold text-ink hover:text-em"><Icon name={v.icon} className="w-4 h-4 text-em" />{v.label}</a>
+                    <a href={"#" + v.id} onClick={onClose} className="flex items-center gap-2 font-semibold text-ink hover:text-em"><BrandMark name={v.id} className="w-4 h-4 text-em" />{v.label}</a>
                     <span className="num text-xs font-semibold text-muted">{d}/{v.sections.length}</span>
                   </div>
                   <div className="mt-2 h-1.5 rounded-full bg-soft overflow-hidden"><div className="h-full rounded-full bg-em transition-all duration-700" style={{ width: (d / v.sections.length) * 100 + "%" }} /></div>
@@ -4061,7 +4063,7 @@ function ProgressPanel({ onClose }) {
               <div className="rounded-xl border border-danger/30 bg-dangersoft p-3 text-sm text-ink">
                 <p>¿Borrar los temas vistos y las insignias de este navegador?</p>
                 <div className="mt-2 flex gap-2">
-                  <button onClick={() => { resetSeen(); setConfirm(false); }} className="px-3 py-1.5 rounded-lg bg-danger text-white font-semibold">Sí, borrar</button>
+                  <button onClick={() => { resetSeen(); setConfirm(false); }} className="px-3 py-1.5 rounded-lg bg-danger text-navyfg font-semibold">Sí, borrar</button>
                   <button onClick={() => setConfirm(false)} className="px-3 py-1.5 rounded-lg border border-line font-semibold">Cancelar</button>
                 </div>
               </div>
@@ -4170,7 +4172,7 @@ function Buscador({ onClose }) {
             <li key={r.i} id={"bus-" + i} role="option" aria-selected={i === sel}>
               <button type="button" onMouseMove={() => setSel(i)} onClick={() => pick(r)}
                 className={"w-full text-left flex gap-3 items-start rounded-xl px-3 py-2.5 transition " + (i === sel ? "bg-emsoft" : "")}>
-                <span className={"grid place-items-center w-9 h-9 rounded-lg shrink-0 " + (i === sel ? "bg-em text-white" : "bg-soft text-em")}><Icon name={r.icon} className="w-4 h-4" /></span>
+                <span className={"grid place-items-center w-9 h-9 rounded-lg shrink-0 " + (i === sel ? "bg-em text-navyfg" : "bg-soft text-em")}><Icon name={r.icon} className="w-4 h-4" /></span>
                 <span className="min-w-0 flex-1">
                   <span className="flex items-center gap-2 flex-wrap"><span className="font-semibold text-ink">{r.label}</span><span className="text-[10px] font-mono uppercase tracking-wider text-muted">{r.k}</span></span>
                   <span className={"text-sm text-muted " + (exp === r.i ? "block" : "line-clamp-2")}>{r.sub}</span>
@@ -4283,7 +4285,7 @@ function BenefitCard({ ic, t, d, ex }) {
   const [open, setOpen] = useState(false);
   return (
     <article className={"group rounded-2xl border bg-card p-5 transition flex flex-col " + (open ? "border-em" : "border-line hover:border-em/50")}>
-      <span className="grid place-items-center w-11 h-11 rounded-xl bg-emsoft text-em group-hover:bg-em group-hover:text-white group-hover:-rotate-6 transition"><Icon name={ic} /></span>
+      <span className="grid place-items-center w-11 h-11 rounded-xl bg-emsoft text-em group-hover:bg-em group-hover:text-navyfg group-hover:-rotate-6 transition"><Icon name={ic} /></span>
       <h3 className="mt-4 font-bold text-ink">{t}</h3>
       <p className="mt-1 text-sm text-muted">{d}</p>
       {open && <p className="fade-in mt-3 rounded-xl bg-emsoft p-3 text-sm text-ink"><span className="font-semibold text-em">Ejemplo: </span>{ex}</p>}
@@ -4526,7 +4528,7 @@ function ListenButton({ id }) {
   useEffect(() => { const f = (e) => setOn(e.detail === id); window.addEventListener("bpy-speak", f); return () => window.removeEventListener("bpy-speak", f); }, [id]);
   return (
     <button type="button" onClick={() => (on ? stopSpeak() : speakSection(id))} aria-pressed={on} title={on ? "Detener la lectura" : "Escuchar esta sección en voz alta"}
-      className={"inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-sm font-semibold transition " + (on ? "border-em bg-em text-white" : "border-line bg-card text-ink hover:border-em hover:text-em")}>
+      className={"inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-sm font-semibold transition " + (on ? "border-em bg-em text-navyfg" : "border-line bg-card text-ink hover:border-em hover:text-em")}>
       <Icon name={on ? "Square" : "Volume2"} className="w-4 h-4" />{on ? "Detener" : "Escuchar"}
       {on && <span className="eq" aria-hidden="true"><i /><i /><i /></span>}
     </button>
@@ -4574,7 +4576,7 @@ function SectionAids({ id }) {
       <ul className="mt-3 space-y-2.5">
         {sum.map((b, i) => (
           <li key={i} className="flex gap-2.5 text-ink leading-snug">
-            <span aria-hidden="true" className="mt-0.5 grid place-items-center w-5 h-5 rounded-full bg-em text-white text-[11px] font-bold shrink-0">{i + 1}</span><span>{b}</span>
+            <span aria-hidden="true" className="mt-0.5 grid place-items-center w-5 h-5 rounded-full bg-em text-navyfg text-[11px] font-bold shrink-0">{i + 1}</span><span>{b}</span>
           </li>
         ))}
       </ul>
@@ -4657,7 +4659,7 @@ function SectionCheck({ id }) {
           return (
             <button key={i} type="button" onClick={(e) => choose(i, e)} disabled={isSolved && !ok}
               className={"flex items-center gap-3 text-left rounded-xl border px-4 py-3 transition " + (ok ? "border-em bg-emsoft text-ink font-semibold" : bad ? "border-danger/50 bg-dangersoft text-muted" : isSolved ? "border-line text-muted opacity-60" : "border-line text-ink hover:border-em hover:bg-soft")}>
-              <span className={"grid place-items-center w-6 h-6 rounded-full text-xs font-bold shrink-0 " + (ok ? "bg-em text-white" : bad ? "bg-danger text-white" : "bg-soft text-muted")}>
+              <span className={"grid place-items-center w-6 h-6 rounded-full text-xs font-bold shrink-0 " + (ok ? "bg-em text-navyfg" : bad ? "bg-danger text-navyfg" : "bg-soft text-muted")}>
                 {ok ? <Icon name="Check" className="w-3.5 h-3.5" /> : bad ? <Icon name="X" className="w-3.5 h-3.5" /> : String.fromCharCode(65 + i)}
               </span>{o}
             </button>
@@ -4716,7 +4718,7 @@ function Basico() {
             <article key={a.term} className={"rounded-2xl border bg-card transition " + (on ? "border-em shadow-lg" : "border-line hover:border-em/50")}>
               <button type="button" onClick={() => setOpen(on ? null : k)} aria-expanded={on} className="w-full text-left p-5">
                 <span className="flex items-center justify-between gap-2">
-                  <span className={"grid place-items-center w-11 h-11 rounded-xl transition " + (on ? "bg-em text-white" : "bg-emsoft text-em")}><Icon name={a.icon} /></span>
+                  <span className={"grid place-items-center w-11 h-11 rounded-xl transition " + (on ? "bg-em text-navyfg" : "bg-emsoft text-em")}><Icon name={a.icon} /></span>
                   <Icon name="ChevronDown" className={"w-5 h-5 text-muted transition-transform " + (on ? "rotate-180 text-em" : "")} />
                 </span>
                 <span className="mt-4 block font-display text-xl font-bold text-ink">{a.term}</span>
@@ -4787,8 +4789,8 @@ function FlujoDinero() {
           const showArrow = i < FLOW_NODES.length - 1;
           return (
             <React.Fragment key={l}>
-              <li className={"flex-1 flex sm:flex-col items-center gap-3 sm:gap-2 rounded-2xl border p-3 sm:py-4 text-left sm:text-center transition duration-300 " + (active ? "border-em bg-em text-white shadow-lg sm:scale-105" : visited ? "border-em/50 bg-emsoft text-ink" : "border-line text-muted")}>
-                <span className={"grid place-items-center w-10 h-10 rounded-xl shrink-0 " + (active ? "bg-white/20" : visited ? "bg-em/15 text-em" : "bg-soft")}><Icon name={ic} /></span>
+              <li className={"flex-1 flex sm:flex-col items-center gap-3 sm:gap-2 rounded-2xl border p-3 sm:py-4 text-left sm:text-center transition duration-300 " + (active ? "border-em bg-em text-navyfg shadow-lg sm:scale-105" : visited ? "border-em/50 bg-emsoft text-ink" : "border-line text-muted")}>
+                <span className={"grid place-items-center w-10 h-10 rounded-xl shrink-0 " + (active ? "bg-navyfg/20" : visited ? "bg-em/15 text-em" : "bg-soft")}><Icon name={ic} /></span>
                 <span className="text-sm font-semibold leading-tight">{l}</span>
               </li>
               {showArrow && (
@@ -4802,7 +4804,7 @@ function FlujoDinero() {
         })}
       </ol>
       <div key={dir + step} className="pop-in mt-5 rounded-2xl bg-soft p-4 sm:p-5 flex gap-4 items-start">
-        <span className="grid place-items-center w-9 h-9 rounded-full bg-em text-white font-mono font-bold shrink-0">{step + 1}</span>
+        <span className="grid place-items-center w-9 h-9 rounded-full bg-em text-navyfg font-mono font-bold shrink-0">{step + 1}</span>
         <div className="min-w-0">
           <p className="font-mono text-[11px] uppercase tracking-widest text-muted">Paso {step + 1} de {steps.length} · {FLOW_NODES[node][1]}</p>
           <p className="mt-1 text-ink text-lg leading-snug">{text}</p>
@@ -4810,7 +4812,7 @@ function FlujoDinero() {
       </div>
       <div className="mt-4 flex flex-wrap items-center gap-2">
         <button type="button" onClick={() => { setPlay(false); setStep(Math.max(0, step - 1)); }} disabled={step === 0} className="inline-flex items-center gap-1.5 rounded-xl border border-line px-4 py-2 text-sm font-semibold text-ink hover:bg-soft disabled:opacity-40 transition"><Icon name="ArrowLeft" className="w-4 h-4" />Anterior</button>
-        <button type="button" onClick={() => { setPlay(false); setStep(Math.min(steps.length - 1, step + 1)); }} disabled={step === steps.length - 1} className="inline-flex items-center gap-1.5 rounded-xl bg-em px-4 py-2 text-sm font-semibold text-white hover:brightness-110 disabled:opacity-40 transition">Siguiente<Icon name="ArrowRight" className="w-4 h-4" /></button>
+        <button type="button" onClick={() => { setPlay(false); setStep(Math.min(steps.length - 1, step + 1)); }} disabled={step === steps.length - 1} className="inline-flex items-center gap-1.5 rounded-xl bg-em px-4 py-2 text-sm font-semibold text-navyfg hover:brightness-110 disabled:opacity-40 transition">Siguiente<Icon name="ArrowRight" className="w-4 h-4" /></button>
         <button type="button" onClick={() => { if (!play && step === steps.length - 1) setStep(0); setPlay(!play); }} className="inline-flex items-center gap-1.5 rounded-xl border border-line px-4 py-2 text-sm font-semibold text-ink hover:bg-soft transition"><Icon name={play ? "Pause" : "Play"} className="w-4 h-4" />{play ? "Pausar" : "Ver animado"}</button>
       </div>
       <p className="mt-4 text-sm text-muted flex gap-2"><Icon name="Info" className="w-4 h-4 shrink-0 mt-0.5 text-em" />Todo el recorrido está supervisado por la Superintendencia de Valores del BCP. Si comprás un título que ya existe (mercado secundario), tu dinero va al inversor que te lo vende, no al emisor.</p>
@@ -4861,7 +4863,7 @@ function CasoMaria() {
             <li key={k} className="shrink-0">
               <button type="button" onClick={() => setI(k)} aria-current={i === k ? "step" : undefined}
                 className={"w-full flex items-center gap-3 text-left rounded-xl border px-3 py-2.5 transition " + (i === k ? "border-em bg-emsoft" : "border-line bg-card hover:bg-soft")}>
-                <span className={"grid place-items-center w-8 h-8 rounded-lg shrink-0 " + (k < i ? "bg-em text-white" : i === k ? "bg-em/15 text-em" : "bg-soft text-muted")}>{k < i ? <Icon name="Check" className="w-4 h-4" /> : <Icon name={x.icon} className="w-4 h-4" />}</span>
+                <span className={"grid place-items-center w-8 h-8 rounded-lg shrink-0 " + (k < i ? "bg-em text-navyfg" : i === k ? "bg-em/15 text-em" : "bg-soft text-muted")}>{k < i ? <Icon name="Check" className="w-4 h-4" /> : <Icon name={x.icon} className="w-4 h-4" />}</span>
                 <span className="min-w-0"><span className="block font-mono text-[11px] uppercase tracking-wider text-muted whitespace-nowrap">{x.when}</span><span className="block text-sm font-semibold text-ink whitespace-nowrap">{x.title}</span></span>
               </button>
             </li>
@@ -4869,7 +4871,7 @@ function CasoMaria() {
         </ol>
         <div key={i} className="fade-in rounded-2xl border border-line bg-card p-5 sm:p-7 min-w-0">
           <div className="flex items-center gap-3">
-            <span className="grid place-items-center w-12 h-12 rounded-2xl bg-em text-white shrink-0"><Icon name={s.icon} /></span>
+            <span className="grid place-items-center w-12 h-12 rounded-2xl bg-em text-navyfg shrink-0"><Icon name={s.icon} /></span>
             <div><p className="font-mono text-xs uppercase tracking-widest text-em">{s.when}</p><h3 className="font-display text-2xl font-bold text-ink">{s.title}</h3></div>
           </div>
           {s.text && <p className="mt-4 text-lg text-ink leading-relaxed">{s.text}</p>}
@@ -4890,9 +4892,9 @@ function CasoMaria() {
           <div className="mt-6 flex flex-wrap items-center gap-2">
             <button type="button" onClick={() => setI(Math.max(0, i - 1))} disabled={i === 0} className="inline-flex items-center gap-1.5 rounded-xl border border-line px-4 py-2 text-sm font-semibold text-ink hover:bg-soft disabled:opacity-40 transition"><Icon name="ArrowLeft" className="w-4 h-4" />Anterior</button>
             {i < stages.length - 1 ? (
-              <button type="button" onClick={() => setI(i + 1)} className="inline-flex items-center gap-1.5 rounded-xl bg-em px-4 py-2 text-sm font-semibold text-white hover:brightness-110 transition">Siguiente etapa<Icon name="ArrowRight" className="w-4 h-4" /></button>
+              <button type="button" onClick={() => setI(i + 1)} className="inline-flex items-center gap-1.5 rounded-xl bg-em px-4 py-2 text-sm font-semibold text-navyfg hover:brightness-110 transition">Siguiente etapa<Icon name="ArrowRight" className="w-4 h-4" /></button>
             ) : (
-              <button type="button" onClick={() => setI(0)} className="inline-flex items-center gap-1.5 rounded-xl bg-em px-4 py-2 text-sm font-semibold text-white hover:brightness-110 transition"><Icon name="RotateCcw" className="w-4 h-4" />Ver de nuevo</button>
+              <button type="button" onClick={() => setI(0)} className="inline-flex items-center gap-1.5 rounded-xl bg-em px-4 py-2 text-sm font-semibold text-navyfg hover:brightness-110 transition"><Icon name="RotateCcw" className="w-4 h-4" />Ver de nuevo</button>
             )}
             <button type="button" onClick={() => scrollTo(s.go)} className="ml-auto inline-flex items-center gap-1 text-sm font-semibold text-em hover:underline">Aprender más sobre esto <Icon name="ArrowRight" className="w-3.5 h-3.5" /></button>
           </div>
@@ -4975,7 +4977,7 @@ function WizardHost() {
             <div className="mt-5 grid gap-2">
               {WZ[step].o.map(([v, l, ic, d]) => (
                 <button key={v} type="button" onClick={() => pickOpt(WZ[step].id, v)} className={"group flex items-center gap-3 text-left rounded-2xl border p-3.5 transition " + (ans[WZ[step].id] === v ? "border-em bg-emsoft" : "border-line hover:border-em hover:bg-soft")}>
-                  <span className="grid place-items-center w-10 h-10 rounded-xl bg-emsoft text-em shrink-0 group-hover:bg-em group-hover:text-white transition"><Icon name={ic} /></span>
+                  <span className="grid place-items-center w-10 h-10 rounded-xl bg-emsoft text-em shrink-0 group-hover:bg-em group-hover:text-navyfg transition"><Icon name={ic} /></span>
                   <span className="min-w-0 flex-1"><span className="block font-semibold text-ink">{l}</span>{d && <span className="block text-sm text-muted leading-snug">{d}</span>}</span>
                   <Icon name="ArrowRight" className="w-4 h-4 text-em opacity-0 group-hover:opacity-100 transition" />
                 </button>
@@ -4991,7 +4993,7 @@ function WizardHost() {
               {route.map((id, k) => (
                 <li key={id}>
                   <button type="button" onClick={() => { close(); goRoute(id, ans.goal); }} className="group w-full flex items-center gap-3 text-left rounded-xl border border-line p-3 hover:border-em hover:bg-soft transition">
-                    <span className="grid place-items-center w-8 h-8 rounded-full bg-em text-white font-mono text-sm font-bold shrink-0">{k + 1}</span>
+                    <span className="grid place-items-center w-8 h-8 rounded-full bg-em text-navyfg font-mono text-sm font-bold shrink-0">{k + 1}</span>
                     <span className="min-w-0 flex-1"><span className="block font-semibold text-ink">{SEC_LABEL[id][0]}</span><span className="block text-xs text-muted">{SEC_LABEL[id][1]}</span></span>
                     <Icon name="ArrowRight" className="w-4 h-4 text-em group-hover:translate-x-0.5 transition" />
                   </button>
@@ -5010,7 +5012,7 @@ function WizardHost() {
             <p className="mt-4 text-sm text-muted flex gap-2"><Icon name="Info" className="w-4 h-4 shrink-0 mt-0.5 text-em" />{ans.level === "bolsa" ? "Activamos el modo Experto: vas a ver todos los temas." : "Activamos el modo Simple: los temas avanzados quedan plegados. Podés cambiarlo con el botón Aa del menú."}</p>
             <p className="mt-2 text-xs text-muted">Es una guía educativa, no una recomendación personal de inversión.</p>
             <div className="mt-5 flex flex-wrap gap-2">
-              <button type="button" onClick={() => { close(); goRoute(route[0], ans.goal); }} className="shine inline-flex items-center gap-2 rounded-xl bg-em px-5 py-2.5 font-semibold text-white hover:brightness-110 transition">Empezar la ruta <Icon name="ArrowRight" className="w-4 h-4" /></button>
+              <button type="button" onClick={() => { close(); goRoute(route[0], ans.goal); }} className="shine inline-flex items-center gap-2 rounded-xl bg-em px-5 py-2.5 font-semibold text-navyfg hover:brightness-110 transition">Empezar la ruta <Icon name="ArrowRight" className="w-4 h-4" /></button>
               <button type="button" onClick={() => { setStep(0); setAns({}); }} className="inline-flex items-center gap-2 rounded-xl border border-line px-5 py-2.5 font-semibold text-ink hover:bg-soft transition"><Icon name="RotateCcw" className="w-4 h-4" />Responder de nuevo</button>
             </div>
           </div>
@@ -5030,7 +5032,7 @@ function RutaBar() {
       <div className="mt-2 sm:mt-3 rounded-2xl bg-navy text-navyfg p-4 flex flex-col sm:flex-row sm:items-center gap-3">
         <span className="grid place-items-center w-11 h-11 rounded-xl bg-up/15 text-up shrink-0"><Icon name="Route" /></span>
         <div className="flex-1 min-w-0"><p className="font-bold">¿No sabés por dónde empezar?</p><p className="text-sm opacity-80">Respondé 3 preguntas y te armamos una ruta a tu medida.</p></div>
-        <button type="button" onClick={openWizard} className="shine inline-flex items-center justify-center gap-2 rounded-xl bg-em px-5 py-2.5 font-semibold text-white hover:brightness-110 transition shrink-0">Armar mi ruta <Icon name="ArrowRight" className="w-4 h-4" /></button>
+        <button type="button" onClick={openWizard} className="shine inline-flex items-center justify-center gap-2 rounded-xl bg-em px-5 py-2.5 font-semibold text-navyfg hover:brightness-110 transition shrink-0">Armar mi ruta <Icon name="ArrowRight" className="w-4 h-4" /></button>
       </div>
     );
   }
@@ -5103,7 +5105,7 @@ function ReadingMenu() {
                 </button>
               ))}
             </div>
-            <button type="button" onClick={() => { setOpen(false); openWizard(); }} className="mt-4 w-full inline-flex items-center justify-center gap-2 rounded-xl bg-em text-white font-semibold py-2.5 hover:brightness-110 transition"><Icon name="Route" className="w-4 h-4" />Armar mi ruta en 3 preguntas</button>
+            <button type="button" onClick={() => { setOpen(false); openWizard(); }} className="mt-4 w-full inline-flex items-center justify-center gap-2 rounded-xl bg-em text-navyfg font-semibold py-2.5 hover:brightness-110 transition"><Icon name="Route" className="w-4 h-4" />Armar mi ruta en 3 preguntas</button>
             <ul className="mt-3 space-y-1.5 text-xs text-muted">
               {HL && <li className="flex gap-2"><Icon name="MousePointerClick" className="w-4 h-4 shrink-0 text-em" />Tocá las palabras subrayadas para ver qué significan.</li>}
               {canSpeak && <li className="flex gap-2"><Icon name="Volume2" className="w-4 h-4 shrink-0 text-em" />Usá «Escuchar» en cada sección para oírla en voz alta.</li>}
