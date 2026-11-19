@@ -4395,7 +4395,7 @@ function scanGloss() {
   try { CSS.highlights.set("gloss", new Highlight(...out.map((x) => x.r))); } catch (e) { /* nada */ }
   if (out.length && !store.get("bpy-gloss-tip", false)) {
     store.set("bpy-gloss-tip", true);
-    setTimeout(() => toast("Palabras con definición", "Tocá las palabras subrayadas en verde para ver qué significan.", "BookOpen"), 1200);
+    setTimeout(() => toast("Palabras con definición", "Tocá las palabras subrayadas para ver qué significan.", "BookOpen"), 1200);
   }
 }
 
